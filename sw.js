@@ -24,6 +24,22 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Para la página principal: intenta traer siempre la versión más nueva desde internet.
+  // Así, cuando subas cambios a GitHub, la próxima vez que se abra la app instalada
+  // se van a ver solos, sin tener que reinstalar nada.
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request)) // sin internet: usa la última guardada
+    );
+    return;
+  }
+  // Para íconos y manifest (casi nunca cambian): usa la copia guardada primero, es más rápido.
   event.respondWith(
     caches.match(event.request).then((response) => response || fetch(event.request))
   );
