@@ -363,7 +363,7 @@
   }
 
   @media (prefers-reduced-motion: reduce){
-    *{animation-duration:0.120s !important; animation-iteration-count:1 !important;}
+    *{animation-duration:0.001s !important; animation-iteration-count:1 !important;}
   }
 </style>
 </head>
@@ -488,7 +488,7 @@ const APP_VERSION = "2026-07-11-3";
   } else if(prevVersion !== APP_VERSION){
     // sí hay una versión nueva: mostramos el aviso unos segundos
     localStorage.setItem('para_ti_version', APP_VERSION);
-    setTimeout(() => overlay.classList.add('hide'), 2200);
+    setTimeout(() => overlay.classList.add('hide'), 40000);
   } else {
     // misma versión de siempre: nada que avisar
     overlay.classList.add('hide');
