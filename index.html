@@ -13,8 +13,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   /* ============================================================
-     PERSONALIZA AQUÍ (colores, textos ya están abajo en el HTML)
-     El usuario y la contraseña se personalizan en el <script>, al final del archivo.
+   
      ============================================================ */
 
   :root{
@@ -72,6 +71,28 @@
     display:none;backdrop-filter:blur(6px);
   }
   .install-btn.show{display:block;}
+
+  /* ---------- AVISO DE ACTUALIZACIÓN ---------- */
+  .update-overlay{
+    position:fixed;inset:0;z-index:9999;
+    background:radial-gradient(ellipse at center, #14103a 0%, var(--space-black) 80%);
+    display:flex;align-items:center;justify-content:center;
+    opacity:1;transition:opacity .7s ease;
+  }
+  .update-overlay.hide{opacity:0;pointer-events:none;}
+  .update-box{text-align:center;color:var(--cloud-white);}
+  .update-box p{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:1.05rem;margin-top:20px;letter-spacing:.3px;
+    padding:0 30px;
+  }
+  .update-spinner{
+    width:42px;height:42px;margin:0 auto;border-radius:50%;
+    border:3px solid rgba(255,255,255,0.15);
+    border-top-color:var(--pink-glow);
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
   @keyframes shake{
     0%,100%{transform:translateX(0);}
     20%{transform:translateX(-8px);}
@@ -348,6 +369,13 @@
 </head>
 <body>
 
+<div class="update-overlay" id="updateOverlay">
+  <div class="update-box">
+    <div class="update-spinner"></div>
+    <p>✨ Actualizando la mejor versión para ti</p>
+  </div>
+</div>
+
 <div id="app">
   <button class="install-btn" id="installBtn">📲 Instalar app</button>
 
@@ -433,14 +461,39 @@
 
 <script>
 /* ============================================================
+   
    ============================================================ */
-const VALID_USER = "mor";
+const VALID_USER = "mor"; 
 const VALID_PASS = "0109ES";
 
 /* ============================================================
-   ========================= */
+ 
+   ============================================================ */
 const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================ */
+
+/* ============================================================
+ 
+   ============================================================ */
+const APP_VERSION = "2026-07-11-1";
+
+(function checkForUpdate(){
+  const overlay = document.getElementById('updateOverlay');
+  const prevVersion = localStorage.getItem('para_ti_version');
+
+  if(prevVersion === null){
+    // primera vez que abre la página: no es una "actualización", solo entra directo
+    localStorage.setItem('para_ti_version', APP_VERSION);
+    overlay.classList.add('hide');
+  } else if(prevVersion !== APP_VERSION){
+    // sí hay una versión nueva: mostramos el aviso unos segundos
+    localStorage.setItem('para_ti_version', APP_VERSION);
+    setTimeout(() => overlay.classList.add('hide'), 2200);
+  } else {
+    // misma versión de siempre: nada que avisar
+    overlay.classList.add('hide');
+  }
+})();
 
 const scenes = {
   login: document.getElementById('scene-login'),
