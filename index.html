@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para ti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Dancing+Script:wght@500;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050416">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  /* ============================================================
+     PERSONALIZA AQUÍ (colores, textos ya están abajo en el HTML)
+     El usuario y la contraseña se personalizan en el <script>, al final del archivo.
+     ============================================================ */
+
+  :root{
+    --violet-deep:#2b1a49;
+    --violet-mid:#6a4390;
+    --coral:#ff9d7a;
+    --pink-glow:#ff7ab0;
+    --cloud-white:#f8f3ff;
+    --lavender:#d9c3ff;
+    --leaf:#4f6b45;
+    --space-black:#050416;
+    --space-navy:#0b0e2e;
+    --star-white:#fdfcf7;
+    --accent-violet:#b199ff;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;background:var(--space-black);overflow:hidden;font-family:'Quicksand',sans-serif;}
+  @supports (height: 100dvh){
+    html,body{height:100dvh;}
+  }
+
+  #app{position:fixed;inset:0;width:100%;height:100%;}
+
+  .scene{
+    position:fixed;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;
+    transition:opacity 1.4s ease;
+    overflow:hidden;
+  }
+  .scene.active{opacity:1;pointer-events:auto;}
+
+  /* ---------- ESCENA 1: LOGIN ---------- */
+  #scene-login{background:radial-gradient(ellipse at center, #14103a 0%, var(--space-black) 70%);}
+  .login-stars{position:absolute;inset:0;}
+  .login-card{
+    position:relative;z-index:2;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px);
+    border-radius:20px;
+    padding:44px 36px;
+    width:min(320px,85vw);
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    transition:transform .35s ease;
+  }
+  .login-card.shake{animation:shake .5s;}
+  .install-btn{
+    position:fixed;top:5%;right:5%;z-index:20;
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);
+    color:#fff;padding:8px 16px;border-radius:20px;
+    font-family:'Quicksand',sans-serif;font-size:.75rem;cursor:pointer;
+    display:none;backdrop-filter:blur(6px);
+  }
+  .install-btn.show{display:block;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-8px);}
+    40%{transform:translateX(8px);}
+    60%{transform:translateX(-6px);}
+    80%{transform:translateX(6px);}
+  }
+  .login-title{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;font-weight:500;
+    color:var(--cloud-white);
+    font-size:1.6rem;margin:0 0 6px;
+    letter-spacing:.5px;
+  }
+  .login-sub{color:rgba(255,255,255,0.55);font-size:.8rem;margin:0 0 26px;}
+  .login-card input{
+    width:100%;padding:12px 14px;margin-bottom:14px;
+    border-radius:10px;border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.07);color:#fff;font-size:16px;
+    font-family:'Quicksand',sans-serif;outline:none;
+    transition:border .2s ease, background .2s ease;
+  }
+  .login-card input::placeholder{color:rgba(255,255,255,0.4);}
+  .login-card input:focus{border-color:var(--accent-violet);background:rgba(255,255,255,0.11);}
+  .login-btn{
+    width:100%;padding:12px;border:none;border-radius:10px;
+    background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
+    color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;
+    font-size:.95rem;letter-spacing:.5px;cursor:pointer;margin-top:6px;
+    transition:filter .2s ease, transform .2s ease;
+  }
+  .login-btn:hover{filter:brightness(1.12);transform:translateY(-1px);}
+  .login-error{color:#ff9db3;font-size:.78rem;margin-top:14px;min-height:1em;opacity:0;transition:opacity .3s ease;}
+  .login-error.show{opacity:1;}
+
+  /* ---------- ESCENA 2: JARDÍN ---------- */
+  #scene-garden{
+    background:linear-gradient(to bottom, var(--violet-deep) 0%, var(--violet-mid) 45%, var(--coral) 100%);
+    animation:sky-breathe 14s ease-in-out infinite;
+  }
+  @keyframes sky-breathe{
+    0%,100%{filter:hue-rotate(0deg) brightness(1);}
+    50%{filter:hue-rotate(-8deg) brightness(1.05);}
+  }
+  .cloud{
+    position:absolute;background:rgba(255,255,255,0.5);
+    border-radius:50%;filter:blur(18px);
+    animation:drift linear infinite;
+  }
+  @keyframes drift{
+    from{transform:translateX(-10vw);}
+    to{transform:translateX(110vw);}
+  }
+  .ground{
+    position:absolute;bottom:0;left:0;right:0;height:38%;
+    background:linear-gradient(to bottom, #3a2a55 0%, #241a38 100%);
+    border-top-left-radius:50% 20px;border-top-right-radius:50% 20px;
+  }
+  .garden-note{
+    position:absolute;top:8%;left:50%;transform:translateX(-50%);
+    z-index:5;text-align:center;color:var(--cloud-white);
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:clamp(1rem,2.4vw,1.35rem);
+    text-shadow:0 2px 12px rgba(0,0,0,0.4);
+    padding:10px 24px;max-width:80vw;
+    animation:note-float 5s ease-in-out infinite;
+  }
+  @keyframes note-float{
+    0%,100%{transform:translateX(-50%) translateY(0);}
+    50%{transform:translateX(-50%) translateY(-6px);}
+  }
+  .flower{
+    position:absolute;
+    cursor:pointer;
+    transition:filter .3s ease;
+  }
+  .flower:hover{filter:brightness(1.15);}
+  .flower.wrong .flower-scale{animation:nope .45s ease;}
+  @keyframes nope{
+    0%,100%{transform:scale(var(--fscale,1)) rotate(0deg);}
+    30%{transform:scale(calc(var(--fscale,1) * 0.94)) rotate(-4deg);}
+    60%{transform:scale(calc(var(--fscale,1) * 0.94)) rotate(4deg);}
+  }
+  .flower.bloom .flower-scale{
+    animation:bloom 1.1s ease forwards;
+    filter:brightness(1.4) drop-shadow(0 0 18px var(--pink-glow));
+  }
+  @keyframes bloom{
+    0%{transform:scale(var(--fscale,1));}
+    50%{transform:scale(calc(var(--fscale,1) * 1.5));}
+    100%{transform:scale(calc(var(--fscale,1) * 2.1));opacity:0;}
+  }
+  .flower-scale{
+    transform:scale(var(--fscale,1));
+    transform-origin:bottom center;
+  }
+  .flower-sway{
+    animation:sway ease-in-out infinite;
+    transform-origin:bottom center;
+  }
+  @keyframes sway{
+    0%,100%{transform:rotate(-3deg);}
+    50%{transform:rotate(3deg);}
+  }
+  .flower__stem{
+    width:3px;height:38px;background:var(--leaf);
+    margin:0 auto;border-radius:2px;
+  }
+  .flower__cluster{
+    width:38px;height:38px;border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, #ffffff 0%, var(--lavender) 55%, transparent 70%),
+      radial-gradient(circle at 70% 35%, #ffffff 0%, var(--lavender) 50%, transparent 65%),
+      radial-gradient(circle at 45% 68%, #ffffff 0%, var(--lavender) 50%, transparent 65%),
+      radial-gradient(circle at 68% 66%, #ffffff 0%, #fff0fa 50%, transparent 65%);
+    filter:drop-shadow(0 3px 6px rgba(0,0,0,0.2));
+    margin-bottom:-2px;
+  }
+
+  /* ---------- ESCENAS 3 y 4: UNIVERSO ---------- */
+  #scene-universe, #scene-final{background:var(--space-black);}
+  .starfield{position:absolute;inset:0;overflow:hidden;}
+  .warp-layer{
+    position:absolute;top:50%;left:50%;width:1px;height:1px;
+    background:transparent;
+    animation-name:warp;animation-iteration-count:infinite;animation-timing-function:linear;
+  }
+  @keyframes warp{
+    0%{transform:translate(-50%,-50%) scale(0.4);opacity:0;}
+    15%{opacity:1;}
+    100%{transform:translate(-50%,-50%) scale(2.6);opacity:0;}
+  }
+  .hover-star{
+    position:absolute;width:5px;height:5px;border-radius:50%;
+    background:var(--star-white);
+    box-shadow:0 0 8px 2px rgba(255,255,255,0.7);
+    cursor:pointer;
+    animation:twinkle ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:0.35;transform:scale(1);}
+    50%{opacity:1;transform:scale(1.4);}
+  }
+  .hover-star:hover{box-shadow:0 0 16px 6px var(--accent-violet);}
+  .love-pop{
+    position:absolute;pointer-events:none;
+    font-family:'Dancing Script',cursive;
+    color:var(--pink-glow);
+    font-size:1.1rem;
+    white-space:nowrap;
+    opacity:0;
+    transform:translate(-50%,0);
+    transition:opacity .35s ease, transform .9s ease;
+    text-shadow:0 0 10px rgba(255,122,176,0.8);
+  }
+  .love-pop.show{opacity:1;transform:translate(-50%,-28px);}
+
+  .universe-hint{
+    position:absolute;bottom:9%;left:50%;transform:translateX(-50%);
+    color:rgba(255,255,255,0.65);font-size:.85rem;
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    text-align:center;z-index:3;
+  }
+  .continue-btn{
+    position:absolute;bottom:5%;left:50%;transform:translateX(-50%);
+    background:none;border:1px solid rgba(255,255,255,0.35);
+    color:var(--cloud-white);padding:10px 22px;border-radius:30px;
+    font-family:'Quicksand',sans-serif;font-size:.85rem;letter-spacing:.5px;
+    cursor:pointer;opacity:0;z-index:4;
+    transition:opacity 1s ease, background .2s ease, transform .2s ease;
+  }
+  .continue-btn.show{opacity:1;}
+  .continue-btn:hover{background:rgba(255,255,255,0.1);transform:translateX(-50%) translateY(-2px);}
+
+  #scene-final .final-text{
+    position:relative;z-index:3;
+    font-family:'Dancing Script',cursive;font-weight:700;
+    font-size:clamp(3rem,13vw,8rem);
+    color:var(--cloud-white);
+    text-shadow:0 0 24px var(--pink-glow), 0 0 60px var(--accent-violet);
+    animation:glow 3.2s ease-in-out infinite;
+    text-align:center;
+  }
+  @keyframes glow{
+    0%,100%{text-shadow:0 0 24px var(--pink-glow), 0 0 60px var(--accent-violet);}
+    50%{text-shadow:0 0 40px var(--pink-glow), 0 0 100px var(--accent-violet);}
+  }
+  .restart-link{
+    position:absolute;bottom:4%;left:50%;transform:translateX(-50%);
+    color:rgba(255,255,255,0.35);font-size:.72rem;
+    font-family:'Quicksand',sans-serif;text-decoration:none;
+    z-index:4;cursor:pointer;
+  }
+  .restart-link:hover{color:rgba(255,255,255,0.6);}
+
+  /* ---------- MENÚ / DIARIO / ÁLBUM ---------- */
+  .starfield-static{position:absolute;inset:0;overflow:hidden;}
+  .menu-box{position:relative;z-index:3;text-align:center;width:min(340px,86vw);}
+  .menu-title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+    color:var(--cloud-white);font-size:1.5rem;margin:0 0 26px;
+    text-shadow:0 2px 14px rgba(0,0,0,0.4);
+  }
+  .menu-buttons{display:flex;flex-direction:column;gap:16px;}
+  .menu-btn{
+    padding:16px 20px;border-radius:16px;border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.06);backdrop-filter:blur(8px);
+    color:var(--cloud-white);font-family:'Quicksand',sans-serif;font-weight:600;
+    font-size:1rem;cursor:pointer;transition:transform .25s ease, background .25s ease, box-shadow .25s ease;
+  }
+  .menu-btn:hover{
+    transform:translateY(-3px);
+    background:rgba(255,255,255,0.12);
+    box-shadow:0 10px 30px rgba(177,153,255,0.25);
+  }
+
+  .back-btn{
+    position:absolute;top:6%;left:6%;z-index:5;
+    background:none;border:1px solid rgba(255,255,255,0.3);
+    color:var(--cloud-white);padding:10px 20px;border-radius:20px;
+    font-family:'Quicksand',sans-serif;font-size:.85rem;cursor:pointer;
+    min-height:40px;
+    transition:background .2s ease;
+  }
+  .back-btn:hover{background:rgba(255,255,255,0.1);}
+
+  .diario-box, .album-box{
+    position:relative;z-index:3;width:min(480px,88vw);
+    text-align:center;max-height:82vh;overflow-y:auto;
+  }
+  .panel-title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+    color:var(--cloud-white);font-size:1.6rem;margin:0 0 6px;
+  }
+  .panel-sub{color:rgba(255,255,255,0.6);font-size:.85rem;margin:0 0 22px;}
+  .panel-hint{color:rgba(255,255,255,0.45);font-size:.72rem;margin-top:14px;line-height:1.4;}
+
+  #diarioText{
+    width:100%;min-height:150px;border-radius:14px;padding:16px;
+    background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.2);
+    color:#fff;font-family:'Cormorant Garamond',serif;font-size:16px;
+    resize:vertical;outline:none;transition:border .2s ease;
+  }
+  #diarioText:focus{border-color:var(--accent-violet);}
+  #diarioText::placeholder{color:rgba(255,255,255,0.35);}
+
+  .action-btn{
+    display:inline-block;margin-top:16px;padding:12px 26px;border:none;
+    border-radius:30px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
+    color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;
+    font-size:.9rem;letter-spacing:.3px;
+    transition:filter .2s ease, transform .2s ease;
+  }
+  .action-btn:hover{filter:brightness(1.12);transform:translateY(-1px);}
+  .action-btn.secondary{
+    background:none;border:1px solid rgba(255,255,255,0.35);
+  }
+
+  .gallery{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+    gap:10px;margin:18px 0;max-height:36vh;overflow-y:auto;
+  }
+  .gallery img{
+    width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;
+    border:1px solid rgba(255,255,255,0.25);
+    box-shadow:0 4px 14px rgba(0,0,0,0.35);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001s !important; animation-iteration-count:1 !important;}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <button class="install-btn" id="installBtn">📲 Instalar app</button>
+
+  <!-- ESCENA 1: LOGIN -->
+  <section id="scene-login" class="scene active">
+    <div class="login-stars" id="loginStars"></div>
+    <form class="login-card" id="loginForm">
+      <p class="login-title">Para ti</p>
+      <p class="login-sub">Entra si sabes el camino</p>
+      <input type="text" id="userInput" placeholder="Usuario" autocomplete="off" required>
+      <input type="password" id="passInput" placeholder="Contraseña" autocomplete="off" required>
+      <button type="submit" class="login-btn">Entrar</button>
+      <p class="login-error" id="loginError">Inténtalo de nuevo.</p>
+    </form>
+  </section>
+
+  <!-- ESCENA 2: JARDÍN -->
+  <section id="scene-garden" class="scene">
+    <div class="cloud" style="width:180px;height:60px;top:10%;left:-15%;animation-duration:60s;"></div>
+    <div class="cloud" style="width:120px;height:40px;top:22%;left:-25%;animation-duration:80s;animation-delay:-20s;"></div>
+    <div class="cloud" style="width:220px;height:70px;top:16%;left:-30%;animation-duration:100s;animation-delay:-40s;"></div>
+    <p class="garden-note">Entre las flores de nube se esconde algo para ti…<br>búscala.</p>
+    <div class="ground"></div>
+    <div id="flowerField"></div>
+  </section>
+
+  <!-- ESCENA 3: UNIVERSO INTERACTIVO -->
+  <section id="scene-universe" class="scene">
+    <div class="starfield" id="starfieldUniverse"></div>
+    <p class="universe-hint">pasa el cursor sobre las estrellas…</p>
+    <button class="continue-btn" id="continueBtn">seguir mirando el universo →</button>
+  </section>
+
+  <!-- ESCENA 4: TE AMO -->
+  <section id="scene-final" class="scene">
+    <div class="starfield" id="starfieldFinal"></div>
+    <p class="final-text">TE AMO</p>
+  </section>
+
+  <!-- ESCENA 5: MENÚ -->
+  <section id="scene-menu" class="scene">
+    <div class="starfield" id="starfieldMenu"></div>
+    <div class="menu-box">
+      <p class="menu-title">¿Qué quieres ver?</p>
+      <div class="menu-buttons">
+        <button class="menu-btn" id="btnDiario">📔 Diario de nosotros</button>
+        <button class="menu-btn" id="btnAlbum">📸 Álbum de mejores fotos</button>
+        <button class="menu-btn" id="btnPoke">🥺 Te extraño</button>
+      </div>
+    </div>
+    <span class="restart-link" id="restartLink">◍ volver a empezar</span>
+  </section>
+
+  <!-- ESCENA 6: DIARIO DE NOSOTROS -->
+  <section id="scene-diario" class="scene">
+    <div class="starfield-static" id="starfieldDiario"></div>
+    <button class="back-btn" id="backFromDiario">← volver</button>
+    <div class="diario-box">
+      <p class="panel-title">Diario de nosotros</p>
+      <p class="panel-sub">Escribe algo bonito, quedará entre nosotros.</p>
+      <textarea id="diarioText" placeholder="Escribe aquí lo que quieras decirme..."></textarea>
+      <button class="action-btn" id="sendDiario">Enviar por WhatsApp</button>
+      <p class="panel-hint" id="diarioHint">Se abrirá WhatsApp con tu mensaje listo — solo debes presionar enviar.</p>
+    </div>
+  </section>
+
+  <!-- ESCENA 7: ÁLBUM DE FOTOS -->
+  <section id="scene-album" class="scene">
+    <div class="starfield-static" id="starfieldAlbum"></div>
+    <button class="back-btn" id="backFromAlbum">← volver</button>
+    <div class="album-box">
+      <p class="panel-title">Álbum de mejores fotos</p>
+      <p class="panel-sub">Elige tus fotos favoritas de nosotros.</p>
+      <label class="action-btn" for="photoInput">Elegir fotos</label>
+      <input type="file" id="photoInput" accept="image/*" multiple style="display:none;">
+      <div class="gallery" id="gallery"></div>
+      <button class="action-btn secondary" id="shareAlbum" style="display:none;">Compartir por WhatsApp</button>
+      <p class="panel-hint">Estas fotos quedan en tu dispositivo mientras ves esta página; si quieres que también me lleguen, compártelas por WhatsApp 💌</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   PERSONALIZA AQUÍ: usuario y contraseña que le compartirás
+   ============================================================ */
+const VALID_USER = "mor"; // no distingue mayúsculas/minúsculas: MOR, mor, Mor, MoR... todas funcionan
+const VALID_PASS = "0109ES";
+
+/* ============================================================
+   PERSONALIZA AQUÍ: tu número de WhatsApp (con código de país,
+   solo números, SIN "+" ni espacios). Ejemplo México: "521XXXXXXXXXX"
+   Ejemplo Colombia: "57XXXXXXXXXX"
+   ============================================================ */
+const WHATSAPP_NUMBER = "521234567890";
+/* ============================================================ */
+
+const scenes = {
+  login: document.getElementById('scene-login'),
+  garden: document.getElementById('scene-garden'),
+  universe: document.getElementById('scene-universe'),
+  final: document.getElementById('scene-final'),
+  menu: document.getElementById('scene-menu'),
+  diario: document.getElementById('scene-diario'),
+  album: document.getElementById('scene-album'),
+};
+
+function goTo(name){
+  Object.values(scenes).forEach(s => s.classList.remove('active'));
+  scenes[name].classList.add('active');
+}
+
+/* ---------- LOGIN ---------- */
+document.getElementById('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const user = document.getElementById('userInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  const card = this;
+  const error = document.getElementById('loginError');
+  if(user.toLowerCase() === VALID_USER && pass === VALID_PASS){
+    goTo('garden');
+  } else {
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+    error.classList.add('show');
+  }
+});
+
+/* pequeñas estrellas decorativas de fondo en el login */
+(function loginStars(){
+  const container = document.getElementById('loginStars');
+  let shadows = [];
+  for(let i=0;i<80;i++){
+    shadows.push(`${Math.random()*100}vw ${Math.random()*100}vh #fff`);
+  }
+  const dot = document.createElement('div');
+  dot.style.width = '1px'; dot.style.height='1px';
+  dot.style.boxShadow = shadows.join(',');
+  dot.style.position='absolute';
+  container.appendChild(dot);
+})();
+
+/* ---------- JARDÍN ---------- */
+const flowerField = document.getElementById('flowerField');
+const flowerCount = window.innerWidth < 480 ? 65 : 110; // menos flores en celulares chicos = más cómodo al tocar
+const secretIndex = Math.floor(Math.random()*flowerCount);
+let advanced = false; // evita que se dispare más de una vez
+
+for(let i=0;i<flowerCount;i++){
+  const flower = document.createElement('div');
+  flower.className = 'flower';
+
+  const left = -2 + Math.random()*104;        // % — cubre todo el ancho
+  const bottom = Math.random()*33;            // % — cubre todo el pasto (0% a 33%)
+  // las flores más "cerca" (bottom bajo) se ven más grandes; las de atrás, más pequeñas
+  const depthScale = 1.35 - (bottom/33)*0.85;
+  const scale = depthScale + (Math.random()*0.2 - 0.1);
+  const duration = 3.5 + Math.random()*3;
+  const delay = Math.random()*4;
+
+  flower.style.left = left + '%';
+  flower.style.bottom = bottom + '%';
+  flower.style.zIndex = Math.round(scale*10);
+  flower.style.setProperty('--fscale', scale);
+  flower.innerHTML = `<div class="flower-scale"><div class="flower-sway" style="animation-duration:${duration}s;animation-delay:-${delay}s;">
+      <div class="flower__cluster"></div><div class="flower__stem"></div>
+    </div></div>`;
+
+  if(i === secretIndex){
+    flower.dataset.secret = "true";
+  }
+
+  function tryAdvance(){
+    if(advanced) return;
+    if(flower.dataset.secret === "true"){
+      advanced = true;
+      flower.classList.add('bloom');
+      setTimeout(() => {
+        goTo('universe');
+        initUniverseStars();
+      }, 900);
+    } else {
+      flower.classList.remove('wrong'); void flower.offsetWidth;
+      flower.classList.add('wrong');
+    }
+  }
+
+  // en computador: pasar el cursor. en celular: tocar (el hover no existe en táctil)
+  flower.addEventListener('mouseenter', tryAdvance);
+  flower.addEventListener('touchstart', function(e){ e.preventDefault(); tryAdvance(); }, {passive:false});
+
+  flowerField.appendChild(flower);
+}
+
+/* ---------- UNIVERSO (fondo con efecto de profundidad) ---------- */
+function buildWarpField(container){
+  container.innerHTML = '';
+  const configs = [
+    {count:120, size:'1px', duration:7},
+    {count:70,  size:'2px', duration:10},
+    {count:35,  size:'3px', duration:13},
+  ];
+  configs.forEach((cfg, idx) => {
+    const layer = document.createElement('div');
+    layer.className = 'warp-layer';
+    let shadows = [];
+    for(let i=0;i<cfg.count;i++){
+      const angle = Math.random()*Math.PI*2;
+      const dist = Math.random()*600 + 40;
+      const x = Math.round(Math.cos(angle)*dist);
+      const y = Math.round(Math.sin(angle)*dist);
+      shadows.push(`${x}px ${y}px 0 #fff`);
+    }
+    layer.style.width = cfg.size;
+    layer.style.height = cfg.size;
+    layer.style.boxShadow = shadows.join(',');
+    layer.style.animationDuration = cfg.duration + 's';
+    layer.style.animationDelay = '-' + (Math.random()*cfg.duration) + 's';
+    container.appendChild(layer);
+  });
+}
+buildWarpField(document.getElementById('starfieldFinal'));
+
+/* estrellas interactivas: hover -> TE AMO */
+let hoverStarsInitialized = false;
+function initUniverseStars(){
+  const container = document.getElementById('starfieldUniverse');
+  buildWarpField(container);
+
+  if(hoverStarsInitialized) return;
+  hoverStarsInitialized = true;
+
+  const starCount = 32;
+  let hoveredCount = 0;
+  const seen = new Set();
+
+  for(let i=0;i<starCount;i++){
+    const star = document.createElement('span');
+    star.className = 'hover-star';
+    const top = 8 + Math.random()*78;
+    const left = 4 + Math.random()*92;
+    star.style.top = top + '%';
+    star.style.left = left + '%';
+    star.style.animationDuration = (2 + Math.random()*3) + 's';
+    star.style.animationDelay = '-' + (Math.random()*4) + 's';
+
+    star.addEventListener('mouseenter', function(){
+      const pop = document.createElement('span');
+      pop.className = 'love-pop';
+      pop.textContent = 'TE AMO';
+      pop.style.top = top + '%';
+      pop.style.left = left + '%';
+      container.appendChild(pop);
+      requestAnimationFrame(() => pop.classList.add('show'));
+      setTimeout(() => {
+        pop.classList.remove('show');
+        setTimeout(() => pop.remove(), 500);
+      }, 1000);
+
+      if(!seen.has(i)){
+        seen.add(i);
+        hoveredCount++;
+        if(hoveredCount >= 4){
+          document.getElementById('continueBtn').classList.add('show');
+        }
+      }
+    });
+
+    container.appendChild(star);
+  }
+
+  setTimeout(() => {
+    document.getElementById('continueBtn').classList.add('show');
+  }, 6000);
+}
+
+document.getElementById('continueBtn').addEventListener('click', function(){
+  goTo('final');
+  setTimeout(() => {
+    buildWarpField(document.getElementById('starfieldMenu'));
+    goTo('menu');
+  }, 4200);
+});
+
+document.getElementById('restartLink').addEventListener('click', function(){
+  location.reload();
+});
+
+/* ---------- MENÚ ---------- */
+function buildStaticStars(container, count){
+  container.innerHTML = '';
+  let shadows = [];
+  for(let i=0;i<count;i++){
+    shadows.push(`${Math.random()*100}vw ${Math.random()*100}vh #fff`);
+  }
+  const dot = document.createElement('div');
+  dot.style.width='1px';dot.style.height='1px';
+  dot.style.position='absolute';
+  dot.style.boxShadow = shadows.join(',');
+  dot.style.animation = 'twinkle 4s ease-in-out infinite';
+  container.appendChild(dot);
+}
+
+document.getElementById('btnDiario').addEventListener('click', function(){
+  buildStaticStars(document.getElementById('starfieldDiario'), 90);
+  goTo('diario');
+});
+document.getElementById('btnAlbum').addEventListener('click', function(){
+  buildStaticStars(document.getElementById('starfieldAlbum'), 90);
+  goTo('album');
+});
+document.getElementById('backFromDiario').addEventListener('click', () => goTo('menu'));
+document.getElementById('backFromAlbum').addEventListener('click', () => goTo('menu'));
+
+/* ---------- TE EXTRAÑO (toque directo por WhatsApp) ---------- */
+const pokeMessages = [
+  "Te extraño 🥺💌",
+  "Estoy pensando en ti ahora mismo 💭💜",
+  "¿Sabes cuánto te extraño? Mucho.",
+  "Mándame un abrazo virtual 🤍",
+  "Ojalá estuvieras aquí conmigo 🌙",
+  "Solo quería recordarte que te extraño 💫"
+];
+document.getElementById('btnPoke').addEventListener('click', function(){
+  const msg = pokeMessages[Math.floor(Math.random()*pokeMessages.length)];
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+  const original = this.textContent;
+  this.textContent = '💌 Enviado';
+  setTimeout(() => { this.textContent = original; }, 1800);
+});
+
+/* ---------- DIARIO DE NOSOTROS (envía por WhatsApp) ---------- */
+document.getElementById('sendDiario').addEventListener('click', function(){
+  const text = document.getElementById('diarioText').value.trim();
+  const hint = document.getElementById('diarioHint');
+  if(!text){
+    hint.textContent = 'Escribe algo antes de enviarlo 💌';
+    return;
+  }
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+  hint.textContent = 'Se abrió WhatsApp con tu mensaje — solo presiona enviar.';
+});
+
+/* ---------- ÁLBUM DE MEJORES FOTOS ---------- */
+let selectedPhotoFiles = [];
+document.getElementById('photoInput').addEventListener('change', function(e){
+  const gallery = document.getElementById('gallery');
+  const shareBtn = document.getElementById('shareAlbum');
+  selectedPhotoFiles = Array.from(e.target.files);
+  gallery.innerHTML = '';
+  selectedPhotoFiles.forEach(file => {
+    const url = URL.createObjectURL(file);
+    const img = document.createElement('img');
+    img.src = url;
+    gallery.appendChild(img);
+  });
+  shareBtn.style.display = selectedPhotoFiles.length ? 'inline-block' : 'none';
+});
+
+document.getElementById('shareAlbum').addEventListener('click', async function(){
+  const text = 'Aquí tienes nuestras fotos favoritas 📸💜';
+  if(navigator.canShare && navigator.canShare({files: selectedPhotoFiles})){
+    try{
+      await navigator.share({files: selectedPhotoFiles, text});
+      return;
+    } catch(err){ /* el usuario canceló o no se pudo: seguimos con el respaldo */ }
+  }
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
+});
+
+/* ---------- PWA: service worker + botón de instalar ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {
+      // si se abre como archivo local (file://) el navegador bloquea el service worker;
+      // esto no afecta el resto de la página, solo el modo "app instalable".
+    });
+  });
+}
+
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('installBtn').classList.add('show');
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('installBtn').classList.remove('show');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBtn').classList.remove('show');
+});
+</script>
+
+</body>
+</html>
