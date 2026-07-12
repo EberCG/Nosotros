@@ -107,6 +107,14 @@
     font-size:1.6rem;margin:0 0 6px;
     letter-spacing:.5px;
   }
+  .login-greeting{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+  color:var(--cloud-white);font-size:1.05rem;margin:2px 0 6px;
+}
+.login-quote{
+  color:rgba(255,255,255,0.6);font-size:.78rem;margin:0 0 18px;
+  font-family:'Quicksand',sans-serif;
+}
   .login-sub{color:rgba(255,255,255,0.55);font-size:.8rem;margin:0 0 26px;}
   .login-card input{
     width:100%;padding:12px 14px;margin-bottom:14px;
@@ -391,8 +399,10 @@
   <section id="scene-login" class="scene active">
     <div class="login-stars" id="loginStars"></div>
     <form class="login-card" id="loginForm">
-      <p class="login-title">Para ti</p>
-      <p class="login-sub">Entra si sabes el camino</p>
+     <p class="login-title">Para ti</p>
+     <p class="login-greeting" id="loginGreeting"></p>
+     <p class="login-quote" id="loginQuote"></p>
+     <p class="login-sub">Entra si sabes el camino</p>
       <input type="text" id="userInput" placeholder="Usuario" autocomplete="off" required>
       <input type="password" id="passInput" placeholder="Contraseña" autocomplete="off" required>
       <button type="submit" class="login-btn">Entrar</button>
@@ -491,7 +501,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-12-8";
+const APP_VERSION = "2026-07-12-9";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -502,7 +512,7 @@ const APP_VERSION = "2026-07-12-8";
     localStorage.setItem('para_ti_version', APP_VERSION);
     overlay.classList.add('hide');
   } else if(prevVersion !== APP_VERSION){
-    // sí hay una versión nueva: mostramos el aviso unos segundos
+    // sí hay una versión nueva:
     localStorage.setItem('para_ti_version', APP_VERSION);
     setTimeout(() => overlay.classList.add('hide'), 40000);
   } else {
@@ -551,6 +561,32 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 });
 
 /* pequeñas estrellas decorativas de fondo en el login */
+  (function greetingAndQuote(){
+  const hour = new Date().getHours();
+  let greeting;
+  if(hour >= 5 && hour < 12){
+    greeting = "Buenos días mor ☀️💛";
+  } else if(hour >= 12 && hour < 19){
+    greeting = "Tarde de pensarte 😘🧡";
+  } else {
+    greeting = "Vamos a dormir mi vida ❤️🌙";
+  }
+  document.getElementById('loginGreeting').textContent = greeting;
+
+  const quotes = [
+    "Báñate morcito 🫣",
+    "Te quiero morder un pie 👣",
+    "Mi corazón es tuyo",
+    "Quería recordarte que me encantas",
+    "Me gustas despeinada",
+    "Contigo hasta el fin del universo 🌌",
+    "Eres mi lugar favorito 💫",
+    "Sonríe, alguien te ama mucho 😊",
+    "Me encanta como te ves hoy 🔥",
+    "Hueles a hogar 🤍"
+  ];
+  document.getElementById('loginQuote').textContent = quotes[Math.floor(Math.random()*quotes.length)];
+})();
 (function loginStars(){
   const container = document.getElementById('loginStars');
   let shadows = [];
