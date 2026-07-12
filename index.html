@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   /* ============================================================
-   
+     PERSONALIZAR
      ============================================================ */
 
   :root{
@@ -405,7 +405,7 @@
   <!-- ESCENA 3: UNIVERSO INTERACTIVO -->
   <section id="scene-universe" class="scene">
     <div class="starfield" id="starfieldUniverse"></div>
-    <p class="universe-hint">Toca sobre las estrellas…</p>
+    <p class="universe-hint">pasa el cursor sobre las estrellas…</p>
     <button class="continue-btn" id="continueBtn">seguir mirando el universo →</button>
   </section>
 
@@ -421,7 +421,7 @@
     <div class="menu-box">
       <p class="menu-title">¿Qué quieres ver?</p>
       <div class="menu-buttons">
-        <button class="menu-btn" id="btnDiario">📔 Mensajes de nosotros</button>
+        <button class="menu-btn" id="btnDiario">📔 Diario de nosotros</button>
         <button class="menu-btn" id="btnAlbum">📸 Álbum de mejores fotos</button>
         <button class="menu-btn" id="btnPoke">🥺 Te extraño</button>
       </div>
@@ -429,12 +429,12 @@
     <span class="restart-link" id="restartLink">◍ volver a empezar</span>
   </section>
 
-  <!-- ESCENA 6: DIARIO DE NOSOTROS -->
+  <!-- ESCENA 6: MENSAJES DE NOSOTROS -->
   <section id="scene-diario" class="scene">
     <div class="starfield-static" id="starfieldDiario"></div>
     <button class="back-btn" id="backFromDiario">← volver</button>
     <div class="diario-box">
-      <p class="panel-title">Diario de nosotros</p>
+      <p class="panel-title">Mensajes de nosotros</p>
       <p class="panel-sub">Escribe algo bonito, quedará entre nosotros.</p>
       <textarea id="diarioText" placeholder="Escribe aquí lo que quieras decirme..."></textarea>
       <button class="action-btn" id="sendDiario">Enviar por WhatsApp</button>
@@ -461,21 +461,29 @@
 
 <script>
 /* ============================================================
-   
+   LOGGING 
    ============================================================ */
-const VALID_USER = "mor"; 
-const VALID_PASS = "0109ES";
+/* ============================================================
+  
+   ============================================================ */
+const USER_HASH = "30d425858b2467d1f74251cc9e5dcc69a57009a669856a4ca8bb76a5a58f7e09";
+const PASS_HASH = "6d3b71dec3dca4f7c89b322a4dc225c7c758fe83a4d955047c1ec2babec3fd3e";
+
+async function sha256(text){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
 
 /* ============================================================
- 
+   NUMBER PHONE SHARE
    ============================================================ */
 const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================ */
 
 /* ============================================================
- 
+    UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-11-3";
+const APP_VERSION = "2026-07-11-2";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -488,7 +496,7 @@ const APP_VERSION = "2026-07-11-3";
   } else if(prevVersion !== APP_VERSION){
     // sí hay una versión nueva: mostramos el aviso unos segundos
     localStorage.setItem('para_ti_version', APP_VERSION);
-    setTimeout(() => overlay.classList.add('hide'), 40000);
+    setTimeout(() => overlay.classList.add('hide'), 38000);
   } else {
     // misma versión de siempre: nada que avisar
     overlay.classList.add('hide');
@@ -511,13 +519,17 @@ function goTo(name){
 }
 
 /* ---------- LOGIN ---------- */
-document.getElementById('loginForm').addEventListener('submit', function(e){
+document.getElementById('loginForm').addEventListener('submit', async function(e){
   e.preventDefault();
-  const user = document.getElementById('userInput').value.trim();
+  const user = document.getElementById('userInput').value.trim().toLowerCase();
   const pass = document.getElementById('passInput').value;
   const card = this;
   const error = document.getElementById('loginError');
-  if(user.toLowerCase() === VALID_USER && pass === VALID_PASS){
+
+  const userHash = await sha256(user);
+  const passHash = await sha256(pass);
+
+  if(userHash === USER_HASH && passHash === PASS_HASH){
     goTo('garden');
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
