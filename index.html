@@ -491,7 +491,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-12-7";
+const APP_VERSION = "2026-07-12-8";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -539,6 +539,11 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
   if(userHash === USER_HASH && passHash === PASS_HASH){
     goTo('garden');
+    hintTimeout = setTimeout(() => {
+  if(!advanced){
+    flowerField.querySelector('[data-secret="true"]').classList.add('hint');
+  }
+}, 30000);
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     error.classList.add('show');
@@ -612,11 +617,7 @@ for(let i=0;i<flowerCount;i++){
 
   flowerField.appendChild(flower);
 }
-hintTimeout = setTimeout(() => {
-  if(!advanced){
-    flowerField.querySelector('[data-secret="true"]').classList.add('hint');
-  }
-}, 30000);
+
 
 /* ---------- UNIVERSO (fondo con efecto de profundidad) ---------- */
 function buildWarpField(container){
