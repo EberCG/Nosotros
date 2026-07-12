@@ -29,7 +29,7 @@ self.addEventListener('fetch', (event) => {
   // se van a ver solos, sin tener que reinstalar nada.
   if (event.request.mode === 'navigate' || event.request.destination === 'document') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, {cache: 'no-store'})
         .then((response) => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
