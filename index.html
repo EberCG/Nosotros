@@ -70,7 +70,13 @@
     font-family:'Quicksand',sans-serif;font-size:.75rem;cursor:pointer;
     display:none;backdrop-filter:blur(6px);
   }
-  .install-btn.show{display:block;}
+  .install-btn.show{display:block;} 
+  .music-btn{
+  position:fixed;top:5%;left:5%;z-index:20;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);
+  color:#fff;width:38px;height:38px;border-radius:50%;
+  font-size:1rem;cursor:pointer;backdrop-filter:blur(6px);
+}
 
   /* ---------- AVISO DE ACTUALIZACIÓN ---------- */
   .update-overlay{
@@ -391,9 +397,12 @@
     <p>✨ Hay cosas nuevas para ti</p>
   </div>
 </div>
-
+<audio id="bgMusic" loop>
+  <source src="musica.mp3" type="audio/mpeg">
+</audio>
 <div id="app">
-  <button class="install-btn" id="installBtn">📲 Instalar app</button>
+  <button class="install-btn" id="installBtn">📲 Instalar app 
+  </button> <button class="music-btn" id="musicBtn">🔊</button>
 
   <!-- ESCENA 1: LOGIN -->
   <section id="scene-login" class="scene active">
@@ -549,6 +558,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
   if(userHash === USER_HASH && passHash === PASS_HASH){
     goTo('garden');
+    document.getElementById('bgMusic').play().catch(() => {});
     hintTimeout = setTimeout(() => {
   if(!advanced){
     flowerField.querySelector('[data-secret="true"]').classList.add('hint');
@@ -831,7 +841,14 @@ document.getElementById('shareAlbum').addEventListener('click', async function()
   }
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
 });
-
+const bgMusic = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let musicOn = true;
+musicBtn.addEventListener('click', function(){
+  musicOn = !musicOn;
+  if(musicOn){ bgMusic.play().catch(()=>{}); musicBtn.textContent = '🔊'; }
+  else { bgMusic.pause(); musicBtn.textContent = '🔇'; }
+});
 /* ---------- PWA: service worker + botón de instalar ---------- */
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
