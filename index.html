@@ -514,7 +514,7 @@ const APP_VERSION = "2026-07-12-9";
   } else if(prevVersion !== APP_VERSION){
     // sí hay una versión nueva:
     localStorage.setItem('para_ti_version', APP_VERSION);
-    setTimeout(() => overlay.classList.add('hide'), 40000);
+    setTimeout(() => overlay.classList.add('hide'), 20000);
   } else {
     // misma versión de siempre: nada que avisar
     overlay.classList.add('hide');
@@ -553,7 +553,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   if(!advanced){
     flowerField.querySelector('[data-secret="true"]').classList.add('hint');
   }
-}, 30000);
+}, 7000);
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     error.classList.add('show');
