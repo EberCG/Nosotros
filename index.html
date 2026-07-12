@@ -450,7 +450,7 @@
       <div class="menu-buttons">
         <button class="menu-btn" id="btnDiario">📔 Mensajes de nosotros</button>
         <button class="menu-btn" id="btnAlbum">📸 Álbum de mejores fotos</button>
-        <button class="menu-btn" id="btnPoke">🥺 Te extraño</button>
+        <button class="menu-btn" id="btnPoke">🥺 Me extrañas ?</button>
       </div>
     </div>
     <span class="restart-link" id="restartLink">◍ volver a empezar</span>
@@ -494,7 +494,7 @@
   
    ============================================================ */
 const USER_HASH = "30d425858b2467d1f74251cc9e5dcc69a57009a669856a4ca8bb76a5a58f7e09";
-const PASS_HASH = "6d3b71dec3dca4f7c89b322a4dc225c7c758fe83a4d955047c1ec2babec3fd3e";
+const PASS_HASH = "40eb73726b0999f8954918c9c7b0d9a1c7432406c3a761c7c9d34fa2908fcd7a";
 
 async function sha256(text){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -510,7 +510,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-12-9";
+const APP_VERSION = "2026-07-12-10";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
