@@ -421,7 +421,7 @@
     <div class="menu-box">
       <p class="menu-title">¿Qué quieres ver?</p>
       <div class="menu-buttons">
-        <button class="menu-btn" id="btnDiario">📔 Diario de nosotros</button>
+        <button class="menu-btn" id="btnDiario">📔 Mensajes de nosotros</button>
         <button class="menu-btn" id="btnAlbum">📸 Álbum de mejores fotos</button>
         <button class="menu-btn" id="btnPoke">🥺 Te extraño</button>
       </div>
@@ -483,7 +483,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-11-4";
+const APP_VERSION = "2026-07-11-5";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -496,7 +496,7 @@ const APP_VERSION = "2026-07-11-4";
   } else if(prevVersion !== APP_VERSION){
     // sí hay una versión nueva: mostramos el aviso unos segundos
     localStorage.setItem('para_ti_version', APP_VERSION);
-    setTimeout(() => overlay.classList.add('hide'), 38000);
+    setTimeout(() => overlay.classList.add('hide'), 40000);
   } else {
     // misma versión de siempre: nada que avisar
     overlay.classList.add('hide');
