@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estadísticas - Para ti</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest-stats.json">
+<meta name="theme-color" content="#050416">
+<link rel="icon" href="stats-icon-192.png">
+<link rel="apple-touch-icon" href="stats-icon-192.png">
+
+<!-- ================================================================
+     CSS — diseño y apariencia
+     ================================================================ -->
+<style>
+  :root{
+    --violet-deep:#2b1a49;
+    --pink-glow:#ff7ab0;
+    --cloud-white:#f8f3ff;
+    --space-black:#050416;
+    --accent-violet:#b199ff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--space-black);font-family:'Quicksand',sans-serif;}
+  @supports (height: 100dvh){ html,body{min-height:100dvh;} }
+
+  .screen{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+  }
+  @supports (height: 100dvh){ .screen{min-height:100dvh;} }
+
+  #loginScreen{background:radial-gradient(ellipse at center, #14103a 0%, var(--space-black) 70%);}
+
+  .card{
+    width:min(340px,90vw);
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px);
+    border-radius:20px;
+    padding:36px 30px;
+    text-align:center;
+  }
+  .card h1{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+    color:var(--cloud-white);font-size:1.5rem;margin:0 0 22px;
+  }
+  .card input{
+    width:100%;padding:12px 14px;margin-bottom:12px;
+    border-radius:10px;border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.07);color:#fff;font-size:16px;
+    font-family:'Quicksand',sans-serif;outline:none;
+  }
+  .card input:focus{border-color:var(--accent-violet);}
+  .card button{
+    width:100%;padding:12px;border:none;border-radius:10px;
+    background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
+    color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;
+    font-size:.95rem;cursor:pointer;margin-top:6px;
+  }
+  .error-msg{color:#ff9db3;font-size:.78rem;margin-top:12px;min-height:1em;}
+
+  #dashScreen{display:none;background:var(--space-black);align-items:flex-start;}
+  .dash-wrap{width:min(480px,92vw);margin:0 auto;padding:30px 0 60px;}
+  .dash-title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+    color:var(--cloud-white);font-size:1.4rem;text-align:center;margin:0 0 26px;
+  }
+  .stat-cards{display:flex;gap:14px;margin-bottom:30px;}
+  .stat-card{
+    flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);
+    border-radius:16px;padding:18px 10px;text-align:center;
+  }
+  .stat-num{color:var(--pink-glow);font-size:2rem;font-weight:700;font-family:'Quicksand',sans-serif;}
+  .stat-label{color:rgba(255,255,255,0.6);font-size:.75rem;margin-top:4px;}
+
+  .activity-title{color:var(--cloud-white);font-size:.9rem;margin:0 0 12px;font-weight:600;}
+  .activity-list{list-style:none;padding:0;margin:0;}
+  .activity-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 14px;border-radius:10px;
+    background:rgba(255,255,255,0.04);margin-bottom:8px;
+    color:rgba(255,255,255,0.75);font-size:.82rem;
+  }
+  .activity-item .tag{
+    font-size:.72rem;padding:3px 9px;border-radius:20px;font-weight:600;
+  }
+  .tag.visit{background:rgba(177,153,255,0.2);color:var(--accent-violet);}
+  .tag.login{background:rgba(255,122,176,0.2);color:var(--pink-glow);}
+
+  .refresh-btn, .logout-btn{
+    display:block;margin:20px auto 0;padding:10px 20px;border-radius:20px;
+    border:1px solid rgba(255,255,255,0.3);background:none;color:var(--cloud-white);
+    font-family:'Quicksand',sans-serif;font-size:.8rem;cursor:pointer;
+  }
+  .loading-msg{color:rgba(255,255,255,0.5);text-align:center;font-size:.85rem;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     HTML — estructura
+     ================================================================ -->
+<div class="screen" id="loginScreen">
+  <form class="card" id="loginForm">
+    <h1>Tus estadísticas 💜</h1>
+    <input type="email" id="emailInput" placeholder="Tu correo" autocomplete="off" required>
+    <input type="password" id="passInput" placeholder="Tu contraseña" autocomplete="off" required>
+    <button type="submit">Entrar</button>
+    <p class="error-msg" id="errorMsg"></p>
+  </form>
+</div>
+
+<div class="screen" id="dashScreen">
+  <div class="dash-wrap">
+    <p class="dash-title">Actividad de "Para ti"</p>
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-num" id="visitCount">–</div>
+        <div class="stat-label">visitas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="loginCount">–</div>
+        <div class="stat-label">inicios de sesión</div>
+      </div>
+    </div>
+    <p class="activity-title">Actividad reciente</p>
+    <ul class="activity-list" id="activityList"></ul>
+    <p class="loading-msg" id="loadingMsg" style="display:none;">Cargando...</p>
+    <button class="refresh-btn" id="refreshBtn">↻ Actualizar</button>
+    <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
+
+<!-- ================================================================
+     JAVASCRIPT — lógica
+     ================================================================ -->
+<script>
+/* ============================================================
+   PERSONALIZA AQUÍ: pega los mismos 6 valores que usaste en
+   index.html (el firebaseConfig de tu proyecto de Firebase)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "PEGA_AQUI",
+  authDomain: "PEGA_AQUI",
+  projectId: "PEGA_AQUI",
+  storageBucket: "PEGA_AQUI",
+  messagingSenderId: "PEGA_AQUI",
+  appId: "PEGA_AQUI"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const loginScreen = document.getElementById('loginScreen');
+const dashScreen = document.getElementById('dashScreen');
+
+document.getElementById('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const email = document.getElementById('emailInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  const errorMsg = document.getElementById('errorMsg');
+  errorMsg.textContent = '';
+
+  auth.signInWithEmailAndPassword(email, pass).catch(() => {
+    errorMsg.textContent = 'Correo o contraseña incorrectos.';
+  });
+});
+
+auth.onAuthStateChanged(function(user){
+  if(user){
+    loginScreen.style.display = 'none';
+    dashScreen.style.display = 'flex';
+    loadStats();
+  } else {
+    loginScreen.style.display = 'flex';
+    dashScreen.style.display = 'none';
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+document.getElementById('refreshBtn').addEventListener('click', loadStats);
+
+function loadStats(){
+  const loadingMsg = document.getElementById('loadingMsg');
+  loadingMsg.style.display = 'block';
+
+  db.collection('events').orderBy('timestamp', 'desc').get().then((snapshot) => {
+    let visits = 0, logins = 0;
+    const items = [];
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if(data.type === 'visit') visits++;
+      if(data.type === 'login') logins++;
+      items.push(data);
+    });
+
+    document.getElementById('visitCount').textContent = visits;
+    document.getElementById('loginCount').textContent = logins;
+
+    const list = document.getElementById('activityList');
+    list.innerHTML = '';
+    items.slice(0, 15).forEach((item) => {
+      const li = document.createElement('li');
+      li.className = 'activity-item';
+      const date = item.timestamp ? item.timestamp.toDate() : new Date();
+      const dateStr = date.toLocaleString('es-MX', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+      li.innerHTML = `<span>${dateStr}</span><span class="tag ${item.type}">${item.type === 'visit' ? 'visita' : 'login'}</span>`;
+      list.appendChild(li);
+    });
+
+    loadingMsg.style.display = 'none';
+  }).catch(() => {
+    loadingMsg.textContent = 'No se pudo cargar. Revisa tu conexión.';
+  });
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw-stats.js').catch(() => {});
+  });
+}
+</script>
+
+</body>
+</html>
