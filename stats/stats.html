@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estadísticas - Para ti</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="manifest" href="manifest-stats.json">
+<link rel="manifest" href="./manifest-stats.json">
 <meta name="theme-color" content="#050416">
 <link rel="icon" href="stats-icon-192.png">
 <link rel="apple-touch-icon" href="stats-icon-192.png">
@@ -236,9 +236,16 @@ function loadStats(){
   });
 }
 
-if('serviceWorker' in navigator){
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw-stats.js').catch(() => {});
+    // Registra el SW que está en la misma carpeta
+    navigator.serviceWorker.register('./sw-stats.js')
+      .then(registration => {
+        console.log('Service Worker de Stats registrado con éxito:', registration.scope);
+      })
+      .catch(error => {
+        console.log('Error al registrar el Service Worker:', error);
+      });
   });
 }
 
