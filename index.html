@@ -11,6 +11,7 @@
 <meta name="theme-color" content="#050416">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
   /* ============================================================
      PERSONALIZAR
@@ -71,12 +72,14 @@
     display:none;backdrop-filter:blur(6px);
   }
   .install-btn.show{display:block;} 
+  
+  /* BOTÓN DE MÚSICA - Movido a bottom: 5% (esquina inferior izquierda) */
   .music-btn{
-  position:fixed;top:5%;left:5%;z-index:20;
-  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);
-  color:#fff;width:38px;height:38px;border-radius:50%;
-  font-size:1rem;cursor:pointer;backdrop-filter:blur(6px);
-}
+    position:fixed;bottom:5%;left:5%;z-index:20;
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);
+    color:#fff;width:38px;height:38px;border-radius:50%;
+    font-size:1rem;cursor:pointer;backdrop-filter:blur(6px);
+  }
 
   /* ---------- AVISO DE ACTUALIZACIÓN ---------- */
   .update-overlay{
@@ -315,13 +318,32 @@
   .menu-box{position:relative;z-index:3;text-align:center;width:min(340px,86vw);}
   .menu-title{
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
-    color:var(--cloud-white);font-size:1.5rem;margin:0 0 6px;
+    color:var(--cloud-white);font-size:1.5rem;margin:0 0 16px;
     text-shadow:0 2px 14px rgba(0,0,0,0.4);
   }
-.days-counter{
-  color:var(--pink-glow);font-family:'Cormorant Garamond',serif;font-style:italic;
-  font-size:.95rem;margin:0 0 26px;text-shadow:0 2px 10px rgba(0,0,0,.4);
-}
+
+  /* ESTILOS DEL EFECTO SPOILER PARA EL CONTADOR DE DÍAS */
+  .days-counter{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:.95rem;margin:26px 0 0;
+  }
+  .spoiler {
+    background-color: rgba(255, 255, 255, 0.4);
+    color: transparent !important;
+    text-shadow: none !important;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 4px 10px;
+    transition: background-color 0.3s, color 0.3s;
+    user-select: none;
+  }
+  .spoiler.revealed {
+    background-color: transparent;
+    color: var(--pink-glow) !important;
+    text-shadow: 0 2px 10px rgba(0,0,0,.4) !important;
+  }
+
   .menu-buttons{display:flex;flex-direction:column;gap:16px;}
   .menu-btn{
     padding:16px 20px;border-radius:16px;border:1px solid rgba(255,255,255,0.18);
@@ -392,6 +414,8 @@
     *{animation-duration:0.001s !important; animation-iteration-count:1 !important;}
   }
 </style>
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -405,10 +429,9 @@
   <source src="musica.mp3" type="audio/mpeg">
 </audio>
 <div id="app">
-  <button class="install-btn" id="installBtn">📲 Instalar app 
-  </button> <button class="music-btn" id="musicBtn">🔊</button>
+  <button class="install-btn" id="installBtn">📲 Instalar app </button> 
+  <button class="music-btn" id="musicBtn">🔊</button>
 
-  <!-- ESCENA 1: LOGIN -->
   <section id="scene-login" class="scene active">
     <div class="login-stars" id="loginStars"></div>
     <form class="login-card" id="loginForm">
@@ -423,7 +446,6 @@
     </form>
   </section>
 
-  <!-- ESCENA 2: JARDÍN -->
   <section id="scene-garden" class="scene">
     <div class="cloud" style="width:180px;height:60px;top:10%;left:-15%;animation-duration:60s;"></div>
     <div class="cloud" style="width:120px;height:40px;top:22%;left:-25%;animation-duration:80s;animation-delay:-20s;"></div>
@@ -433,37 +455,34 @@
     <div id="flowerField"></div>
   </section>
 
-  <!-- ESCENA 3: UNIVERSO INTERACTIVO -->
   <section id="scene-universe" class="scene">
     <div class="starfield" id="starfieldUniverse"></div>
     <p class="universe-hint">pasa el cursor sobre las estrellas…</p>
     <button class="continue-btn" id="continueBtn">seguir mirando el universo →</button>
   </section>
 
-  <!-- ESCENA 4: TE AMO -->
   <section id="scene-final" class="scene">
     <div class="starfield" id="starfieldFinal"></div>
     <p class="final-text">TE AMO</p>
   </section>
 
-  <!-- ESCENA 5: MENÚ -->
   <section id="scene-menu" class="scene">
     <div class="starfield" id="starfieldMenu"></div>
     <div class="menu-box">
       <p class="menu-title">¿Qué quieres ver?</p>
 
-<p class="days-counter" id="daysCounter"></p>
-
       <div class="menu-buttons">
-        <button class="menu-btn" id="btnDiario">📔 Mensajes de nosotros</button>
+        <button class="menu-btn" id="btnDiario">📔 Mensajes entre nosotros</button>
         <button class="menu-btn" id="btnAlbum">📸 Álbum de mejores fotos</button>
-        <button class="menu-btn" id="btnPoke">🥺 Me extrañas ?</button>
+        <button class="menu-btn" id="btnPoke">🥺 Me extrañas? Toca aquì </button>
       </div>
+      
+      <p class="days-counter spoiler" id="daysCounter"></p>
+
     </div>
     <span class="restart-link" id="restartLink">◍ volver a empezar</span>
   </section>
 
-  <!-- ESCENA 6: MENSAJES DE NOSOTROS -->
   <section id="scene-diario" class="scene">
     <div class="starfield-static" id="starfieldDiario"></div>
     <button class="back-btn" id="backFromDiario">← volver</button>
@@ -476,7 +495,6 @@
     </div>
   </section>
 
-  <!-- ESCENA 7: ÁLBUM DE FOTOS -->
   <section id="scene-album" class="scene">
     <div class="starfield-static" id="starfieldAlbum"></div>
     <button class="back-btn" id="backFromAlbum">← volver</button>
@@ -492,14 +510,26 @@
   </section>
 
 </div>
-
 <script>
-/* ============================================================
-   LOGGING 
-   ============================================================ */
-/* ============================================================
-  
-   ============================================================ */
+/* ---------- FIREBASE: registro de visitas y logins ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyDILhdyodCPTSUTQ7ikL5D36qEsSaeHPsU",
+  authDomain: "para-ti-stats.firebaseapp.com",
+  projectId: "para-ti-stats",
+  storageBucket: "para-ti-stats.firebasestorage.app",
+  messagingSenderId: "676846376634",
+  appId: "1:676846376634:web:de7cc17182d0ea60611483"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+function logEvent(type){
+  db.collection('events').add({
+    type: type,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(() => {});
+}
+logEvent('visit'); // se registra sola cada vez que alguien abre la página
+
 const USER_HASH = "30d425858b2467d1f74251cc9e5dcc69a57009a669856a4ca8bb76a5a58f7e09";
 const PASS_HASH = "40eb73726b0999f8954918c9c7b0d9a1c7432406c3a761c7c9d34fa2908fcd7a";
 
@@ -508,31 +538,20 @@ async function sha256(text){
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-/* ============================================================
-   NUMBER PHONE SHARE
-   ============================================================ */
 const WHATSAPP_NUMBER = "522721498675";
-/* ============================================================ */
-
-/* ============================================================
-    UPDATES MESSAGES
-   ============================================================ */
-const APP_VERSION = "2026-07-12-13";
+const APP_VERSION = "2026-07-13-14";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
   const prevVersion = localStorage.getItem('para_ti_version');
 
   if(prevVersion === null){
-    // primera vez que abre la página: no es una "actualización", solo entra directo
     localStorage.setItem('para_ti_version', APP_VERSION);
     overlay.classList.add('hide');
   } else if(prevVersion !== APP_VERSION){
-    // sí hay una versión nueva:
     localStorage.setItem('para_ti_version', APP_VERSION);
     setTimeout(() => overlay.classList.add('hide'), 20000);
   } else {
-    // misma versión de siempre: nada que avisar
     overlay.classList.add('hide');
   }
 })();
@@ -543,6 +562,11 @@ const APP_VERSION = "2026-07-12-13";
   const days = Math.max(0, Math.floor((now - start) / 86400000));
   document.getElementById('daysCounter').textContent = `💜 ${days} días juntos`;
 })();
+
+/* SCRIPT PARA REVELAR EL SPOILER DEL CONTADOR */
+document.getElementById('daysCounter').addEventListener('click', function() {
+  this.classList.toggle('revealed');
+});
 
 const scenes = {
   login: document.getElementById('scene-login'),
@@ -572,19 +596,19 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
   if(userHash === USER_HASH && passHash === PASS_HASH){
     goTo('garden');
+    logEvent('login'); // SE REGISTRA EL LOGIN EN FIREBASE
     document.getElementById('bgMusic').play().catch(() => {});
     hintTimeout = setTimeout(() => {
-  if(!advanced){
-    flowerField.querySelector('[data-secret="true"]').classList.add('hint');
-  }
-}, 7000);
+      if(!advanced){
+        flowerField.querySelector('[data-secret="true"]').classList.add('hint');
+      }
+    }, 7000);
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     error.classList.add('show');
   }
 });
 
-/* pequeñas estrellas decorativas de fondo en el login */
   (function greetingAndQuote(){
   const hour = new Date().getHours();
   let greeting;
@@ -626,18 +650,17 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
 /* ---------- JARDÍN ---------- */
 const flowerField = document.getElementById('flowerField');
-const flowerCount = window.innerWidth < 480 ? 65 : 110; // menos flores en celulares chicos = más cómodo al tocar
+const flowerCount = window.innerWidth < 480 ? 65 : 110;
 const secretIndex = Math.floor(Math.random()*flowerCount);
 let advanced = false;
-let hintTimeout = null; // evita que se dispare más de una vez
+let hintTimeout = null;
 
 for(let i=0;i<flowerCount;i++){
   const flower = document.createElement('div');
   flower.className = 'flower';
 
-  const left = -2 + Math.random()*104;        // % — cubre todo el ancho
-  const bottom = Math.random()*33;            // % — cubre todo el pasto (0% a 33%)
-  // las flores más "cerca" (bottom bajo) se ven más grandes; las de atrás, más pequeñas
+  const left = -2 + Math.random()*104;
+  const bottom = Math.random()*33;
   const depthScale = 1.35 - (bottom/33)*0.85;
   const scale = depthScale + (Math.random()*0.2 - 0.1);
   const duration = 3.5 + Math.random()*3;
@@ -671,15 +694,13 @@ for(let i=0;i<flowerCount;i++){
     }
   }
 
-  // en computador: pasar el cursor. en celular: tocar (el hover no existe en táctil)
   flower.addEventListener('mouseenter', tryAdvance);
   flower.addEventListener('touchstart', function(e){ e.preventDefault(); tryAdvance(); }, {passive:false});
 
   flowerField.appendChild(flower);
 }
 
-
-/* ---------- UNIVERSO (fondo con efecto de profundidad) ---------- */
+/* ---------- UNIVERSO ---------- */
 function buildWarpField(container){
   container.innerHTML = '';
   const configs = [
@@ -708,7 +729,6 @@ function buildWarpField(container){
 }
 buildWarpField(document.getElementById('starfieldFinal'));
 
-/* estrellas interactivas: hover -> TE AMO */
 let hoverStarsInitialized = false;
 function initUniverseStars(){
   const container = document.getElementById('starfieldUniverse');
@@ -799,7 +819,7 @@ document.getElementById('btnAlbum').addEventListener('click', function(){
 document.getElementById('backFromDiario').addEventListener('click', () => goTo('menu'));
 document.getElementById('backFromAlbum').addEventListener('click', () => goTo('menu'));
 
-/* ---------- TE EXTRAÑO (toque directo por WhatsApp) ---------- */
+/* ---------- TE EXTRAÑO ---------- */
 const pokeMessages = [
   "Te extraño 🥺💌",
   "Estoy pensando en ti ahora mismo 💭💜",
@@ -816,7 +836,7 @@ document.getElementById('btnPoke').addEventListener('click', function(){
   setTimeout(() => { this.textContent = original; }, 1800);
 });
 
-/* ---------- DIARIO DE NOSOTROS (envía por WhatsApp) ---------- */
+/* ---------- DIARIO DE NOSOTROS ---------- */
 document.getElementById('sendDiario').addEventListener('click', function(){
   const text = document.getElementById('diarioText').value.trim();
   const hint = document.getElementById('diarioHint');
@@ -851,7 +871,7 @@ document.getElementById('shareAlbum').addEventListener('click', async function()
     try{
       await navigator.share({files: selectedPhotoFiles, text});
       return;
-    } catch(err){ /* el usuario canceló o no se pudo: seguimos con el respaldo */ }
+    } catch(err){}
   }
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
 });
@@ -863,13 +883,10 @@ musicBtn.addEventListener('click', function(){
   if(musicOn){ bgMusic.play().catch(()=>{}); musicBtn.textContent = '🔊'; }
   else { bgMusic.pause(); musicBtn.textContent = '🔇'; }
 });
-/* ---------- PWA: service worker + botón de instalar ---------- */
+/* ---------- PWA ---------- */
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {
-      // si se abre como archivo local (file://) el navegador bloquea el service worker;
-      // esto no afecta el resto de la página, solo el modo "app instalable".
-    });
+    navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
 
@@ -890,6 +907,5 @@ window.addEventListener('appinstalled', () => {
   document.getElementById('installBtn').classList.remove('show');
 });
 </script>
-
 </body>
 </html>
