@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -12,6 +12,10 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
+  /* ================================================================
+     ░░░  CSS —DISEÑO Y APARIENCIA (hasta </style>)  ░░░
+     Colores, tamaños, animaciones, posiciones de botones
+     ================================================================ */
   /* ============================================================
      PERSONALIZAR
      ============================================================ */
@@ -70,13 +74,13 @@
     font-family:'Quicksand',sans-serif;font-size:.75rem;cursor:pointer;
     display:none;backdrop-filter:blur(6px);
   }
-  .install-btn.show{display:block;} 
+  .install-btn.show{display:block;}
   .music-btn{
-  position:fixed;top:5%;left:5%;z-index:20;
-  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);
-  color:#fff;width:38px;height:38px;border-radius:50%;
-  font-size:1rem;cursor:pointer;backdrop-filter:blur(6px);
-}
+    position:fixed;bottom:5%;left:5%;z-index:20;
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);
+    color:#fff;width:38px;height:38px;border-radius:50%;
+    font-size:1rem;cursor:pointer;backdrop-filter:blur(6px);
+  }
 
   /* ---------- AVISO DE ACTUALIZACIÓN ---------- */
   .update-overlay{
@@ -114,13 +118,13 @@
     letter-spacing:.5px;
   }
   .login-greeting{
-  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
-  color:var(--cloud-white);font-size:1.05rem;margin:2px 0 6px;
-}
-.login-quote{
-  color:rgba(255,255,255,0.6);font-size:.78rem;margin:0 0 18px;
-  font-family:'Quicksand',sans-serif;
-}
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--cloud-white);font-size:1.05rem;margin:2px 0 6px;
+  }
+  .login-quote{
+    color:rgba(255,255,255,0.6);font-size:.78rem;margin:0 0 18px;
+    font-family:'Quicksand',sans-serif;
+  }
   .login-sub{color:rgba(255,255,255,0.55);font-size:.8rem;margin:0 0 26px;}
   .login-card input{
     width:100%;padding:12px 14px;margin-bottom:14px;
@@ -315,13 +319,24 @@
   .menu-box{position:relative;z-index:3;text-align:center;width:min(340px,86vw);}
   .menu-title{
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
-    color:var(--cloud-white);font-size:1.5rem;margin:0 0 6px;
+    color:var(--cloud-white);font-size:1.5rem;margin:0 0 26px;
     text-shadow:0 2px 14px rgba(0,0,0,0.4);
   }
-.days-counter{
-  color:var(--pink-glow);font-family:'Cormorant Garamond',serif;font-style:italic;
-  font-size:.95rem;margin:0 0 26px;text-shadow:0 2px 10px rgba(0,0,0,.4);
-}
+  .days-counter{
+    color:var(--pink-glow);font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:.95rem;margin:26px 0 0;text-shadow:0 2px 10px rgba(0,0,0,.4);
+  }
+  .spoiler{
+    display:inline-block;cursor:pointer;user-select:none;
+    padding:2px 10px;border-radius:8px;
+    background:rgba(255,255,255,0.12);
+    filter:blur(6px);
+    transition:filter .3s ease, background .3s ease;
+  }
+  .spoiler.revealed{
+    filter:blur(0);
+    background:transparent;
+  }
   .menu-buttons{display:flex;flex-direction:column;gap:16px;}
   .menu-btn{
     padding:16px 20px;border-radius:16px;border:1px solid rgba(255,255,255,0.18);
@@ -395,27 +410,34 @@
 </head>
 <body>
 
+<!-- ================================================================
+     ░░░  HTMLESTRUCTURA/CONTENIDO (hasta <script>)  ░░░
+     Las pantallas (login, jardín, universo, menú, etc.)
+     ================================================================ -->
+
 <div class="update-overlay" id="updateOverlay">
   <div class="update-box">
     <div class="update-spinner"></div>
     <p>✨ Hay cosas nuevas para ti</p>
   </div>
 </div>
+
 <audio id="bgMusic" loop>
   <source src="musica.mp3" type="audio/mpeg">
 </audio>
+
 <div id="app">
-  <button class="install-btn" id="installBtn">📲 Instalar app 
-  </button> <button class="music-btn" id="musicBtn">🔊</button>
+  <button class="install-btn" id="installBtn">📲 Instalar app</button>
+  <button class="music-btn" id="musicBtn">🔊</button>
 
   <!-- ESCENA 1: LOGIN -->
   <section id="scene-login" class="scene active">
     <div class="login-stars" id="loginStars"></div>
     <form class="login-card" id="loginForm">
-     <p class="login-title">Para ti</p>
-     <p class="login-greeting" id="loginGreeting"></p>
-     <p class="login-quote" id="loginQuote"></p>
-     <p class="login-sub">Entra si sabes el camino</p>
+      <p class="login-title">Para ti</p>
+      <p class="login-greeting" id="loginGreeting"></p>
+      <p class="login-quote" id="loginQuote"></p>
+      <p class="login-sub">Entra si sabes el camino</p>
       <input type="text" id="userInput" placeholder="Usuario" autocomplete="off" required>
       <input type="password" id="passInput" placeholder="Contraseña" autocomplete="off" required>
       <button type="submit" class="login-btn">Entrar</button>
@@ -451,14 +473,12 @@
     <div class="starfield" id="starfieldMenu"></div>
     <div class="menu-box">
       <p class="menu-title">¿Qué quieres ver?</p>
-
-<p class="days-counter" id="daysCounter"></p>
-
       <div class="menu-buttons">
         <button class="menu-btn" id="btnDiario">📔 Mensajes de nosotros</button>
         <button class="menu-btn" id="btnAlbum">📸 Álbum de mejores fotos</button>
-        <button class="menu-btn" id="btnPoke">🥺 Me extrañas ?</button>
+        <button class="menu-btn" id="btnPoke">🥺 Me extrañas? toca aquì </button>
       </div>
+      <p class="days-counter"><span class="spoiler" id="daysSpoiler">toca para ver</span></p>
     </div>
     <span class="restart-link" id="restartLink">◍ volver a empezar</span>
   </section>
@@ -494,11 +514,10 @@
 </div>
 
 <script>
-/* ============================================================
-   LOGGING 
-   ============================================================ */
-/* ============================================================
-  
+/* ================================================================
+   ░░░  JAVASCRIPT — LÓGICA/INTERACTIVIDAD
+   
+   LOGGING
    ============================================================ */
 const USER_HASH = "30d425858b2467d1f74251cc9e5dcc69a57009a669856a4ca8bb76a5a58f7e09";
 const PASS_HASH = "40eb73726b0999f8954918c9c7b0d9a1c7432406c3a761c7c9d34fa2908fcd7a";
@@ -517,22 +536,19 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-12-10";
+const APP_VERSION = "2026-07-12-11";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
   const prevVersion = localStorage.getItem('para_ti_version');
 
   if(prevVersion === null){
-    // primera vez que abre la página: no es una "actualización", solo entra directo
     localStorage.setItem('para_ti_version', APP_VERSION);
     overlay.classList.add('hide');
   } else if(prevVersion !== APP_VERSION){
-    // sí hay una versión nueva:
     localStorage.setItem('para_ti_version', APP_VERSION);
-    setTimeout(() => overlay.classList.add('hide'), 20000);
+    setTimeout(() => overlay.classList.add('hide'), 40000);
   } else {
-    // misma versión de siempre: nada que avisar
     overlay.classList.add('hide');
   }
 })();
@@ -541,7 +557,9 @@ const APP_VERSION = "2026-07-12-10";
   const start = new Date('2026-04-28T00:00:00');
   const now = new Date();
   const days = Math.max(0, Math.floor((now - start) / 86400000));
-  document.getElementById('daysCounter').textContent = `💜 ${days} días juntos`;
+  const spoiler = document.getElementById('daysSpoiler');
+  spoiler.textContent = `💜 ${days} días juntos`;
+  spoiler.addEventListener('click', () => spoiler.classList.toggle('revealed'));
 })();
 
 const scenes = {
@@ -573,25 +591,19 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   if(userHash === USER_HASH && passHash === PASS_HASH){
     goTo('garden');
     document.getElementById('bgMusic').play().catch(() => {});
-    hintTimeout = setTimeout(() => {
-  if(!advanced){
-    flowerField.querySelector('[data-secret="true"]').classList.add('hint');
-  }
-}, 7000);
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     error.classList.add('show');
   }
 });
 
-/* pequeñas estrellas decorativas de fondo en el login */
-  (function greetingAndQuote(){
+(function greetingAndQuote(){
   const hour = new Date().getHours();
   let greeting;
   if(hour >= 5 && hour < 12){
     greeting = "Buenos días mor ☀️💛";
   } else if(hour >= 12 && hour < 19){
-    greeting = "Tarde de pensarte 😘🧡";
+    greeting = "Buenas tarde mi vida 😘🧡";
   } else {
     greeting = "Vamos a dormir mi vida ❤️🌙";
   }
@@ -606,11 +618,11 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     "Contigo hasta el fin del universo 🌌",
     "Eres mi lugar favorito 💫",
     "Sonríe, alguien te ama mucho 😊",
-    "Me encanta como te ves hoy 🔥",
     "Hueles a hogar 🤍"
   ];
   document.getElementById('loginQuote').textContent = quotes[Math.floor(Math.random()*quotes.length)];
 })();
+
 (function loginStars(){
   const container = document.getElementById('loginStars');
   let shadows = [];
@@ -626,18 +638,17 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
 /* ---------- JARDÍN ---------- */
 const flowerField = document.getElementById('flowerField');
-const flowerCount = window.innerWidth < 480 ? 65 : 110; // menos flores en celulares chicos = más cómodo al tocar
+const flowerCount = window.innerWidth < 480 ? 65 : 110;
 const secretIndex = Math.floor(Math.random()*flowerCount);
 let advanced = false;
-let hintTimeout = null; // evita que se dispare más de una vez
+let hintTimeout = null;
 
 for(let i=0;i<flowerCount;i++){
   const flower = document.createElement('div');
   flower.className = 'flower';
 
-  const left = -2 + Math.random()*104;        // % — cubre todo el ancho
-  const bottom = Math.random()*33;            // % — cubre todo el pasto (0% a 33%)
-  // las flores más "cerca" (bottom bajo) se ven más grandes; las de atrás, más pequeñas
+  const left = -2 + Math.random()*104;
+  const bottom = Math.random()*33;
   const depthScale = 1.35 - (bottom/33)*0.85;
   const scale = depthScale + (Math.random()*0.2 - 0.1);
   const duration = 3.5 + Math.random()*3;
@@ -671,13 +682,16 @@ for(let i=0;i<flowerCount;i++){
     }
   }
 
-  // en computador: pasar el cursor. en celular: tocar (el hover no existe en táctil)
   flower.addEventListener('mouseenter', tryAdvance);
   flower.addEventListener('touchstart', function(e){ e.preventDefault(); tryAdvance(); }, {passive:false});
 
   flowerField.appendChild(flower);
 }
-
+hintTimeout = setTimeout(() => {
+  if(!advanced){
+    flowerField.querySelector('[data-secret="true"]').classList.add('hint');
+  }
+}, 30000);
 
 /* ---------- UNIVERSO (fondo con efecto de profundidad) ---------- */
 function buildWarpField(container){
@@ -708,7 +722,6 @@ function buildWarpField(container){
 }
 buildWarpField(document.getElementById('starfieldFinal'));
 
-/* estrellas interactivas: hover -> TE AMO */
 let hoverStarsInitialized = false;
 function initUniverseStars(){
   const container = document.getElementById('starfieldUniverse');
@@ -851,25 +864,30 @@ document.getElementById('shareAlbum').addEventListener('click', async function()
     try{
       await navigator.share({files: selectedPhotoFiles, text});
       return;
-    } catch(err){ /* el usuario canceló o no se pudo: seguimos con el respaldo */ }
+    } catch(err){ }
   }
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
 });
+
+/* ---------- MÚSICA ---------- */
 const bgMusic = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('musicBtn');
 let musicOn = true;
 musicBtn.addEventListener('click', function(){
   musicOn = !musicOn;
-  if(musicOn){ bgMusic.play().catch(()=>{}); musicBtn.textContent = '🔊'; }
-  else { bgMusic.pause(); musicBtn.textContent = '🔇'; }
+  if(musicOn){
+    bgMusic.play().catch(() => {});
+    musicBtn.textContent = '🔊';
+  } else {
+    bgMusic.pause();
+    musicBtn.textContent = '🔇';
+  }
 });
+
 /* ---------- PWA: service worker + botón de instalar ---------- */
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {
-      // si se abre como archivo local (file://) el navegador bloquea el service worker;
-      // esto no afecta el resto de la página, solo el modo "app instalable".
-    });
+    navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
 
