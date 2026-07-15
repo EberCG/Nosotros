@@ -760,12 +760,17 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+let currentUserLabel = null; // se llena al iniciar sesión; queda vacío para la "visita" inicial porque aún no se sabe quién es
 
 function logEvent(type){
-  db.collection('events').add({
+  const payload = {
     type: type,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(() => {});
+  };
+  if(currentUserLabel){
+    payload.user = currentUserLabel;
+  }
+  db.collection('events').add(payload).catch(() => {});
 }
 
 logEvent('visit'); // se registra sola cada vez que alguien abre la página
@@ -827,8 +832,17 @@ document.getElementById('leidoBtn').addEventListener('click', function(){
 /* ============================================================
   
    ============================================================ */
-const USER_HASH = "30d425858b2467d1f74251cc9e5dcc69a57009a669856a4ca8bb76a5a58f7e09";
-const PASS_HASH = "40eb73726b0999f8954918c9c7b0d9a1c7432406c3a761c7c9d34fa2908fcd7a";
+/* ============================================================
+   Cuentas: cada una con su usuario/contraseña (guardados como
+   hash) y una etiqueta que se usa para identificar quién entró
+   en el registro de stats.html. Para agregar otra cuenta, dime
+   el usuario y contraseña y te doy los hashes — no se escriben
+   en texto plano aquí.
+   ============================================================ */
+const ACCOUNTS = [
+  { userHash: "30d425858b2467d1f74251cc9e5dcc69a57009a669856a4ca8bb76a5a58f7e09", passHash: "40eb73726b0999f8954918c9c7b0d9a1c7432406c3a761c7c9d34fa2908fcd7a", label: "Mor" },
+  { userHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", passHash: "23aef111e0797c2215224bb1876376e008ba86838124ac9e45e48d81e6d74335", label: "Admin" }
+];
 
 async function sha256(text){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -898,12 +912,16 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
   const userHash = await sha256(user);
   const passHash = await sha256(pass);
+  const match = ACCOUNTS.find(acc => acc.userHash === userHash && acc.passHash === passHash);
 
-  if(userHash === USER_HASH && passHash === PASS_HASH){
+  if(match){
+    currentUserLabel = match.label;
     goTo('garden');
     document.getElementById('loginBgVideo').pause(); // el video deja de reproducirse al pasar a la siguiente ventana
     logEvent('login');
-    checkLetter();
+    if(currentUserLabel === 'Mor'){
+      checkLetter(); // la carta solo se revisa/aparece para ella, nunca con la cuenta admin
+    }
     document.getElementById('bgMusic').play().catch(() => {});
     hintTimeout = setTimeout(() => {
   if(!advanced){
