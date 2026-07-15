@@ -334,6 +334,104 @@
   }
   .restart-link:hover{color:rgba(255,255,255,0.6);}
 
+  /* ---------- CARTA SORPRESA ---------- */
+  .letter-overlay{
+    position:fixed;inset:0;z-index:9998;
+    background:radial-gradient(ellipse at center, #14103a 0%, var(--space-black) 80%);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;
+    transition:opacity .8s ease;
+    padding:24px;
+  }
+  .letter-overlay.show{opacity:1;pointer-events:auto;}
+
+  .letter-warning{
+    position:relative;z-index:2;text-align:center;
+    width:min(340px,88vw);
+    background:linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04));
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter:blur(18px) saturate(180%);
+    -webkit-backdrop-filter:blur(18px) saturate(180%);
+    border-radius:20px;padding:36px 30px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .letter-warning-icon{font-size:2rem;margin-bottom:10px;}
+  .letter-warning p.title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--cloud-white);font-size:1.3rem;margin:0 0 14px;
+  }
+  .letter-warning-text{
+    color:rgba(255,255,255,0.65);font-size:.82rem;line-height:1.5;margin:0 0 24px;
+  }
+
+  .scroll-wrap{
+    display:none;
+    position:relative;z-index:2;
+    width:min(420px,90vw);
+    max-height:88vh;
+    flex-direction:column;
+    align-items:center;
+  }
+  .scroll-wrap.show{display:flex;}
+  .scroll-rod{
+    width:88%;height:16px;border-radius:10px;flex-shrink:0;
+    background:linear-gradient(180deg, #8a5a34, #5c3a20);
+    box-shadow:0 3px 8px rgba(0,0,0,0.4);
+  }
+  .scroll-paper{
+    width:100%;
+    background:linear-gradient(135deg, #f3e6c8, #e8d3a3);
+    color:#4a3520;
+    padding:30px 26px;
+    overflow-y:auto;
+    max-height:74vh;
+    box-shadow:inset 0 0 40px rgba(120,85,40,0.3), 0 10px 30px rgba(0,0,0,0.4);
+    clip-path:inset(50% 0 50% 0);
+  }
+  .scroll-paper.unrolling{
+    animation:unroll 1.2s cubic-bezier(.2,.8,.3,1) forwards;
+  }
+  @keyframes unroll{
+    0%{clip-path:inset(50% 0 50% 0);}
+    100%{clip-path:inset(0% 0 0% 0);}
+  }
+  .letter-meta{
+    font-family:'Quicksand',sans-serif;font-weight:600;font-size:.8rem;
+    text-align:center;margin:0 0 20px;letter-spacing:.3px;color:#6b4a26;
+  }
+  .spoiler-hint{
+    text-align:center;font-family:'Quicksand',sans-serif;font-size:.72rem;
+    color:#8a6a3d;margin:0 0 8px;
+  }
+  .letter-body p{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:1.05rem;line-height:1.7;margin:0 0 14px;
+  }
+  .letter-ps{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:.95rem;line-height:1.6;margin:22px 0 4px;color:#6b4a26;
+  }
+  .letter-signature{
+    font-family:'Dancing Script',cursive;font-weight:700;
+    font-size:1.6rem;text-align:right;margin:8px 0 22px;color:#5c3a20;
+  }
+  #leidoBtn{display:block;margin:6px auto 4px;}
+
+  .spoiler-block{
+    position:relative;cursor:pointer;user-select:none;
+    filter:blur(6px);
+    transition:filter .4s ease;
+    padding:6px;border-radius:8px;margin-bottom:6px;
+  }
+  .spoiler-block.revealed{filter:blur(0);}
+  .spoiler-block::before, .spoiler-block::after{
+    content:"✨";position:absolute;font-size:.85rem;
+    animation:sparkle-pop 1.5s ease-in-out infinite;pointer-events:none;
+  }
+  .spoiler-block::before{top:-2px;left:-2px;}
+  .spoiler-block::after{bottom:-2px;right:-2px;animation-delay:.5s;}
+  .spoiler-block.revealed::before, .spoiler-block.revealed::after{display:none;}
+
   /* ---------- MENÚ / DIARIO / ÁLBUM ---------- */
   .starfield-static{position:absolute;inset:0;overflow:hidden;}
   .menu-box{position:relative;z-index:3;text-align:center;width:min(340px,86vw);}
@@ -481,6 +579,48 @@
     <p>✨ Hay cosas nuevas para ti</p>
   </div>
 </div>
+
+<!-- ---------- CARTA SORPRESA ---------- -->
+<div class="letter-overlay" id="letterOverlay">
+  <div class="letter-warning" id="letterWarning">
+    <div class="letter-warning-icon">💌</div>
+    <p class="title">Tienes una carta</p>
+    <p class="letter-warning-text">Solo se puede abrir una vez. En cuanto la termines de leer y toques "Leído", desaparecerá para siempre.</p>
+    <button class="action-btn" id="openLetterBtn">Abrir carta</button>
+  </div>
+
+  <div class="scroll-wrap" id="scrollWrap">
+    <div class="scroll-rod"></div>
+    <div class="scroll-paper" id="scrollPaper">
+      <p class="letter-meta">Para: Mi futura esposa. &nbsp;|&nbsp; 15 Jul 26</p>
+
+      <p class="spoiler-hint">toca para leer 💭</p>
+      <div class="spoiler-block" id="letterSpoiler">
+        <div class="letter-body">
+          <p>Mor, quiero aprovechar q estás durmiendo aquí, encima de mí, para escribirte algunas cosas q siento.</p>
+          <p>Me gustas mucho.</p>
+          <p>Desde aquel primer mensaje q me mandaste pidiendo la tarea ya sentía una chispa dentro de mí, y lo confirmé cuando te vi por primera vez.</p>
+          <p>Pude notar en tus bonitos ojos q algo más vendría para nosotros.</p>
+          <p>Sé q el camino no es ni ah sido para nada fácil, pero me doy cuenta de q ambos seguimos aquí, juntos, y eso me hace muy feliz.</p>
+          <p>Me gusta mucho tu cuerpo, y no solo en lo sexual; me encanta tu olor y cómo se siente tu cuerpo pegadito al mío.</p>
+          <p>Me gustas muchísimo, mor.</p>
+          <p>Me encantan tus ojos, tu sonrisa y esa carita que pones cuando quieres algo, jjsjs traviesilla...</p>
+          <p>Me gusta hasta cuando te enojas y haces berrinche, o cuando me alimentas, porque no solo llenas mi pancita, también alimentas mi alma.</p>
+          <p>Me gusta caminar de la mano contigo sin importar nada más.</p>
+          <p>Me encanta cuando hago cualquier cosita no sé qué sea, que te gusta y me regalas esa sonrisa de enamorada.</p>
+          <p>Simplemente te amo demasiado mujer mía.</p>
+        </div>
+      </div>
+
+      <p class="letter-ps">Pd: quiero q sepas q mi deseo es avivar la chispa todos los días contigo. Estoy aquí para buscar aligerar tus días, cuidar nuestra magia y hacerte feliz lo más q pueda ✨♥️🌙</p>
+      <p class="letter-signature">Con amor, E.C.</p>
+
+      <button class="action-btn" id="leidoBtn">Leído</button>
+    </div>
+    <div class="scroll-rod"></div>
+  </div>
+</div>
+
 <audio id="bgMusic" loop>
   <source src="musica.mp3" type="audio/mpeg">
 </audio>
@@ -598,6 +738,44 @@ function logEvent(type){
 
 logEvent('visit'); // se registra sola cada vez que alguien abre la página
 
+/* ---------- CARTA SORPRESA: se muestra una vez, o cuando la vuelvan a activar desde stats ---------- */
+function checkLetter(){
+  db.collection('letter').doc('trigger').get().then((doc) => {
+    const resetAt = (doc.exists && doc.data().resetAt) ? doc.data().resetAt.toMillis() : 0;
+    const lastRead = localStorage.getItem('letterReadAt');
+    const lastReadMillis = lastRead ? new Date(lastRead).getTime() : 0;
+    if(lastReadMillis === 0 || resetAt > lastReadMillis){
+      showLetter();
+    }
+  }).catch(() => {
+    if(!localStorage.getItem('letterReadAt')) showLetter();
+  });
+}
+
+function showLetter(){
+  document.getElementById('letterOverlay').classList.add('show');
+}
+
+document.getElementById('openLetterBtn').addEventListener('click', function(){
+  document.getElementById('letterWarning').style.display = 'none';
+  const scrollWrap = document.getElementById('scrollWrap');
+  scrollWrap.classList.add('show');
+  requestAnimationFrame(() => {
+    document.getElementById('scrollPaper').classList.add('unrolling');
+  });
+});
+
+document.getElementById('letterSpoiler').addEventListener('click', function(){
+  this.classList.toggle('revealed');
+});
+
+document.getElementById('leidoBtn').addEventListener('click', function(){
+  const now = new Date().toISOString();
+  localStorage.setItem('letterReadAt', now);
+  logEvent('letter_read');
+  document.getElementById('letterOverlay').classList.remove('show');
+});
+
 /* ============================================================
    LOGGING 
    ============================================================ */
@@ -679,6 +857,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   if(userHash === USER_HASH && passHash === PASS_HASH){
     goTo('garden');
     logEvent('login');
+    checkLetter();
     document.getElementById('bgMusic').play().catch(() => {});
     hintTimeout = setTimeout(() => {
   if(!advanced){
