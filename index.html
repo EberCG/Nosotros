@@ -739,16 +739,29 @@ function logEvent(type){
 logEvent('visit'); // se registra sola cada vez que alguien abre la página
 
 /* ---------- CARTA SORPRESA: se muestra una vez, o cuando la vuelvan a activar desde stats ---------- */
+let letterListenerStarted = false;
 function checkLetter(){
-  db.collection('letter').doc('trigger').get().then((doc) => {
+  if(letterListenerStarted) return; // ya está escuchando, no hace falta de nuevo
+  letterListenerStarted = true;
+  let firstSnapshot = true;
+
+  db.collection('letter').doc('trigger').onSnapshot((doc) => {
     const resetAt = (doc.exists && doc.data().resetAt) ? doc.data().resetAt.toMillis() : 0;
     const lastRead = localStorage.getItem('letterReadAt');
     const lastReadMillis = lastRead ? new Date(lastRead).getTime() : 0;
-    if(lastReadMillis === 0 || resetAt > lastReadMillis){
+
+    if(firstSnapshot){
+      firstSnapshot = false;
+      // primer chequeo al iniciar sesión: solo si nunca la ha leído, o si Eber activó un "de nuevo" pendiente
+      if(lastReadMillis === 0 || resetAt > lastReadMillis){
+        showLetter();
+      }
+      return;
+    }
+    // a partir de aquí, queda escuchando en vivo: si Eber toca el botón mientras ella sigue en la app, aparece al instante
+    if(resetAt > lastReadMillis){
       showLetter();
     }
-  }).catch(() => {
-    if(!localStorage.getItem('letterReadAt')) showLetter();
   });
 }
 
