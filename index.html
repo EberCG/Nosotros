@@ -51,26 +51,29 @@
   }
   .scene.active{opacity:1;pointer-events:auto;}
 
-  /* ---------- ESCENA 1: LOGIN ---------- */
-  #scene-login{background:radial-gradient(ellipse at center, #14103a 0%, var(--space-black) 70%);}
-  .login-stars{position:absolute;inset:0;}
-  .login-card{
-    position:relative;z-index:2;
-    background:linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04));
-    border:1px solid rgba(255,255,255,0.25);
-    backdrop-filter:blur(18px) saturate(180%);
-    -webkit-backdrop-filter:blur(18px) saturate(180%);
-    border-radius:20px;
-    padding:44px 36px;
-    width:min(320px,85vw);
-    text-align:center;
-    box-shadow:
-      0 20px 60px rgba(0,0,0,0.5),
-      inset 0 1px 0 rgba(255,255,255,0.35),
-      inset 0 -1px 0 rgba(0,0,0,0.15);
-    transition:transform .35s ease;
+  /* ---------- ESCENA 1: LOGIN (video de fondo según hora del día) ---------- */
+  #scene-login{background:var(--space-black);overflow:hidden;}
+  .login-bg-video{
+    position:absolute;inset:0;z-index:0;
+    width:100%;height:100%;object-fit:cover;
   }
-  .login-card.shake{animation:shake .5s;}
+  .login-blur-strip{
+    position:absolute;top:0;left:0;bottom:0;z-index:2;
+    width:30%;min-width:130px;max-width:300px;
+    box-sizing:border-box;
+    background:rgba(5,4,22,0.32);
+    backdrop-filter:blur(24px) saturate(150%);
+    -webkit-backdrop-filter:blur(24px) saturate(150%);
+    box-shadow:1px 0 0 rgba(255,255,255,0.08);
+    padding:15vh 18px 0 20px;
+  }
+  .login-form{
+    position:absolute;z-index:2;
+    top:36%;right:6%;
+    width:min(250px,54vw);
+    text-align:left;
+  }
+  .login-form.shake{animation:shake .5s;}
   .install-btn{
     position:fixed;top:5%;right:5%;z-index:20;
     background:linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
@@ -126,39 +129,64 @@
     font-family:'Cormorant Garamond',serif;
     font-style:italic;font-weight:500;
     color:var(--cloud-white);
-    font-size:1.6rem;margin:0 0 6px;
+    font-size:1.3rem;margin:0 0 8px;
     letter-spacing:.5px;
+    text-shadow:0 2px 12px rgba(0,0,0,0.55);
   }
   .login-greeting{
-  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
-  color:var(--cloud-white);font-size:1.05rem;margin:2px 0 6px;
-}
-.login-quote{
-  color:rgba(255,255,255,0.6);font-size:.78rem;margin:0 0 18px;
-  font-family:'Quicksand',sans-serif;
-}
-  .login-sub{color:rgba(255,255,255,0.55);font-size:.8rem;margin:0 0 26px;}
-  .login-card input{
-    width:100%;padding:12px 14px;margin-bottom:14px;
-    border-radius:10px;border:1px solid rgba(255,255,255,0.2);
-    background:rgba(255,255,255,0.07);color:#fff;font-size:16px;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--cloud-white);font-size:1.05rem;margin:0 0 6px;
+    text-shadow:0 2px 12px rgba(0,0,0,0.55);
+  }
+  .login-blur-strip .login-quote{
+    color:var(--cloud-white);
+    font-size:clamp(1.1rem,4vw,1.5rem);line-height:1.4;
+    margin:0;word-wrap:break-word;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+    text-shadow:0 2px 14px rgba(0,0,0,0.6);
+  }
+  .login-sub{
+    color:rgba(255,255,255,0.7);font-size:.8rem;margin:0 0 22px;
+    text-shadow:0 2px 10px rgba(0,0,0,0.5);
+  }
+  .login-form input{
+    display:block;width:100%;
+    background:transparent;border:none;
+    border-bottom:1px solid rgba(255,255,255,0.4);
+    padding:10px 2px;margin-bottom:16px;
+    color:#fff;font-size:16px;
     font-family:'Quicksand',sans-serif;outline:none;
-    transition:border .2s ease, background .2s ease;
+    transition:border-color .2s ease;
   }
-  .login-card input::placeholder{color:rgba(255,255,255,0.4);}
-  .login-card input:focus{border-color:var(--accent-violet);background:rgba(255,255,255,0.11);}
+  .login-form input::placeholder{color:rgba(255,255,255,0.6);}
+  .login-form input:focus{border-color:var(--accent-violet);}
+  /* ---------- botón "liquid glass" ---------- */
   .login-btn{
-    width:100%;padding:12px;border:none;border-radius:10px;
-    background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
+    position:relative;overflow:hidden;
+    padding:12px 30px;border:1px solid rgba(255,255,255,0.5);
+    border-radius:999px;
+    background:linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08) 55%, rgba(255,255,255,0.22));
+    backdrop-filter:blur(16px) saturate(180%);
+    -webkit-backdrop-filter:blur(16px) saturate(180%);
     color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;
-    font-size:.95rem;letter-spacing:.5px;cursor:pointer;margin-top:6px;
+    font-size:.92rem;letter-spacing:.4px;cursor:pointer;margin-top:4px;
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.5),
-      inset 0 -2px 4px rgba(0,0,0,0.15),
-      0 6px 18px rgba(255,122,176,0.35);
-    transition:filter .2s ease, transform .2s ease;
+      inset 0 1px 1px rgba(255,255,255,0.7),
+      inset 0 -6px 10px rgba(255,255,255,0.1),
+      inset 0 8px 18px rgba(255,122,176,0.18),
+      0 8px 22px rgba(0,0,0,0.35);
+    transition:transform .25s ease, box-shadow .25s ease;
   }
-  .login-btn:hover{filter:brightness(1.12);transform:translateY(-1px);}
+  .login-btn::before{
+    content:'';position:absolute;top:-50%;left:-30%;
+    width:50%;height:200%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+    transform:rotate(20deg);
+    transition:left 1s ease;
+  }
+  .login-btn:hover::before{left:130%;}
+  .login-btn:hover{transform:translateY(-2px);}
+  .login-btn:active{transform:translateY(0) scale(0.98);}
   .login-error{color:#ff9db3;font-size:.78rem;margin-top:14px;min-height:1em;opacity:0;transition:opacity .3s ease;}
   .login-error.show{opacity:1;}
 
@@ -630,11 +658,15 @@
 
   <!-- ESCENA 1: LOGIN -->
   <section id="scene-login" class="scene active">
-    <div class="login-stars" id="loginStars"></div>
-    <form class="login-card" id="loginForm">
+    <video class="login-bg-video" id="loginBgVideo" muted playsinline loop autoplay></video>
+
+    <div class="login-blur-strip">
+      <p class="login-quote" id="loginQuote"></p>
+    </div>
+
+    <form class="login-form" id="loginForm">
      <p class="login-title">Para ti</p>
      <p class="login-greeting" id="loginGreeting"></p>
-     <p class="login-quote" id="loginQuote"></p>
      <p class="login-sub">Entra si sabes el camino</p>
       <input type="text" id="userInput" placeholder="Usuario" autocomplete="off" required>
       <input type="password" id="passInput" placeholder="Contraseña" autocomplete="off" required>
@@ -869,6 +901,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
   if(userHash === USER_HASH && passHash === PASS_HASH){
     goTo('garden');
+    document.getElementById('loginBgVideo').pause(); // el video deja de reproducirse al pasar a la siguiente ventana
     logEvent('login');
     checkLetter();
     document.getElementById('bgMusic').play().catch(() => {});
@@ -910,17 +943,20 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   ];
   document.getElementById('loginQuote').textContent = quotes[Math.floor(Math.random()*quotes.length)];
 })();
-(function loginStars(){
-  const container = document.getElementById('loginStars');
-  let shadows = [];
-  for(let i=0;i<80;i++){
-    shadows.push(`${Math.random()*100}vw ${Math.random()*100}vh #fff`);
+/* video de fondo del login: Mañana / Tarde / Noche, según la hora actual, en bucle */
+(function loginBackgroundVideo(){
+  const hour = new Date().getHours();
+  let file;
+  if(hour >= 5 && hour < 12){
+    file = 'Manana.mp4';
+  } else if(hour >= 12 && hour < 19){
+    file = 'Tarde.mp4';
+  } else {
+    file = 'Noche.mp4';
   }
-  const dot = document.createElement('div');
-  dot.style.width = '1px'; dot.style.height='1px';
-  dot.style.boxShadow = shadows.join(',');
-  dot.style.position='absolute';
-  container.appendChild(dot);
+  const video = document.getElementById('loginBgVideo');
+  video.src = encodeURI(file);
+  video.play().catch(() => {}); // algunos navegadores requieren interacción; con muted+playsinline debería reproducir solo
 })();
 
 /* ---------- JARDÍN ---------- */
