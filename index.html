@@ -711,7 +711,6 @@
       <p class="days-counter"><span class="spoiler" id="daysSpoiler">toca para ver</span></p>
     </div>
     <span class="restart-link" id="restartLink">◍ volver a empezar</span>
-    <span class="restart-link" id="previewLetterLink" style="bottom:8%;max-width:80vw;text-align:center;">✉️ ver la carta de nuevo (solo aquí)</span>
   </section>
 
   <!-- ESCENA 6: MENSAJES DE NOSOTROS -->
@@ -1156,17 +1155,6 @@ document.getElementById('continueBtn').addEventListener('click', function(){
 
 document.getElementById('restartLink').addEventListener('click', function(){
   location.reload();
-});
-
-document.getElementById('previewLetterLink').addEventListener('click', function(){
-  // solo borra el "ya la leí" de ESTE celular y la vuelve a mostrar.
-  // no toca Firebase, así que jamás afecta el celular de ella.
-  localStorage.removeItem('letterReadAt');
-  document.getElementById('letterWarning').style.display = '';
-  document.getElementById('scrollWrap').classList.remove('show');
-  document.getElementById('scrollPaper').classList.remove('unrolling');
-  document.getElementById('letterSpoiler').classList.remove('revealed');
-  showLetter();
 });
 
 /* ---------- MENÚ ---------- */
