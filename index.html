@@ -620,11 +620,11 @@
   <div class="scroll-wrap" id="scrollWrap">
     <div class="scroll-rod"></div>
     <div class="scroll-paper" id="scrollPaper">
-      <p class="letter-meta">Para: Mi futura esposa. &nbsp;|&nbsp; 15 Jul 26</p>
+      <p class="letter-meta" id="letterMeta">Para: Mi futura esposa. &nbsp;|&nbsp; 15 Jul 26</p>
 
       <p class="spoiler-hint">toca para leer 💭</p>
       <div class="spoiler-block" id="letterSpoiler">
-        <div class="letter-body">
+        <div class="letter-body" id="letterBody">
           <p>Mor, quiero aprovechar q estás durmiendo aquí, encima de mí, para escribirte algunas cosas q siento.</p>
           <p>Me gustas mucho.</p>
           <p>Desde aquel primer mensaje q me mandaste pidiendo la tarea ya sentía una chispa dentro de mí, y lo confirmé cuando te vi por primera vez.</p>
@@ -640,8 +640,8 @@
         </div>
       </div>
 
-      <p class="letter-ps">Pd: quiero q sepas q mi deseo es avivar la chispa todos los días contigo. Estoy aquí para buscar aligerar tus días, cuidar nuestra magia y hacerte feliz lo más q pueda ✨♥️🌙</p>
-      <p class="letter-signature">Con amor, E.C.</p>
+      <p class="letter-ps" id="letterPs">Pd: quiero q sepas q mi deseo es avivar la chispa todos los días contigo. Estoy aquí para buscar aligerar tus días, cuidar nuestra magia y hacerte feliz lo más q pueda ✨♥️🌙</p>
+      <p class="letter-signature" id="letterSignature">Con amor, E.C.</p>
 
       <button class="action-btn" id="leidoBtn">Leído</button>
     </div>
@@ -711,6 +711,7 @@
       <p class="days-counter"><span class="spoiler" id="daysSpoiler">toca para ver</span></p>
     </div>
     <span class="restart-link" id="restartLink">◍ volver a empezar</span>
+    <span class="restart-link" id="previewLetterLink" style="bottom:8%;max-width:80vw;text-align:center;">✉️ ver la carta de nuevo (solo aquí)</span>
   </section>
 
   <!-- ESCENA 6: MENSAJES DE NOSOTROS -->
@@ -787,19 +788,46 @@ function checkLetter(){
     const lastRead = localStorage.getItem('letterReadAt');
     const lastReadMillis = lastRead ? new Date(lastRead).getTime() : 0;
 
+    let shouldShow;
     if(firstSnapshot){
       firstSnapshot = false;
       // primer chequeo al iniciar sesión: solo si nunca la ha leído, o si Eber activó un "de nuevo" pendiente
-      if(lastReadMillis === 0 || resetAt > lastReadMillis){
-        showLetter();
-      }
-      return;
+      shouldShow = (lastReadMillis === 0 || resetAt > lastReadMillis);
+    } else {
+      // a partir de aquí, queda escuchando en vivo: si Eber toca el botón mientras ella sigue en la app, aparece al instante
+      shouldShow = (resetAt > lastReadMillis);
     }
-    // a partir de aquí, queda escuchando en vivo: si Eber toca el botón mientras ella sigue en la app, aparece al instante
-    if(resetAt > lastReadMillis){
-      showLetter();
+
+    if(shouldShow){
+      loadLetterContentAndShow();
     }
   });
+}
+
+function loadLetterContentAndShow(){
+  db.collection('letter').doc('content').get().then((doc) => {
+    if(doc.exists) applyLetterContent(doc.data());
+    showLetter();
+  }).catch(() => {
+    showLetter(); // si falla la conexión, se muestra igual con el texto que ya está guardado en la página
+  });
+}
+
+function applyLetterContent(data){
+  if(!data) return;
+  if(data.dedication !== undefined && data.date !== undefined){
+    document.getElementById('letterMeta').innerHTML = `Para: ${data.dedication} &nbsp;|&nbsp; ${data.date}`;
+  }
+  if(data.body){
+    const paragraphs = data.body.split('\n\n').map(p => p.trim()).filter(Boolean);
+    document.getElementById('letterBody').innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+  }
+  if(data.ps !== undefined){
+    document.getElementById('letterPs').textContent = data.ps;
+  }
+  if(data.signature !== undefined){
+    document.getElementById('letterSignature').textContent = data.signature;
+  }
 }
 
 function showLetter(){
@@ -1128,6 +1156,17 @@ document.getElementById('continueBtn').addEventListener('click', function(){
 
 document.getElementById('restartLink').addEventListener('click', function(){
   location.reload();
+});
+
+document.getElementById('previewLetterLink').addEventListener('click', function(){
+  // solo borra el "ya la leí" de ESTE celular y la vuelve a mostrar.
+  // no toca Firebase, así que jamás afecta el celular de ella.
+  localStorage.removeItem('letterReadAt');
+  document.getElementById('letterWarning').style.display = '';
+  document.getElementById('scrollWrap').classList.remove('show');
+  document.getElementById('scrollPaper').classList.remove('unrolling');
+  document.getElementById('letterSpoiler').classList.remove('revealed');
+  showLetter();
 });
 
 /* ---------- MENÚ ---------- */
