@@ -775,7 +775,7 @@
           <p class="plant-msg" id="plantMsg"></p>
         </div>
 
-        <p class="dash-section-title" style="margin-top:22px;">Mood tracker</p>
+        <p class="dash-section-title" style="margin-top:22px;">¿Cómo estas hoy morcito 🥰 ?</p>
         <div class="mood-card">
           <p class="mood-prompt">¿Cómo te sientes hoy, <span id="moodUserLabel"></span>?</p>
           <div class="mood-options">
@@ -1345,7 +1345,7 @@ function initMoodTracker(){
   const nombrePareja = otherKey === 'admin' ? 'Oliver' : 'Love';
 
   // Convertimos el ID interno (admin o mor) en el apodo (Oliver o Love)
-const nombreActual = currentUserLabel === 'admin' ? 'Oliver' : 'Love';
+const nombreActual = myKey === 'admin' ? 'Oliver' : 'Love';
 document.getElementById('moodUserLabel').textContent = nombreActual;
   
 
@@ -1379,7 +1379,7 @@ document.getElementById('moodUserLabel').textContent = nombreActual;
     if(theirs && theirs.emoji){
       partnerLine.textContent = `${nombrePareja} hoy: ${theirs.emoji}`;
       careNote.textContent = (theirs.emoji === '🥺' || theirs.emoji === '😴')
-        ? 'Veo que tuvo un día pesado, recuerda decirle que la/lo amas 💜'
+        ? 'Pollito tuvo un dia pesado, recuerda decirle que lo amas 💜'
         : '';
     } else {
       partnerLine.textContent = '';
