@@ -1341,7 +1341,8 @@ function initMoodTracker(){
   if(!currentUserLabel) return;
   const myKey = currentUserLabel.toLowerCase();
   const otherKey = myKey === 'admin' ? 'mor' : 'admin';
-  const otherLabel = otherKey === 'admin' ? 'Admin' : 'Mor';
+  // Convertimos el ID de la pareja en su apodo (Oliver o Love)
+  const nombrePareja = otherKey === 'admin' ? 'Oliver' : 'Love';
 
   // Convertimos el ID interno (admin o mor) en el apodo (Oliver o Love)
 const nombreActual = currentUserLabel === 'admin' ? 'Oliver' : 'Love';
@@ -1376,7 +1377,7 @@ document.getElementById('moodUserLabel').textContent = nombreActual;
     const partnerLine = document.getElementById('moodPartnerLine');
     const careNote = document.getElementById('moodCareNote');
     if(theirs && theirs.emoji){
-      partnerLine.textContent = `${otherLabel} hoy: ${theirs.emoji}`;
+      partnerLine.textContent = `${nombrePareja} hoy: ${theirs.emoji}`;
       careNote.textContent = (theirs.emoji === '🥺' || theirs.emoji === '😴')
         ? 'Veo que tuvo un día pesado, recuerda decirle que la/lo amas 💜'
         : '';
