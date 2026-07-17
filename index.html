@@ -1376,11 +1376,20 @@ document.getElementById('moodUserLabel').textContent = nombreActual;
 
     const partnerLine = document.getElementById('moodPartnerLine');
     const careNote = document.getElementById('moodCareNote');
+    
     if(theirs && theirs.emoji){
       partnerLine.textContent = `${nombrePareja} hoy: ${theirs.emoji}`;
-      careNote.textContent = (theirs.emoji === '🥺' || theirs.emoji === '😴')
-        ? 'Pollito tuvo un dia pesado, recuerda decirle que lo amas 💜'
-        : '';
+      
+      // Si el emoji es triste o cansado, personalizamos el mensaje según quién lee
+      if (theirs.emoji === '🥺' || theirs.emoji === '😴') {
+        // Si mi usuario es 'admin' (Oliver), significa que estoy viendo el estado de Love, entonces me avisa sobre ella.
+        // Si mi usuario es 'mor' (Love), ella está viendo tu estado, entonces le avisa sobre ti.
+        const apodoParejaPesado = (myKey === 'admin') ? 'Morcito' : 'Pollito';
+        careNote.textContent = `${apodoParejaPesado} tuvo un día pesado, recuerda decirle que lo amas 💜`;
+      } else {
+        careNote.textContent = '';
+      }
+      
     } else {
       partnerLine.textContent = '';
       careNote.textContent = '';
