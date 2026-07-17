@@ -440,7 +440,7 @@
     backdrop-filter:blur(12px) saturate(160%);
     -webkit-backdrop-filter:blur(12px) saturate(160%);
   }
-  .dash-placeholder-flower{margin:0 auto 12px;width:38px;}
+  .dash-placeholder-flower{margin:0 auto 12px;width:38px;} /* ya no se usa aquí, pero no estorba si algo la referencia luego */
 
   .quick-actions-grid{
     display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;
@@ -472,8 +472,11 @@
 
   /* ---------- barra de navegación inferior (cristal difuminado) ---------- */
   .bottom-nav{
-    position:relative;z-index:2;margin-top:14px;
-    display:flex;gap:6px;
+    position:relative;z-index:2;
+    margin:14px auto 0;
+    align-self:center;
+    width:max-content;
+    display:flex;justify-content:center;align-items:center;gap:6px;
     padding:8px;border-radius:26px;
     background:rgba(255,255,255,0.08);
     border:1px solid rgba(255,255,255,0.25);
@@ -491,6 +494,79 @@
   .bottom-nav-btn.active{
     background:linear-gradient(135deg, rgba(255,122,176,0.35), rgba(177,153,255,0.35));
     color:#fff;
+  }
+
+  /* ---------- TAMAGOTCHI: maceta de lavanda ---------- */
+  .plant-card{
+    background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px;padding:18px 18px 22px;text-align:center;
+    backdrop-filter:blur(12px) saturate(160%);
+    -webkit-backdrop-filter:blur(12px) saturate(160%);
+  }
+  .plant-streak{color:var(--pink-glow);font-size:.78rem;font-weight:600;margin-bottom:2px;}
+  .plant-pot{position:relative;height:104px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;}
+  .plant-stage{display:flex;align-items:flex-end;justify-content:center;height:66px;}
+  .pot-emoji{font-size:2rem;margin-top:-6px;}
+  .plant-bump{animation:plant-bump .6s ease;}
+  @keyframes plant-bump{
+    0%,100%{transform:scale(1);}
+    40%{transform:scale(1.15);}
+  }
+  .watering-drop{
+    position:absolute;top:0;font-size:1rem;opacity:0;pointer-events:none;
+    animation:drop-fall .9s ease-in forwards;
+  }
+  @keyframes drop-fall{
+    0%{opacity:0;transform:translateY(-20px);}
+    25%{opacity:1;}
+    100%{opacity:0;transform:translateY(50px);}
+  }
+  .water-btn{
+    position:relative;overflow:hidden;margin-top:12px;
+    padding:10px 26px;border:1px solid rgba(255,255,255,0.5);
+    border-radius:999px;
+    background:linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08) 55%, rgba(255,255,255,0.22));
+    backdrop-filter:blur(16px) saturate(180%);
+    -webkit-backdrop-filter:blur(16px) saturate(180%);
+    color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;
+    font-size:.85rem;cursor:pointer;
+    box-shadow:
+      inset 0 1px 1px rgba(255,255,255,0.7),
+      inset 0 -6px 10px rgba(255,255,255,0.1),
+      inset 0 8px 18px rgba(255,122,176,0.18),
+      0 8px 20px rgba(0,0,0,0.3);
+    transition:transform .2s ease;
+  }
+  .water-btn:hover{transform:translateY(-2px);}
+  .water-btn:active{transform:translateY(0) scale(0.97);}
+  .plant-msg{color:rgba(255,255,255,0.6);font-size:.76rem;margin-top:10px;min-height:1.2em;}
+
+  /* ---------- MOOD TRACKER ---------- */
+  .mood-card{
+    background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px;padding:20px 18px;text-align:center;
+    backdrop-filter:blur(12px) saturate(160%);
+    -webkit-backdrop-filter:blur(12px) saturate(160%);
+  }
+  .mood-prompt{color:var(--cloud-white);font-size:.85rem;margin:0 0 12px;}
+  .mood-options{display:flex;justify-content:center;gap:10px;margin-bottom:4px;}
+  .mood-emoji-btn{
+    width:44px;height:44px;border-radius:50%;
+    border:1px solid rgba(255,255,255,0.25);
+    background:rgba(255,255,255,0.06);font-size:1.25rem;cursor:pointer;
+    transition:transform .2s ease, background .2s ease, border-color .2s ease;
+  }
+  .mood-emoji-btn.selected{
+    background:linear-gradient(135deg, rgba(255,122,176,0.4), rgba(177,153,255,0.4));
+    border-color:rgba(255,255,255,0.55);transform:scale(1.1);
+  }
+  .mood-emoji-btn:hover{transform:translateY(-2px);}
+  .mood-partner{color:rgba(255,255,255,0.55);font-size:.76rem;margin:10px 0 0;}
+  .mood-care-note{
+    color:var(--pink-glow);font-size:.8rem;font-style:italic;margin:10px 0 0;
+    font-family:'Cormorant Garamond',serif;
   }
 
 
@@ -682,16 +758,34 @@
         </div>
 
         <p class="dash-section-title">Tamagotchi</p>
-        <div class="dash-placeholder-card">
-          <div class="dash-placeholder-flower">
-            <div class="flower-scale"><div class="flower-sway"><div class="flower__cluster"></div><div class="flower__stem"></div></div></div>
+        <div class="plant-card" id="plantCard">
+          <div class="plant-streak" id="plantStreak">🔥 0 días de racha</div>
+          <div class="plant-pot" id="plantPot">
+            <div class="plant-stage" id="plantStage">
+              <div class="flower-scale" id="plantFlowerScale">
+                <div class="flower-sway">
+                  <div class="flower__cluster" id="plantCluster"></div>
+                  <div class="flower__stem" id="plantStem"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pot-emoji">🪴</div>
           </div>
-          Muy pronto podrás regar esta plantita de lavanda y verla crecer cada día 🌱
+          <button class="water-btn" id="waterBtn">💧 Regar con amor</button>
+          <p class="plant-msg" id="plantMsg"></p>
         </div>
 
         <p class="dash-section-title" style="margin-top:22px;">Mood tracker</p>
-        <div class="dash-placeholder-card">
-          ¿Cómo se siente hoy cada quien? Este espacio llega en la próxima parte jeje💭
+        <div class="mood-card">
+          <p class="mood-prompt">¿Cómo te sientes hoy, <span id="moodUserLabel"></span>?</p>
+          <div class="mood-options">
+            <button class="mood-emoji-btn" data-emoji="🤩" title="Feliz">🤩</button>
+            <button class="mood-emoji-btn" data-emoji="😴" title="Cansado/a">😴</button>
+            <button class="mood-emoji-btn" data-emoji="🥺" title="Triste">🥺</button>
+            <button class="mood-emoji-btn" data-emoji="😍" title="Enamorado/a">😍</button>
+          </div>
+          <p class="mood-partner" id="moodPartnerLine"></p>
+          <p class="mood-care-note" id="moodCareNote"></p>
         </div>
 
         <span class="dash-restart-link" id="restartLink">◍ volver a empezar</span>
@@ -701,7 +795,7 @@
       <div class="dash-tab-panel" id="dash-tab-recuerdos">
         <p class="dash-section-title">Recuerdos</p>
         <div class="dash-placeholder-card">
-          ✨ Aquí vivirán una cápsula del tiempo y la galería de recuerdos. Muy pronto bueno no tanto 
+          ✨ Aquí vivirán la cápsula del tiempo y la galería de recuerdos. Muy pronto.
         </div>
       </div>
 
@@ -898,7 +992,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-16-22";
+const APP_VERSION = "2026-07-15-21";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -1015,7 +1109,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   } else if(hour >= 12 && hour < 19){
     greeting = "Tarde de pensarte 😘🧡";
   } else {
-    greeting = "Vamos a dormir mi vida ?❤️🌙";
+    greeting = "Vamos a dormir mi vida ❤️🌙";
   }
   document.getElementById('loginGreeting').textContent = greeting;
 
@@ -1135,11 +1229,166 @@ function initUniverseStars(){
   }, 6000);
 }
 
+/* ---------- TAMAGOTCHI: maceta de lavanda compartida ---------- */
+const PLANT_STAGES = [
+  { stem: 12, scale: 0.45, glow: 0 },
+  { stem: 20, scale: 0.65, glow: 0 },
+  { stem: 28, scale: 0.9,  glow: 6 },
+  { stem: 36, scale: 1.1,  glow: 12 },
+  { stem: 42, scale: 1.35, glow: 22 },
+];
+const MAX_PLANT_STAGE = PLANT_STAGES.length - 1;
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function daysBetweenStr(a, b){
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+function renderPlant(state){
+  const stageIdx = Math.min(Math.max(state.growthStage || 0, 0), MAX_PLANT_STAGE);
+  const cfg = PLANT_STAGES[stageIdx];
+  const stem = document.getElementById('plantStem');
+  const scaleWrap = document.getElementById('plantFlowerScale');
+  const cluster = document.getElementById('plantCluster');
+  if(stem) stem.style.height = cfg.stem + 'px';
+  if(scaleWrap) scaleWrap.style.setProperty('--fscale', cfg.scale);
+  if(cluster) cluster.style.filter = cfg.glow ? `drop-shadow(0 0 ${cfg.glow}px var(--pink-glow)) brightness(1.15)` : 'none';
+  const streak = state.streak || 0;
+  document.getElementById('plantStreak').textContent = `🔥 ${streak} día${streak === 1 ? '' : 's'} de racha`;
+}
+
+function loadPlant(){
+  db.collection('plant').doc('state').get().then(doc => {
+    let state = doc.exists ? doc.data() : { growthStage:0, streak:0, lastWatered:{}, lastStreakDate:null };
+    state.lastWatered = state.lastWatered || {};
+
+    // si pasó más de un día desde el último riego doble, la racha se corta y la planta se marchita un poco
+    if(state.lastStreakDate && (state.streak || 0) > 0){
+      const gap = daysBetweenStr(state.lastStreakDate, todayStr());
+      if(gap > 1){
+        state.streak = 0;
+        state.growthStage = Math.max(0, (state.growthStage || 0) - 1);
+        db.collection('plant').doc('state').set(state, {merge:true}).catch(() => {});
+      }
+    }
+    renderPlant(state);
+  }).catch(() => {});
+}
+
+function spawnWaterDrops(){
+  const pot = document.getElementById('plantPot');
+  for(let i=0;i<5;i++){
+    const drop = document.createElement('span');
+    drop.className = 'watering-drop';
+    drop.textContent = '💧';
+    drop.style.left = (30 + Math.random()*40) + '%';
+    drop.style.animationDelay = (i*0.08) + 's';
+    pot.appendChild(drop);
+    setTimeout(() => drop.remove(), 1000);
+  }
+}
+
+document.getElementById('waterBtn').addEventListener('click', function(){
+  const msg = document.getElementById('plantMsg');
+  if(!currentUserLabel) return;
+  const key = currentUserLabel.toLowerCase();
+  const today = todayStr();
+
+  db.collection('plant').doc('state').get().then(doc => {
+    let state = doc.exists ? doc.data() : { growthStage:0, streak:0, lastWatered:{}, lastStreakDate:null };
+    state.lastWatered = state.lastWatered || {};
+
+    if(state.lastWatered[key] === today){
+      msg.textContent = 'Ya la regaste hoy, vuelve mañana 💜';
+      return;
+    }
+    state.lastWatered[key] = today;
+
+    const otherKey = key === 'admin' ? 'mor' : 'admin';
+    const bothToday = state.lastWatered[otherKey] === today;
+
+    if(bothToday && state.lastStreakDate !== today){
+      state.streak = (state.streak || 0) + 1;
+      state.growthStage = Math.min(MAX_PLANT_STAGE, (state.growthStage || 0) + 1);
+      state.lastStreakDate = today;
+      msg.textContent = `¡Los dos la regaron hoy! 🌱 Racha: ${state.streak} día${state.streak === 1 ? '' : 's'}`;
+    } else if(bothToday){
+      msg.textContent = '¡Gracias por regarla! 💧';
+    } else {
+      msg.textContent = `Falta que ${otherKey === 'admin' ? 'Admin' : 'Mor'} también la riegue hoy 🌷`;
+    }
+
+    db.collection('plant').doc('state').set(state, {merge:true}).then(() => {
+      renderPlant(state);
+      const stage = document.getElementById('plantStage');
+      stage.classList.remove('plant-bump'); void stage.offsetWidth; stage.classList.add('plant-bump');
+      spawnWaterDrops();
+      logEvent('water_plant');
+    });
+  }).catch(() => { msg.textContent = 'No se pudo regar, revisa tu conexión.'; });
+});
+
+/* ---------- MOOD TRACKER: estado de ánimo en tiempo real ---------- */
+const MOOD_EVENT_TYPE = { '🤩':'mood_feliz', '😴':'mood_cansado', '🥺':'mood_triste', '😍':'mood_enamorado' };
+let moodListenerStarted = false;
+
+function initMoodTracker(){
+  if(!currentUserLabel) return;
+  const myKey = currentUserLabel.toLowerCase();
+  const otherKey = myKey === 'admin' ? 'mor' : 'admin';
+  const otherLabel = otherKey === 'admin' ? 'Admin' : 'Mor';
+
+  document.getElementById('moodUserLabel').textContent = currentUserLabel;
+
+  document.querySelectorAll('.mood-emoji-btn').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const emoji = this.dataset.emoji;
+      db.collection('mood').doc('state').set({
+        [myKey]: { emoji, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }
+      }, {merge:true}).catch(() => {});
+      logEvent(MOOD_EVENT_TYPE[emoji] || 'mood');
+    });
+  });
+
+  if(moodListenerStarted) return;
+  moodListenerStarted = true;
+
+  db.collection('mood').doc('state').onSnapshot(doc => {
+    if(!doc.exists) return;
+    const data = doc.data();
+    const mine = data[myKey];
+    const theirs = data[otherKey];
+
+    if(mine && mine.emoji){
+      document.querySelectorAll('.mood-emoji-btn').forEach(b => {
+        b.classList.toggle('selected', b.dataset.emoji === mine.emoji);
+      });
+    }
+
+    const partnerLine = document.getElementById('moodPartnerLine');
+    const careNote = document.getElementById('moodCareNote');
+    if(theirs && theirs.emoji){
+      partnerLine.textContent = `${otherLabel} hoy: ${theirs.emoji}`;
+      careNote.textContent = (theirs.emoji === '🥺' || theirs.emoji === '😴')
+        ? 'Veo que tuvo un día pesado, recuerda decirle que la/lo amas 💜'
+        : '';
+    } else {
+      partnerLine.textContent = '';
+      careNote.textContent = '';
+    }
+  });
+}
+
 document.getElementById('continueBtn').addEventListener('click', function(){
   goTo('final');
   setTimeout(() => {
     buildStaticStars(document.getElementById('starfieldDashboard'), 90);
     goTo('dashboard');
+    loadPlant();
+    initMoodTracker();
   }, 4200);
 });
 
@@ -1179,8 +1428,8 @@ document.getElementById('btnAlbum').addEventListener('click', function(){
   buildStaticStars(document.getElementById('starfieldAlbum'), 90);
   goTo('album');
 });
-document.getElementById('backFromDiario').addEventListener('click', () => goTo('dashboard'));
-document.getElementById('backFromAlbum').addEventListener('click', () => goTo('dashboard'));
+document.getElementById('backFromDiario').addEventListener('click', () => { goTo('dashboard'); loadPlant(); });
+document.getElementById('backFromAlbum').addEventListener('click', () => { goTo('dashboard'); loadPlant(); });
 
 /* ---------- TE EXTRAÑO (toque directo por WhatsApp) ---------- */
 const pokeMessages = [
