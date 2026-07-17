@@ -425,6 +425,8 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 18px rgba(0,0,0,0.25);
   }
   .dash-widget-icon{font-size:1.6rem;margin-bottom:4px;}
+  .dash-widget.clickable{cursor:pointer;transition:transform .2s ease;}
+  .dash-widget.clickable:hover{transform:translateY(-2px);}
   .dash-widget-value{font-size:1.25rem;font-weight:700;}
   .dash-widget-label{font-size:.66rem;color:rgba(255,255,255,0.55);margin-top:2px;}
 
@@ -635,6 +637,94 @@
     box-shadow:0 4px 14px rgba(0,0,0,0.35);
   }
 
+  /* ---------- NUESTRO BUZÓN ---------- */
+  #scene-buzon{
+    background:radial-gradient(ellipse at top, #3d2c1e 0%, #241a12 70%);
+    align-items:flex-start;
+  }
+  .buzon-wrap{
+    position:relative;z-index:2;width:min(480px,92vw);height:88%;
+    margin:6% auto 0;display:flex;flex-direction:column;
+  }
+  .buzon-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .buzon-title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+    color:#f3e6c8;font-size:1.3rem;
+  }
+  .signature-btn{
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);
+    color:#f3e6c8;padding:7px 14px;border-radius:20px;
+    font-family:'Quicksand',sans-serif;font-size:.72rem;cursor:pointer;
+  }
+  .corkboard{
+    flex:1;overflow-y:auto;border-radius:18px;
+    background:
+      radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1.4px) 0 0/14px 14px,
+      linear-gradient(135deg, #b9884f, #a4713a);
+    box-shadow:inset 0 0 40px rgba(0,0,0,0.35);
+    padding:20px;
+    display:flex;flex-wrap:wrap;align-content:flex-start;gap:16px;
+  }
+  .corkboard-empty{
+    width:100%;text-align:center;color:rgba(255,255,255,0.6);
+    font-family:'Quicksand',sans-serif;font-size:.85rem;margin-top:30px;
+  }
+  .sticky-note{
+    width:130px;min-height:130px;padding:14px 12px 10px;
+    background:#fff6c8;color:#4a3f1e;
+    box-shadow:2px 4px 10px rgba(0,0,0,0.35);
+    font-family:'Quicksand',sans-serif;font-size:.8rem;line-height:1.35;
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .sticky-note:nth-child(3n){background:#ffd6e8;}
+  .sticky-note:nth-child(3n+1){background:#cdeaff;}
+  .sticky-note:nth-child(5n){background:#d8f5cf;}
+  .sticky-note-text{white-space:pre-wrap;word-break:break-word;}
+  .sticky-note-meta{
+    margin-top:10px;font-size:.65rem;color:rgba(0,0,0,0.5);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .sticky-note-sign{font-family:'Dancing Script',cursive;font-weight:700;font-size:.95rem;}
+
+  .add-note-btn{
+    position:absolute;bottom:4%;left:50%;transform:translateX(-50%);
+    background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
+    color:#fff;border:none;padding:13px 26px;border-radius:30px;
+    font-family:'Quicksand',sans-serif;font-weight:600;font-size:.9rem;
+    cursor:pointer;box-shadow:0 8px 22px rgba(255,122,176,0.4);
+    z-index:3;
+  }
+
+  .note-modal-overlay{
+    display:none;position:fixed;inset:0;z-index:30;
+    background:rgba(5,4,22,0.7);align-items:center;justify-content:center;padding:24px;
+  }
+  .note-modal-overlay.show{display:flex;}
+  .note-modal{
+    width:min(340px,88vw);
+    background:linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.05));
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter:blur(18px) saturate(180%);
+    -webkit-backdrop-filter:blur(18px) saturate(180%);
+    border-radius:20px;padding:26px 22px;text-align:center;
+  }
+  .note-modal p.title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--cloud-white);font-size:1.15rem;margin:0 0 14px;
+  }
+  .note-modal textarea{
+    width:100%;min-height:110px;border-radius:12px;padding:12px;
+    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);
+    color:#fff;font-family:'Quicksand',sans-serif;font-size:16px;
+    resize:vertical;outline:none;
+  }
+  .note-modal-sign{color:rgba(255,255,255,0.5);font-size:.75rem;margin:10px 0 4px;}
+  .note-modal-actions{display:flex;gap:10px;margin-top:14px;}
+  .note-modal-actions button{flex:1;}
+
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:0.001s !important; animation-iteration-count:1 !important;}
   }
@@ -745,10 +835,10 @@
       <!-- pestaña: inicio -->
       <div class="dash-tab-panel active" id="dash-tab-home">
         <div class="dash-header">
-          <div class="dash-widget" id="weatherWidget">
-            <div class="dash-widget-icon" id="weatherIcon">🌤️</div>
-            <div class="dash-widget-value" id="weatherValue">–</div>
-            <div class="dash-widget-label">clima local</div>
+          <div class="dash-widget clickable" id="buzonWidget">
+            <div class="dash-widget-icon">📮</div>
+            <div class="dash-widget-value" style="font-size:.95rem;">Buzón</div>
+            <div class="dash-widget-label">notitas para los dos</div>
           </div>
           <div class="dash-widget">
             <div class="dash-widget-icon">💜</div>
@@ -848,6 +938,46 @@
     </div>
   </section>
 
+  <!-- ESCENA 8: NUESTRO BUZÓN -->
+  <section id="scene-buzon" class="scene">
+    <button class="back-btn" id="backFromBuzon">← volver</button>
+    <div class="buzon-wrap">
+      <div class="buzon-header">
+        <p class="buzon-title">Nuestro Buzón</p>
+        <button class="signature-btn" id="signatureBtn">✎ firma: <span id="currentSignatureLabel">–</span></button>
+      </div>
+      <div class="corkboard" id="corkboard">
+        <p class="corkboard-empty" id="corkboardEmpty">Aún no hay notitas — sé el primero en dejar una 💌</p>
+      </div>
+    </div>
+    <button class="add-note-btn" id="addNoteBtn">+ Añadir nota</button>
+  </section>
+
+</div>
+
+<!-- ---------- MODAL: añadir nota ---------- -->
+<div class="note-modal-overlay" id="noteModalOverlay">
+  <div class="note-modal">
+    <p class="title">Nueva notita</p>
+    <textarea id="noteText" placeholder="Escribe algo bonito..."></textarea>
+    <p class="note-modal-sign">Se firmará como: <strong id="noteModalSignaturePreview">–</strong></p>
+    <div class="note-modal-actions">
+      <button class="action-btn secondary" id="cancelNoteBtn" style="margin:0;">Cancelar</button>
+      <button class="action-btn" id="pinNoteBtn" style="margin:0;">Pegar en el corcho</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- MODAL: configurar firma ---------- -->
+<div class="note-modal-overlay" id="signatureModalOverlay">
+  <div class="note-modal">
+    <p class="title">Tu firma</p>
+    <input type="text" id="signatureInput" maxlength="16" style="width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#fff;font-family:'Quicksand',sans-serif;font-size:16px;outline:none;text-align:center;">
+    <div class="note-modal-actions">
+      <button class="action-btn secondary" id="cancelSignatureBtn" style="margin:0;">Cancelar</button>
+      <button class="action-btn" id="saveSignatureBtn" style="margin:0;">Guardar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1019,45 +1149,6 @@ const APP_VERSION = "2026-07-15-21";
   document.getElementById('daysWidgetNum').textContent = days;
 })();
 
-/* ---------- CLIMA LOCAL (usa la ubicación del navegador + Open-Meteo, sin llave) ---------- */
-(function loadWeather(){
-  const iconEl = document.getElementById('weatherIcon');
-  const valueEl = document.getElementById('weatherValue');
-
-  function weatherEmoji(code){
-    if(code === 0) return '☀️';
-    if([1,2,3].includes(code)) return '⛅';
-    if([45,48].includes(code)) return '🌫️';
-    if([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) return '🌧️';
-    if([71,73,75,77,85,86].includes(code)) return '❄️';
-    if([95,96,99].includes(code)) return '⛈️';
-    return '🌤️';
-  }
-
-  if(!navigator.geolocation){
-    valueEl.textContent = 'N/D';
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(function(pos){
-    const { latitude, longitude } = pos.coords;
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`)
-      .then(res => res.json())
-      .then(data => {
-        const cw = data.current_weather;
-        if(cw){
-          iconEl.textContent = weatherEmoji(cw.weathercode);
-          valueEl.textContent = Math.round(cw.temperature) + '°C';
-        } else {
-          valueEl.textContent = 'N/D';
-        }
-      })
-      .catch(() => { valueEl.textContent = 'N/D'; });
-  }, function(){
-    valueEl.textContent = 'Activa ubicación';
-  }, { timeout: 8000 });
-})();
-
 const scenes = {
   login: document.getElementById('scene-login'),
   universe: document.getElementById('scene-universe'),
@@ -1065,6 +1156,7 @@ const scenes = {
   dashboard: document.getElementById('scene-dashboard'),
   diario: document.getElementById('scene-diario'),
   album: document.getElementById('scene-album'),
+  buzon: document.getElementById('scene-buzon'),
 };
 
 function goTo(name){
@@ -1445,6 +1537,92 @@ document.getElementById('btnAlbum').addEventListener('click', function(){
 });
 document.getElementById('backFromDiario').addEventListener('click', () => { goTo('dashboard'); loadPlant(); });
 document.getElementById('backFromAlbum').addEventListener('click', () => { goTo('dashboard'); loadPlant(); });
+
+/* ---------- NUESTRO BUZÓN ---------- */
+const SIGNATURE_DEFAULTS = { Mor: 'Love', Admin: 'Rame' };
+
+function getMySignature(){
+  const saved = localStorage.getItem('buzonSignature_' + currentUserLabel);
+  if(saved) return saved;
+  return SIGNATURE_DEFAULTS[currentUserLabel] || currentUserLabel || '💌';
+}
+
+document.getElementById('buzonWidget').addEventListener('click', function(){
+  document.getElementById('currentSignatureLabel').textContent = getMySignature();
+  goTo('buzon');
+  startNotesListener();
+});
+document.getElementById('backFromBuzon').addEventListener('click', () => goTo('dashboard'));
+
+/* firma */
+document.getElementById('signatureBtn').addEventListener('click', function(){
+  document.getElementById('signatureInput').value = getMySignature();
+  document.getElementById('signatureModalOverlay').classList.add('show');
+});
+document.getElementById('cancelSignatureBtn').addEventListener('click', function(){
+  document.getElementById('signatureModalOverlay').classList.remove('show');
+});
+document.getElementById('saveSignatureBtn').addEventListener('click', function(){
+  const val = document.getElementById('signatureInput').value.trim();
+  if(val){
+    localStorage.setItem('buzonSignature_' + currentUserLabel, val);
+    document.getElementById('currentSignatureLabel').textContent = val;
+  }
+  document.getElementById('signatureModalOverlay').classList.remove('show');
+});
+
+/* añadir nota */
+document.getElementById('addNoteBtn').addEventListener('click', function(){
+  document.getElementById('noteText').value = '';
+  document.getElementById('noteModalSignaturePreview').textContent = getMySignature();
+  document.getElementById('noteModalOverlay').classList.add('show');
+});
+document.getElementById('cancelNoteBtn').addEventListener('click', function(){
+  document.getElementById('noteModalOverlay').classList.remove('show');
+});
+document.getElementById('pinNoteBtn').addEventListener('click', function(){
+  const text = document.getElementById('noteText').value.trim();
+  if(!text) return;
+  db.collection('notes').add({
+    text: text,
+    signature: getMySignature(),
+    author: currentUserLabel,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    document.getElementById('noteModalOverlay').classList.remove('show');
+  }).catch(() => {
+    alert('No se pudo pegar la nota, revisa tu conexión.');
+  });
+});
+
+/* pizarrón en vivo */
+let notesListenerStarted = false;
+function startNotesListener(){
+  if(notesListenerStarted) return;
+  notesListenerStarted = true;
+  db.collection('notes').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+    const board = document.getElementById('corkboard');
+    const empty = document.getElementById('corkboardEmpty');
+    if(snapshot.empty){
+      board.innerHTML = '';
+      board.appendChild(empty);
+      return;
+    }
+    board.innerHTML = '';
+    snapshot.forEach((doc) => {
+      const d = doc.data();
+      const date = d.timestamp ? d.timestamp.toDate() : new Date();
+      const dateStr = date.toLocaleString('es-MX', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+      const note = document.createElement('div');
+      note.className = 'sticky-note';
+      note.innerHTML = `<div class="sticky-note-text"></div>
+        <div class="sticky-note-meta"><span>${dateStr}</span><span class="sticky-note-sign"></span></div>`;
+      note.querySelector('.sticky-note-text').textContent = d.text;
+      note.querySelector('.sticky-note-sign').textContent = d.signature || '';
+      board.appendChild(note);
+    });
+  });
+}
 
 /* ---------- TE EXTRAÑO (toque directo por WhatsApp) ---------- */
 const pokeMessages = [
