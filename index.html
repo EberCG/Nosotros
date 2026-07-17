@@ -1318,7 +1318,7 @@ document.getElementById('waterBtn').addEventListener('click', function(){
     } else if(bothToday){
       msg.textContent = '¡Gracias por regarla! 💧';
     } else {
-      msg.textContent = `Falta que ${otherKey === 'admin' ? 'Admin' : 'Mor'} también la riegue hoy 🌷`;
+      msg.textContent = `Falta que ${otherKey === 'Oliver' ? 'Oliver' : 'Love'} también la riegue hoy 🌷`;
     }
 
     db.collection('plant').doc('state').set(state, {merge:true}).then(() => {
