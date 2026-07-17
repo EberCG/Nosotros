@@ -1306,7 +1306,6 @@ document.getElementById('waterBtn').addEventListener('click', function(){
       return;
     }
     state.lastWatered[key] = today;
-
     const otherKey = key === 'admin' ? 'mor' : 'admin';
     const bothToday = state.lastWatered[otherKey] === today;
 
@@ -1318,7 +1317,10 @@ document.getElementById('waterBtn').addEventListener('click', function(){
     } else if(bothToday){
       msg.textContent = '¡Gracias por regarla! 💧';
     } else {
-      msg.textContent = `Falta que ${otherKey === 'Oliver' ? 'Oliver' : 'Love'} también la riegue hoy 🌷`;
+      // AQUÍ ESTÁ LA MAGIA: 
+      // Evaluamos el ID interno para decidir qué nombre bonito mostrar
+      const nombreFaltante = otherKey === 'admin' ? 'Oliver' : 'Love';
+      msg.textContent = `Falta que ${nombreFaltante} también la riegue hoy 🌷`;
     }
 
     db.collection('plant').doc('state').set(state, {merge:true}).then(() => {
@@ -1341,7 +1343,10 @@ function initMoodTracker(){
   const otherKey = myKey === 'admin' ? 'mor' : 'admin';
   const otherLabel = otherKey === 'admin' ? 'Admin' : 'Mor';
 
-  document.getElementById('moodUserLabel').textContent = currentUserLabel;
+  // Convertimos el ID interno (admin o mor) en el apodo (Oliver o Love)
+const nombreActual = currentUserLabel === 'admin' ? 'Oliver' : 'Love';
+document.getElementById('moodUserLabel').textContent = nombreActual;
+  
 
   document.querySelectorAll('.mood-emoji-btn').forEach(btn => {
     btn.addEventListener('click', function(){
