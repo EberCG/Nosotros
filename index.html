@@ -598,54 +598,75 @@
   }
 
   /* --- NUEVO: Emojis individuales dentro de la barra --- */
+  /* Emojis individuales dentro de la barra */
   .mood-fb-btn {
     background: none;
     border: none;
-    font-size: 2rem;
+    font-size: 2.2rem; /* Un poco más grandes */
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, filter 0.2s ease;
     position: relative;
     padding: 0;
     margin: 0;
-    filter: grayscale(20%);
+    filter: grayscale(30%) opacity(0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
-  .mood-fb-btn:hover, .mood-fb-btn:active {
-    transform: scale(1.4) translateY(-10px);
-    filter: grayscale(0%);
+  /* El SPAN interno es el que tiene la animación continua */
+  .mood-fb-btn span {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  /* Animaciones constantes para darles "vida" */
+  @keyframes laugh { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
+  @keyframes breathe { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+  @keyframes shake { 0%,100%{transform:rotate(0deg);} 25%{transform:rotate(-8deg);} 75%{transform:rotate(8deg);} }
+
+  .mood-fb-btn[data-emoji="😄"] span { animation: laugh 0.8s ease-in-out infinite; }
+  .mood-fb-btn[data-emoji="😴"] span { animation: breathe 2s ease-in-out infinite; }
+  .mood-fb-btn[data-emoji="🥺"] span { animation: breathe 1.5s ease-in-out infinite; }
+  .mood-fb-btn[data-emoji="😍"] span { animation: breathe 1.2s ease-in-out infinite; }
+  .mood-fb-btn[data-emoji="🫩"] span { animation: shake 0.5s ease-in-out infinite; }
+  .mood-fb-btn[data-emoji="😠"] span { animation: shake 0.3s ease-in-out infinite; }
+
+  /* ESTADO CUANDO EL DEDO PASA POR ENCIMA (Controlado por JS) */
+  .mood-fb-btn.hovered {
+    transform: translateY(-15px);
+    filter: grayscale(0%) opacity(1);
     z-index: 2;
   }
+  .mood-fb-btn.hovered span {
+    transform: scale(1.5); /* Crece al seleccionarlo */
+  }
 
-  /* --- NUEVO: Etiqueta (Tooltip) Feliz, Triste, etc. --- */
+  /* Etiqueta (Tooltip) Feliz, Triste, etc. */
   .mood-fb-btn::after {
     content: attr(data-label);
     position: absolute;
-    top: -25px;
+    top: -30px;
     left: 50%;
     transform: translateX(-50%) scale(0.5);
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.7);
     color: white;
     font-family: 'Quicksand', sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 600;
     padding: 4px 10px;
     border-radius: 12px;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     white-space: nowrap;
+    backdrop-filter: blur(4px);
   }
 
-  .mood-fb-btn:hover::after, .mood-fb-btn:active::after {
+  /* Aparece la etiqueta cuando el dedo está encima */
+  .mood-fb-btn.hovered::after {
     opacity: 1;
     transform: translateX(-50%) scale(1);
-  }
-
-  /* --- MANTENEMOS ESTO --- */
-  .mood-partner{color:rgba(255,255,255,0.55);font-size:.76rem;margin:10px 0 0;}
-  .mood-care-note{
-    color:var(--pink-glow);font-size:.8rem;font-style:italic;margin:10px 0 0;
-    font-family:'Cormorant Garamond',serif;
   }
 
   /* ---------- CUPONERA (estilo boleto/vale de papel) ---------- */
@@ -1075,13 +1096,13 @@
           <span id="currentMoodText">Cuéntame...</span>
        </button>
 
-  <div class="mood-floating-bar" id="moodFloatingBar">
-    <button class="mood-fb-btn" data-emoji="😄" data-label="Feliz">😄</button>
-    <button class="mood-fb-btn" data-emoji="😴" data-label="Cansado/a">😴</button>
-    <button class="mood-fb-btn" data-emoji="🥺" data-label="Triste">🥺</button>
-    <button class="mood-fb-btn" data-emoji="😍" data-label="Enamorado/a">😍</button>
-    <button class="mood-fb-btn" data-emoji="🫩" data-label="Estresado/a">🫩</button>
-    <button class="mood-fb-btn" data-emoji="😠" data-label="Enojado/a">😠</button>
+<div class="mood-floating-bar" id="moodFloatingBar">
+    <button class="mood-fb-btn" data-emoji="😄" data-label="Feliz"><span>😄</span></button>
+    <button class="mood-fb-btn" data-emoji="😴" data-label="Cansado"><span>😴</span></button>
+    <button class="mood-fb-btn" data-emoji="🥺" data-label="Triste"><span>🥺</span></button>
+    <button class="mood-fb-btn" data-emoji="😍" data-label="Enamorado"><span>😍</span></button>
+    <button class="mood-fb-btn" data-emoji="🫩" data-label="Estresado"><span>🫩</span></button>
+    <button class="mood-fb-btn" data-emoji="😠" data-label="Enojado"><span>😠</span></button>
   </div>
 
   <p class="mood-partner" id="moodPartnerLine"></p>
@@ -1661,7 +1682,6 @@ document.getElementById('waterBtn').addEventListener('click', function(){
 });
 
 /* ---------- MOOD TRACKER: estado de ánimo en tiempo real ---------- */
-
 const MOOD_EVENT_TYPE = { '😄':'mood_feliz', '😴':'mood_cansado', '🥺':'mood_triste', '😍':'mood_enamorado', '🫩':'mood_estresado','😠':'mood_enojado'};
 let moodListenerStarted = false;
 
@@ -1679,32 +1699,64 @@ function initMoodTracker(){
   const currentEmoji = document.getElementById('currentMoodEmoji');
   const currentText = document.getElementById('currentMoodText');
 
-  // 1. Mostrar/Ocultar la barra flotante al tocar el botón principal
-  triggerBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    floatingBar.classList.toggle('active');
-  });
+  let currentHoveredEmoji = null;
 
-  // Ocultar si tocan en cualquier otra parte de la pantalla
-  document.addEventListener('click', (e) => {
-    if(!triggerBtn.contains(e.target) && !floatingBar.contains(e.target)){
-      floatingBar.classList.remove('active');
+  // Lógica para TACTIL (Móviles)
+  triggerBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Evita que la pantalla haga scroll por accidente
+    floatingBar.classList.add('active'); // Muestra la barra al tocar
+  }, {passive: false});
+
+  triggerBtn.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    
+    // Obtenemos el elemento exacto sobre el que está el dedo en este momento
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    // Limpiamos el estado anterior
+    document.querySelectorAll('.mood-fb-btn').forEach(btn => btn.classList.remove('hovered'));
+    currentHoveredEmoji = null;
+
+    // Si el dedo está sobre un botón de emoji, le damos la clase hovered
+    if(target && target.closest('.mood-fb-btn')) {
+      const btn = target.closest('.mood-fb-btn');
+      btn.classList.add('hovered');
+      currentHoveredEmoji = btn;
+    }
+  }, {passive: false});
+
+  triggerBtn.addEventListener('touchend', (e) => {
+    // Cuando sueltas el dedo, ocultamos la barra
+    floatingBar.classList.remove('active');
+    
+    // Si soltaste el dedo estando sobre un emoji, lo seleccionamos
+    if(currentHoveredEmoji) {
+      const emoji = currentHoveredEmoji.dataset.emoji;
+      
+      db.collection('mood').doc('state').set({
+        [myKey]: { emoji, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }
+      }, {merge:true}).catch(() => {});
+      
+      logEvent(MOOD_EVENT_TYPE[emoji] || 'mood');
+      currentHoveredEmoji.classList.remove('hovered');
+      currentHoveredEmoji = null;
     }
   });
 
-  // 2. Lógica al seleccionar un emoji de la barra flotante
+  // Lógica para MOUSE (Por si lo pruebas en PC)
+  triggerBtn.addEventListener('mouseenter', () => floatingBar.classList.add('active'));
+  floatingBar.addEventListener('mouseleave', () => floatingBar.classList.remove('active'));
+  
   document.querySelectorAll('.mood-fb-btn').forEach(btn => {
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
+    btn.addEventListener('mouseenter', () => btn.classList.add('hovered'));
+    btn.addEventListener('mouseleave', () => btn.classList.remove('hovered'));
+    btn.addEventListener('click', function(){
       const emoji = this.dataset.emoji;
-      
-      // Guardar en Firebase
       db.collection('mood').doc('state').set({
         [myKey]: { emoji, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }
       }, {merge:true}).catch(() => {});
       logEvent(MOOD_EVENT_TYPE[emoji] || 'mood');
-
-      // Cerrar la barra
       floatingBar.classList.remove('active');
     });
   });
@@ -1712,29 +1764,26 @@ function initMoodTracker(){
   if(moodListenerStarted) return;
   moodListenerStarted = true;
 
-  // 3. Escuchar cambios de Firebase en tiempo real
+  // Escuchar Firebase para actualizar en vivo
   db.collection('mood').doc('state').onSnapshot(doc => {
     if(!doc.exists) return;
     const data = doc.data();
     const mine = data[myKey];
     const theirs = data[otherKey];
 
-    // Actualizar tu botón con el emoji que elegiste
     if(mine && mine.emoji){
       const btnTarget = document.querySelector(`.mood-fb-btn[data-emoji="${mine.emoji}"]`);
       if(btnTarget) {
         currentEmoji.textContent = mine.emoji;
-        currentText.textContent = btnTarget.dataset.label; // Muestra "Feliz", "Triste", etc.
+        currentText.textContent = btnTarget.dataset.label;
       }
     }
 
     const partnerLine = document.getElementById('moodPartnerLine');
     const careNote = document.getElementById('moodCareNote');
     
-    // Actualizar el texto del estado de tu pareja
     if(theirs && theirs.emoji){
       partnerLine.textContent = `${nombrePareja} hoy: ${theirs.emoji}`;
-      
       if (theirs.emoji === '🥺' || theirs.emoji === '😴') {
         const apodoParejaPesado = (myKey === 'admin') ? 'Morcito' : 'Pollito';
         careNote.textContent = `${apodoParejaPesado} tuvo un día pesado, recuerda decirle que lo amas 💜`;
@@ -1747,6 +1796,7 @@ function initMoodTracker(){
     }
   });
 }
+
 
 /* ---------- CUPONERA ---------- */
 const DEFAULT_COUPONS = [
