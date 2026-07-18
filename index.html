@@ -550,18 +550,98 @@
     -webkit-backdrop-filter:blur(12px) saturate(160%);
   }
   .mood-prompt{color:var(--cloud-white);font-size:.85rem;margin:0 0 12px;}
-  .mood-options{display:flex;justify-content:center;gap:10px;margin-bottom:4px;}
-  .mood-emoji-btn{
-    width:44px;height:44px;border-radius:50%;
-    border:1px solid rgba(255,255,255,0.25);
-    background:rgba(255,255,255,0.06);font-size:1.25rem;cursor:pointer;
-    transition:transform .2s ease, background .2s ease, border-color .2s ease;
+
+  /* --- NUEVO: Botón principal que abre las reacciones --- */
+  .mood-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 10px 24px;
+    border-radius: 30px;
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin-bottom: 10px;
   }
-  .mood-emoji-btn.selected{
-    background:linear-gradient(135deg, rgba(255,122,176,0.4), rgba(177,153,255,0.4));
-    border-color:rgba(255,255,255,0.55);transform:scale(1.1);
+  .mood-trigger-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+
+  /* --- NUEVO: Barra flotante tipo Facebook (Glassmorphism) --- */
+  .mood-floating-bar {
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px) scale(0.8);
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 35px;
+    padding: 8px 14px;
+    display: flex;
+    gap: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.4);
+    z-index: 10;
   }
-  .mood-emoji-btn:hover{transform:translateY(-2px);}
+
+  .mood-floating-bar.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  /* --- NUEVO: Emojis individuales dentro de la barra --- */
+  .mood-fb-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: relative;
+    padding: 0;
+    margin: 0;
+    filter: grayscale(20%);
+  }
+
+  .mood-fb-btn:hover, .mood-fb-btn:active {
+    transform: scale(1.4) translateY(-10px);
+    filter: grayscale(0%);
+    z-index: 2;
+  }
+
+  /* --- NUEVO: Etiqueta (Tooltip) Feliz, Triste, etc. --- */
+  .mood-fb-btn::after {
+    content: attr(data-label);
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.5);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .mood-fb-btn:hover::after, .mood-fb-btn:active::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  /* --- MANTENEMOS ESTO --- */
   .mood-partner{color:rgba(255,255,255,0.55);font-size:.76rem;margin:10px 0 0;}
   .mood-care-note{
     color:var(--pink-glow);font-size:.8rem;font-style:italic;margin:10px 0 0;
@@ -987,19 +1067,26 @@
         </div>
 
         <p class="dash-section-title" style="margin-top:22px;">Tu Cora hoy 💓 </p>
-        <div class="mood-card">
-          <p class="mood-prompt">¿Cómo te sientes hoy, <span id="moodUserLabel"></span>?</p>
-          <div class="mood-options">
-            <button class="mood-emoji-btn" data-emoji="😄" title="Feliz">😄</button>
-            <button class="mood-emoji-btn" data-emoji="😴" title="Cansado/a">😴</button>
-            <button class="mood-emoji-btn" data-emoji="🥺" title="Triste">🥺</button>
-            <button class="mood-emoji-btn" data-emoji="😍" title="Enamorado/a">😍</button>
-            <button class="mood-emoji-btn" data-emoji="🫩" title="Estresado/a">🫩</button>
-            <button class="mood-emoji-btn" data-emoji="😠" title="Enojado/a">😠</button>
-          </div>
-          <p class="mood-partner" id="moodPartnerLine"></p>
-          <p class="mood-care-note" id="moodCareNote"></p>
-        </div>
+        <div class="mood-card" style="position: relative;">
+        <p class="mood-prompt">¿Cómo te sientes hoy, <span id="moodUserLabel"></span>?</p>
+  
+       <button class="mood-trigger-btn" id="moodTriggerBtn">
+          <span id="currentMoodEmoji">🤍</span>
+          <span id="currentMoodText">Cuéntame...</span>
+       </button>
+
+  <div class="mood-floating-bar" id="moodFloatingBar">
+    <button class="mood-fb-btn" data-emoji="😄" data-label="Feliz">😄</button>
+    <button class="mood-fb-btn" data-emoji="😴" data-label="Cansado/a">😴</button>
+    <button class="mood-fb-btn" data-emoji="🥺" data-label="Triste">🥺</button>
+    <button class="mood-fb-btn" data-emoji="😍" data-label="Enamorado/a">😍</button>
+    <button class="mood-fb-btn" data-emoji="🫩" data-label="Estresado/a">🫩</button>
+    <button class="mood-fb-btn" data-emoji="😠" data-label="Enojado/a">😠</button>
+  </div>
+
+  <p class="mood-partner" id="moodPartnerLine"></p>
+  <p class="mood-care-note" id="moodCareNote"></p>
+</div>
 
         <span class="dash-restart-link" id="restartLink">◍ volver al inicio</span>
       </div>
@@ -1574,62 +1661,86 @@ document.getElementById('waterBtn').addEventListener('click', function(){
 });
 
 /* ---------- MOOD TRACKER: estado de ánimo en tiempo real ---------- */
-const MOOD_EVENT_TYPE = { '😄':'mood_feliz', '😴':'mood_cansado', '🥺':'mood_triste', '😍':'mood_enamorado', '🫩':'mood_estresado','😠':'mood_enojado',};
+
+const MOOD_EVENT_TYPE = { '😄':'mood_feliz', '😴':'mood_cansado', '🥺':'mood_triste', '😍':'mood_enamorado', '🫩':'mood_estresado','😠':'mood_enojado'};
 let moodListenerStarted = false;
 
 function initMoodTracker(){
   if(!currentUserLabel) return;
   const myKey = currentUserLabel.toLowerCase();
   const otherKey = myKey === 'admin' ? 'mor' : 'admin';
-  // Convertimos el ID de la pareja en su apodo (Oliver o Love)
   const nombrePareja = otherKey === 'admin' ? 'Oliver' : 'Love';
-
-  // Convertimos el ID interno (admin o mor) en el apodo (Oliver o Love)
-const nombreActual = myKey === 'admin' ? 'Oliver' : 'Love';
-document.getElementById('moodUserLabel').textContent = nombreActual;
+  const nombreActual = myKey === 'admin' ? 'Oliver' : 'Love';
   
+  document.getElementById('moodUserLabel').textContent = nombreActual;
+  
+  const triggerBtn = document.getElementById('moodTriggerBtn');
+  const floatingBar = document.getElementById('moodFloatingBar');
+  const currentEmoji = document.getElementById('currentMoodEmoji');
+  const currentText = document.getElementById('currentMoodText');
 
-  document.querySelectorAll('.mood-emoji-btn').forEach(btn => {
-    btn.addEventListener('click', function(){
+  // 1. Mostrar/Ocultar la barra flotante al tocar el botón principal
+  triggerBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    floatingBar.classList.toggle('active');
+  });
+
+  // Ocultar si tocan en cualquier otra parte de la pantalla
+  document.addEventListener('click', (e) => {
+    if(!triggerBtn.contains(e.target) && !floatingBar.contains(e.target)){
+      floatingBar.classList.remove('active');
+    }
+  });
+
+  // 2. Lógica al seleccionar un emoji de la barra flotante
+  document.querySelectorAll('.mood-fb-btn').forEach(btn => {
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
       const emoji = this.dataset.emoji;
+      
+      // Guardar en Firebase
       db.collection('mood').doc('state').set({
         [myKey]: { emoji, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }
       }, {merge:true}).catch(() => {});
       logEvent(MOOD_EVENT_TYPE[emoji] || 'mood');
+
+      // Cerrar la barra
+      floatingBar.classList.remove('active');
     });
   });
 
   if(moodListenerStarted) return;
   moodListenerStarted = true;
 
+  // 3. Escuchar cambios de Firebase en tiempo real
   db.collection('mood').doc('state').onSnapshot(doc => {
     if(!doc.exists) return;
     const data = doc.data();
     const mine = data[myKey];
     const theirs = data[otherKey];
 
+    // Actualizar tu botón con el emoji que elegiste
     if(mine && mine.emoji){
-      document.querySelectorAll('.mood-emoji-btn').forEach(b => {
-        b.classList.toggle('selected', b.dataset.emoji === mine.emoji);
-      });
+      const btnTarget = document.querySelector(`.mood-fb-btn[data-emoji="${mine.emoji}"]`);
+      if(btnTarget) {
+        currentEmoji.textContent = mine.emoji;
+        currentText.textContent = btnTarget.dataset.label; // Muestra "Feliz", "Triste", etc.
+      }
     }
 
     const partnerLine = document.getElementById('moodPartnerLine');
     const careNote = document.getElementById('moodCareNote');
     
+    // Actualizar el texto del estado de tu pareja
     if(theirs && theirs.emoji){
       partnerLine.textContent = `${nombrePareja} hoy: ${theirs.emoji}`;
       
-      // Si el emoji es triste o cansado, personalizamos el mensaje según quién lee
       if (theirs.emoji === '🥺' || theirs.emoji === '😴') {
-        // Si mi usuario es 'admin' (Oliver), significa que estoy viendo el estado de Love, entonces me avisa sobre ella.
-        // Si mi usuario es 'mor' (Love), ella está viendo tu estado, entonces le avisa sobre ti.
         const apodoParejaPesado = (myKey === 'admin') ? 'Morcito' : 'Pollito';
         careNote.textContent = `${apodoParejaPesado} tuvo un día pesado, recuerda decirle que lo amas 💜`;
       } else {
         careNote.textContent = '';
       }
-      
     } else {
       partnerLine.textContent = '';
       careNote.textContent = '';
