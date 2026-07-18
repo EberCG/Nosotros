@@ -13,12 +13,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   /* ================================================================
-     ░░░  CSS — TODO EL DISEÑO Y APARIENCIA VIVE AQUÍ (hasta el cierre de este bloque)  ░░░
-     Colores, tamaños, animaciones, posiciones de botones, glass, etc.
+     ░ CSS 
      ================================================================ */
-  /* ============================================================
-     PERSONALIZAR
-     ============================================================ */
 
   :root{
     --violet-deep:#2b1a49;
@@ -32,6 +28,7 @@
     --space-navy:#0b0e2e;
     --star-white:#fdfcf7;
     --accent-violet:#b199ff;
+    --coupon-red:#e6355f;
   }
 
   *{box-sizing:border-box;}
@@ -571,6 +568,131 @@
     font-family:'Cormorant Garamond',serif;
   }
 
+  /* ---------- CUPONERA (estilo boleto/vale de papel) ---------- */
+  .coupon-carousel-wrap{margin-bottom:4px;}
+  .coupon-carousel{
+    display:flex;gap:20px;overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    padding:14px 0 20px;margin:0;
+    scrollbar-width:none;-ms-overflow-style:none;
+  }
+  .coupon-carousel::-webkit-scrollbar{display:none;}
+  .coupon-card{
+    flex:0 0 auto;scroll-snap-align:center;
+    width:min(215px,66vw);
+    height:296px;
+    position:relative;
+    display:flex;
+    background:#ffffff;
+    border:2px solid var(--coupon-red);
+    border-radius:16px;
+    box-shadow:0 16px 30px rgba(0,0,0,0.4);
+    -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20215%20296'%3E%3Crect%20x='0'%20y='0'%20width='215'%20height='296'%20rx='16'%20fill='white'/%3E%3Cg%20fill='black'%3E%3Ccircle%20cx='0'%20cy='18'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='48'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='78'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='108'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='138'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='168'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='198'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='228'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='258'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='288'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='18'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='48'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='78'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='108'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='138'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='168'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='198'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='228'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='258'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='288'%20r='8'/%3E%3C/g%3E%3C/svg%3E");
+    mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20215%20296'%3E%3Crect%20x='0'%20y='0'%20width='215'%20height='296'%20rx='16'%20fill='white'/%3E%3Cg%20fill='black'%3E%3Ccircle%20cx='0'%20cy='18'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='48'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='78'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='108'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='138'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='168'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='198'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='228'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='258'%20r='8'/%3E%3Ccircle%20cx='0'%20cy='288'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='18'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='48'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='78'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='108'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='138'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='168'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='198'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='228'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='258'%20r='8'/%3E%3Ccircle%20cx='215'%20cy='288'%20r='8'/%3E%3C/g%3E%3C/svg%3E");
+    -webkit-mask-size:100% 100%;mask-size:100% 100%;
+    -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+    -webkit-mask-position:center;mask-position:center;
+    transform-origin:center center;
+    transition:transform .45s cubic-bezier(.22,.61,.36,1), opacity .45s ease, filter .45s ease;
+  }
+  .coupon-inner{
+    margin:12px;flex:1;min-width:0;
+    border:1px solid rgba(230,53,95,0.35);
+    border-radius:10px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:16px 14px;text-align:center;
+  }
+  .coupon-stars{color:var(--coupon-red);font-size:.7rem;letter-spacing:7px;margin:0 0 10px;}
+  .coupon-icon{font-size:2.1rem;margin-bottom:8px;line-height:1;}
+  .coupon-vale{
+    color:#a98d94;font-size:.66rem;margin:0 0 4px;
+    letter-spacing:1.2px;text-transform:uppercase;font-family:'Quicksand',sans-serif;font-weight:600;
+  }
+  .coupon-title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:700;
+    color:#181818;font-size:1.16rem;margin:0 0 8px;line-height:1.25;
+  }
+  .coupon-desc{color:#2b2b2b;font-size:.76rem;margin:0 0 14px;line-height:1.4;}
+  .coupon-sep{
+    width:72%;height:0;margin:0 0 14px;
+    border-top:1.5px dashed var(--coupon-red);opacity:.6;
+  }
+  .coupon-redeem-btn{
+    padding:10px 22px;border:none;border-radius:999px;
+    background:var(--coupon-red);
+    color:#fff;font-family:'Quicksand',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;
+    letter-spacing:.3px;
+    box-shadow:0 8px 16px rgba(230,53,95,0.4);
+    transition:transform .2s ease;
+  }
+  .coupon-redeem-btn:hover{transform:translateY(-2px);}
+  .coupon-redeem-btn:active{transform:translateY(0) scale(0.96);}
+  .coupon-dots{display:flex;justify-content:center;gap:6px;margin-top:6px;}
+  .coupon-dot{
+    width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.25);
+    transition:background .2s ease, transform .2s ease;
+  }
+  .coupon-dot.active{background:var(--pink-glow);transform:scale(1.3);}
+  .coupon-empty-msg{
+    color:rgba(255,255,255,0.6);font-size:.85rem;text-align:center;
+    padding:26px 16px;width:100%;
+  }
+
+  /* ---------- estatus de canje (debajo de la cuponera) ---------- */
+  .coupon-status-panel{
+    margin:14px 0 6px;
+    background:linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:18px;padding:16px;text-align:center;
+    backdrop-filter:blur(14px) saturate(180%);
+    -webkit-backdrop-filter:blur(14px) saturate(180%);
+    animation:coupon-status-in .35s ease;
+  }
+  @keyframes coupon-status-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .coupon-status-icon{font-size:2.3rem;margin-bottom:6px;line-height:1;}
+  .coupon-status-title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--cloud-white);font-size:1.05rem;margin:0 0 4px;
+  }
+  .coupon-status-text{font-size:.82rem;margin:0;font-weight:600;}
+  .coupon-status-text.ok{color:#7cffb2;}
+  .coupon-status-text.fail{color:#ff8a8a;}
+
+  /* ---------- CÁPSULA DEL TIEMPO ---------- */
+  .capsule-card{
+    background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px;padding:28px 20px;text-align:center;
+    backdrop-filter:blur(12px) saturate(160%);
+    -webkit-backdrop-filter:blur(12px) saturate(160%);
+  }
+  .capsule-lock-icon{
+    font-size:2.2rem;margin-bottom:10px;
+    animation:capsule-glow 2.6s ease-in-out infinite;
+  }
+  @keyframes capsule-glow{
+    0%,100%{filter:drop-shadow(0 0 0px var(--pink-glow));}
+    50%{filter:drop-shadow(0 0 14px var(--pink-glow));}
+  }
+  .capsule-title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--cloud-white);font-size:1.1rem;margin:0 0 10px;
+  }
+  .capsule-countdown{
+    color:var(--pink-glow);font-size:1rem;font-weight:600;
+    font-family:'Quicksand',sans-serif;letter-spacing:.3px;margin:0;
+  }
+  .capsule-reveal{margin-top:18px;text-align:left;}
+  .capsule-image{
+    display:block;width:100%;border-radius:14px;margin-bottom:14px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .capsule-text{
+    color:rgba(255,255,255,0.8);font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:1rem;line-height:1.6;
+  }
+  .capsule-text p{margin:0 0 10px;}
+
 
   .back-btn{
     position:absolute;top:6%;left:6%;z-index:5;
@@ -736,8 +858,7 @@
 <body>
 
 <!-- ================================================================
-     ░░░  HTML — TODA LA ESTRUCTURA/CONTENIDO VIVE AQUÍ (hasta <script>)  ░░░
-     Las pantallas (login, jardín, universo, menú, etc.)
+      HTML 
      ================================================================ -->
 
 <div class="update-overlay" id="updateOverlay">
@@ -817,14 +938,14 @@
   <!-- ESCENA 2: UNIVERSO INTERACTIVO -->
   <section id="scene-universe" class="scene">
     <div class="starfield" id="starfieldUniverse"></div>
-    <p class="universe-hint">pasa el cursor sobre las estrellas…</p>
+    <p class="universe-hint">Toca sobre las estrellas…</p>
     <button class="continue-btn" id="continueBtn">seguir mirando el universo →</button>
   </section>
 
   <!-- ESCENA 3: TE AMO -->
   <section id="scene-final" class="scene">
     <div class="starfield" id="starfieldFinal"></div>
-    <p class="final-text">TE AMO</p>
+    <p class="final-text">Eres la mejor ✨</p>
   </section>
 
   <!-- ESCENA 4: DASHBOARD -->
@@ -861,7 +982,7 @@
             </div>
             <div class="pot-emoji">🪴</div>
           </div>
-          <button class="water-btn" id="waterBtn">💧 Regar con amor</button>
+          <button class="water-btn" id="waterBtn">💧Dar amor</button>
           <p class="plant-msg" id="plantMsg"></p>
         </div>
 
@@ -884,16 +1005,36 @@
       <!-- pestaña: recuerdos -->
       <div class="dash-tab-panel" id="dash-tab-recuerdos">
         <p class="dash-section-title">Recuerdos</p>
+
+        <div class="capsule-card" id="capsuleCard">
+          <div class="capsule-lock-icon" id="capsuleLockIcon">🔒</div>
+          <p class="capsule-title" id="capsuleTitle">Cápsula del Tiempo</p>
+          <p class="capsule-countdown" id="capsuleCountdown">Cargando…</p>
+          <div class="capsule-reveal" id="capsuleReveal" style="display:none;">
+            <img class="capsule-image" id="capsuleImage" style="display:none;">
+            <div class="capsule-text" id="capsuleText"></div>
+          </div>
+        </div>
+
+        <p class="dash-section-title" style="margin-top:22px;">Galería</p>
         <div class="dash-placeholder-card">
-          ✨ Aquí vivirán la cápsula del tiempo y la galería de recuerdos. Muy pronto.
+          📸 Galería en carrusel — próximamente.
         </div>
       </div>
 
       <!-- pestaña: regalos -->
       <div class="dash-tab-panel" id="dash-tab-regalos">
         <p class="dash-section-title">Regalos &amp; Acciones</p>
-        <div class="dash-placeholder-card" style="margin-bottom:16px;">
-          🎁 La cuponera llega en la próxima parte.
+        <div class="coupon-carousel-wrap">
+          <div class="coupon-carousel" id="couponCarousel">
+            <p class="coupon-empty-msg">Cargando cupones…</p>
+          </div>
+          <div class="coupon-dots" id="couponDots"></div>
+        </div>
+        <div class="coupon-status-panel" id="couponStatusPanel" style="display:none;">
+          <div class="coupon-status-icon" id="couponStatusIcon">🎁</div>
+          <p class="coupon-status-title" id="couponStatusTitle">–</p>
+          <p class="coupon-status-text" id="couponStatusText">–</p>
         </div>
         <div class="quick-actions-grid">
           <button class="quick-action-btn" id="btnDiario"><span class="qa-icon">📔</span>Mandar Mensaje</button>
@@ -980,12 +1121,24 @@
   </div>
 </div>
 
+<!-- ---------- MODAL: confirmar canje de cupón ---------- -->
+<div class="note-modal-overlay" id="couponConfirmOverlay">
+  <div class="note-modal">
+    <p class="title">Canjear cupón</p>
+    <p style="color:rgba(255,255,255,0.7);font-size:.85rem;margin:0 0 6px;">¿Seguro que quieres canjear:</p>
+    <p id="couponConfirmTitle" style="color:var(--cloud-white);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;margin:0 0 16px;">–</p>
+    <div class="note-modal-actions">
+      <button class="action-btn secondary" id="couponConfirmCancel" style="margin:0;">Cancelar</button>
+      <button class="action-btn" id="couponConfirmYes" style="margin:0;">Sí, canjear</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ================================================================
-   ░░░  JAVASCRIPT — TODA LA LÓGICA/INTERACTIVIDAD VIVE AQUÍ  ░░░
-   Lo que pasa cuando tocas botones, cuenta los días, registra en
-   Firebase, toca música, etc.
+    JAVASCRIPT 
    ================================================================ */
+  
 /* ---------- FIREBASE: registro de visitas y logins ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyDILhdyodCPTSUTQ7ikL5D36qEsSaeHPsU",
@@ -999,13 +1152,16 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 let currentUserLabel = null; // se llena al iniciar sesión; queda vacío para la "visita" inicial porque aún no se sabe quién es
 
-function logEvent(type){
+function logEvent(type, extra){
   const payload = {
     type: type,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   };
   if(currentUserLabel){
     payload.user = currentUserLabel;
+  }
+  if(extra){
+    Object.assign(payload, extra);
   }
   db.collection('events').add(payload).catch(() => {});
 }
@@ -1091,17 +1247,7 @@ document.getElementById('leidoBtn').addEventListener('click', function(){
 });
 
 /* ============================================================
-   LOGGING 
-   ============================================================ */
-/* ============================================================
-  
-   ============================================================ */
-/* ============================================================
-   Cuentas: cada una con su usuario/contraseña (guardados como
-   hash) y una etiqueta que se usa para identificar quién entró
-   en el registro de stats.html. Para agregar otra cuenta, dime
-   el usuario y contraseña y te doy los hashes — no se escriben
-   en texto plano aquí.
+   LOGGING / CUENTAS ...
    ============================================================ */
 const ACCOUNTS = [
   { userHash: "30d425858b2467d1f74251cc9e5dcc69a57009a669856a4ca8bb76a5a58f7e09", passHash: "40eb73726b0999f8954918c9c7b0d9a1c7432406c3a761c7c9d34fa2908fcd7a", label: "Mor" },
@@ -1122,7 +1268,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-15-21";
+const APP_VERSION = "2026-07-18-22";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -1394,7 +1540,7 @@ document.getElementById('waterBtn').addEventListener('click', function(){
     state.lastWatered = state.lastWatered || {};
 
     if(state.lastWatered[key] === today){
-      msg.textContent = 'Ya la regaste hoy, vuelve mañana 💜';
+      msg.textContent = 'Vuelve mañana 💜';
       return;
     }
     state.lastWatered[key] = today;
@@ -1405,14 +1551,14 @@ document.getElementById('waterBtn').addEventListener('click', function(){
       state.streak = (state.streak || 0) + 1;
       state.growthStage = Math.min(MAX_PLANT_STAGE, (state.growthStage || 0) + 1);
       state.lastStreakDate = today;
-      msg.textContent = `¡Los dos la regaron hoy! 🌱 Racha: ${state.streak} día${state.streak === 1 ? '' : 's'}`;
+      msg.textContent = `¡Los dos dieron amor hoy! 🌱 Racha: ${state.streak} día${state.streak === 1 ? '' : 's'}`;
     } else if(bothToday){
-      msg.textContent = '¡Gracias por regarla! 💧';
+      msg.textContent = '¡Gracias por darle amor! 💧';
     } else {
       // AQUÍ ESTÁ LA MAGIA: 
       // Evaluamos el ID interno para decidir qué nombre bonito mostrar
       const nombreFaltante = otherKey === 'admin' ? 'Oliver' : 'Love';
-      msg.textContent = `Falta que ${nombreFaltante} también la riegue hoy 🌷`;
+      msg.textContent = `Falta que ${nombreFaltante} le de amor hoy 🌷`;
     }
 
     db.collection('plant').doc('state').set(state, {merge:true}).then(() => {
@@ -1426,7 +1572,7 @@ document.getElementById('waterBtn').addEventListener('click', function(){
 });
 
 /* ---------- MOOD TRACKER: estado de ánimo en tiempo real ---------- */
-const MOOD_EVENT_TYPE = { '🤩':'mood_feliz', '😴':'mood_cansado', '🥺':'mood_triste', '😍':'mood_enamorado' };
+const MOOD_EVENT_TYPE = { '😄':'mood_feliz', '😴':'mood_cansado', '🥺':'mood_triste', '😍':'mood_enamorado', '🫩':'mood_estresado','😠':'mood_enojado',};
 let moodListenerStarted = false;
 
 function initMoodTracker(){
@@ -1489,6 +1635,262 @@ document.getElementById('moodUserLabel').textContent = nombreActual;
   });
 }
 
+/* ---------- CUPONERA ---------- */
+const DEFAULT_COUPONS = [
+  { icon:'🍽️', title:'Una comida Romántica', desc:'Elige el restaurante, yo invito', order:1 },
+  { icon:'💆', title:'Un Masaje Completo', desc:'Sin prisas, con velitas y todo', order:2 },
+  { icon:'🎬', title:'Tu peli o serie favotita', desc:'Tú eliges, yo veo ', order:3 },
+  { icon:'🔥', title:'Sexo sin condón', desc:'Solo para nosotros dos 🔥', order:4 },
+  { icon:'👩🏻‍❤️‍💋‍👨🏻', title:'Un día entero juntos', desc:'Hoy yo me encargo de todo', order:5 },
+  { icon:'🎁', title:'Sorpresa a tu elección', desc:'Pide lo q quieras, dentro de lo razonable 😏', order:6 },
+];
+
+let couponsListenerStarted = false;
+let selectedCouponForConfirm = null;
+let selectedCouponIcon = '🎁';
+
+function seedCouponsIfEmpty(){
+  return db.collection('coupons').limit(1).get().then(snap => {
+    if(!snap.empty) return;
+    const batch = db.batch();
+    DEFAULT_COUPONS.forEach((c, i) => {
+      const ref = db.collection('coupons').doc('coupon_' + (i+1));
+      batch.set(ref, Object.assign({}, c, { redeemed:false, redeemedBy:null, redeemedAt:null }));
+    });
+    return batch.commit();
+  }).catch(() => {});
+}
+
+/* Efecto carrusel centrado: la tarjeta del centro se ve nítida y a tamaño
+   completo; las de los costados se ven más chicas, atenuadas y difuminadas. */
+let couponVisualsRAF = null;
+function updateCouponVisuals(){
+  const carousel = document.getElementById('couponCarousel');
+  const dots = document.getElementById('couponDots');
+  if(!carousel) return;
+  const cards = carousel.querySelectorAll('.coupon-card');
+  if(!cards.length) return;
+
+  const carouselRect = carousel.getBoundingClientRect();
+  const centerX = carouselRect.left + carouselRect.width / 2;
+  let closest = 0, minDist = Infinity;
+
+  cards.forEach((card, i) => {
+    const cardRect = card.getBoundingClientRect();
+    const cardCenter = cardRect.left + cardRect.width / 2;
+    const dist = Math.abs(cardCenter - centerX);
+    const norm = Math.min(dist / (carouselRect.width / 2), 1);
+
+    const scale = 1 - norm * 0.26;
+    const opacity = 1 - norm * 0.6;
+    const blur = norm * 3.5;
+
+    card.style.transform = `scale(${scale})`;
+    card.style.opacity = opacity;
+    card.style.filter = `blur(${blur}px)`;
+
+    if(dist < minDist){ minDist = dist; closest = i; }
+  });
+
+  if(dots){
+    dots.querySelectorAll('.coupon-dot').forEach((d, i) => d.classList.toggle('active', i === closest));
+  }
+}
+
+function onCouponCarouselScroll(){
+  if(couponVisualsRAF) return;
+  couponVisualsRAF = requestAnimationFrame(() => {
+    updateCouponVisuals();
+    couponVisualsRAF = null;
+  });
+}
+
+/* Centra el padding del carrusel para que la primera y última tarjeta
+   también puedan llegar al centro. */
+function updateCouponCarouselPadding(){
+  const carousel = document.getElementById('couponCarousel');
+  if(!carousel) return;
+  const firstCard = carousel.querySelector('.coupon-card');
+  if(!firstCard) { carousel.style.paddingLeft = ''; carousel.style.paddingRight = ''; return; }
+  const pad = Math.max((carousel.clientWidth - firstCard.offsetWidth) / 2, 0);
+  carousel.style.paddingLeft = pad + 'px';
+  carousel.style.paddingRight = pad + 'px';
+}
+
+function renderCoupons(coupons){
+  const carousel = document.getElementById('couponCarousel');
+  const dots = document.getElementById('couponDots');
+  const available = coupons.filter(c => !c.redeemed).sort((a,b) => (a.order||0) - (b.order||0));
+
+  if(!available.length){
+    carousel.innerHTML = '<p class="coupon-empty-msg">Ya canjeaste todos los cupones 💜 avísame si quieres que recargue la cuponera.</p>';
+    dots.innerHTML = '';
+    return;
+  }
+
+  carousel.innerHTML = available.map(c => `
+    <div class="coupon-card">
+      <div class="coupon-inner">
+        <div class="coupon-stars">✦ ✦ ✦</div>
+        <div class="coupon-icon">${c.icon || '🎁'}</div>
+        <p class="coupon-vale">Vale por:</p>
+        <p class="coupon-title">${c.title}</p>
+        <p class="coupon-desc">${c.desc || ''}</p>
+        <div class="coupon-sep"></div>
+        <button class="coupon-redeem-btn" data-id="${c.id}" data-title="${(c.title || '').replace(/"/g,'&quot;')}" data-icon="${c.icon || '🎁'}">Canjear Cupón</button>
+      </div>
+    </div>
+  `).join('');
+
+  dots.innerHTML = available.map((c, i) => `<span class="coupon-dot ${i === 0 ? 'active' : ''}"></span>`).join('');
+
+  carousel.querySelectorAll('.coupon-redeem-btn').forEach(btn => {
+    btn.addEventListener('click', function(){
+      selectedCouponForConfirm = this.dataset.id;
+      selectedCouponIcon = this.dataset.icon || '🎁';
+      document.getElementById('couponConfirmTitle').textContent = this.dataset.title;
+      document.getElementById('couponConfirmOverlay').classList.add('show');
+    });
+  });
+
+  carousel.removeEventListener('scroll', onCouponCarouselScroll);
+  carousel.addEventListener('scroll', onCouponCarouselScroll, { passive:true });
+
+  updateCouponCarouselPadding();
+  requestAnimationFrame(updateCouponVisuals);
+}
+
+window.addEventListener('resize', () => {
+  updateCouponCarouselPadding();
+  updateCouponVisuals();
+});
+
+function loadCoupons(){
+  seedCouponsIfEmpty().then(() => {
+    if(couponsListenerStarted) return;
+    couponsListenerStarted = true;
+    db.collection('coupons').onSnapshot(snap => {
+      const coupons = [];
+      snap.forEach(doc => coupons.push(Object.assign({ id: doc.id }, doc.data())));
+      renderCoupons(coupons);
+    });
+  });
+}
+
+document.getElementById('couponConfirmCancel').addEventListener('click', function(){
+  document.getElementById('couponConfirmOverlay').classList.remove('show');
+  selectedCouponForConfirm = null;
+});
+
+function showCouponStatus(icon, title, ok){
+  const panel = document.getElementById('couponStatusPanel');
+  const iconEl = document.getElementById('couponStatusIcon');
+  const titleEl = document.getElementById('couponStatusTitle');
+  const textEl = document.getElementById('couponStatusText');
+  iconEl.textContent = icon || '🎁';
+  titleEl.textContent = title || '';
+  textEl.textContent = ok ? 'Haz canjeado este cupon!' : '❌ No se pudo canjear, intenta de nuevo';
+  textEl.className = 'coupon-status-text ' + (ok ? 'ok' : 'fail');
+  panel.style.display = 'none';
+  void panel.offsetWidth; /* reinicia la animación de entrada */
+  panel.style.display = 'block';
+}
+
+document.getElementById('couponConfirmYes').addEventListener('click', function(){
+  if(!selectedCouponForConfirm) return;
+  const couponId = selectedCouponForConfirm;
+  const title = document.getElementById('couponConfirmTitle').textContent;
+  const icon = selectedCouponIcon;
+
+  db.collection('coupons').doc(couponId).set({
+    redeemed: true,
+    redeemedBy: currentUserLabel,
+    redeemedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, {merge:true}).then(() => {
+    logEvent('coupon_redeemed', { couponTitle: title });
+    document.getElementById('couponConfirmOverlay').classList.remove('show');
+    showCouponStatus(icon, title, true);
+    selectedCouponForConfirm = null;
+  }).catch(() => {
+    document.getElementById('couponConfirmOverlay').classList.remove('show');
+    showCouponStatus(icon, title, false);
+    alert('No se pudo canjear el cupón, revisa tu conexión.');
+  });
+});
+
+/* ---------- CÁPSULA DEL TIEMPO ---------- */
+let capsuleInterval = null;
+let capsuleListenerStarted = false;
+
+function formatCountdown(ms){
+  const totalSeconds = Math.floor(ms / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if(days > 0) return `Se abre en ${days}d ${hours}h ${minutes}m`;
+  if(hours > 0) return `Se abre en ${hours}h ${minutes}m ${seconds}s`;
+  return `Se abre en ${minutes}m ${seconds}s`;
+}
+
+function renderCapsule(data){
+  const lockIcon = document.getElementById('capsuleLockIcon');
+  const title = document.getElementById('capsuleTitle');
+  const countdown = document.getElementById('capsuleCountdown');
+  const reveal = document.getElementById('capsuleReveal');
+  const image = document.getElementById('capsuleImage');
+  const text = document.getElementById('capsuleText');
+
+  if(capsuleInterval){ clearInterval(capsuleInterval); capsuleInterval = null; }
+
+  if(!data || !data.unlockDate){
+    lockIcon.textContent = '🔒';
+    title.textContent = 'Cápsula del Tiempo';
+    countdown.textContent = 'Aún no hay ninguna cápsula guardada.';
+    reveal.style.display = 'none';
+    return;
+  }
+
+  const unlockTime = new Date(data.unlockDate).getTime();
+
+  function tick(){
+    const remaining = unlockTime - Date.now();
+    if(remaining <= 0){
+      if(capsuleInterval){ clearInterval(capsuleInterval); capsuleInterval = null; }
+      lockIcon.textContent = '💌';
+      title.textContent = data.title || 'Cápsula del Tiempo';
+      countdown.textContent = '¡Se abrió! 🎉';
+      reveal.style.display = 'block';
+      if(data.imageUrl){
+        image.src = data.imageUrl;
+        image.style.display = 'block';
+      } else {
+        image.style.display = 'none';
+      }
+      const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
+      text.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+    } else {
+      lockIcon.textContent = '🔒';
+      title.textContent = data.title || 'Cápsula del Tiempo';
+      countdown.textContent = formatCountdown(remaining);
+      reveal.style.display = 'none';
+    }
+  }
+
+  tick();
+  capsuleInterval = setInterval(tick, 1000);
+}
+
+function loadCapsule(){
+  if(capsuleListenerStarted) return;
+  capsuleListenerStarted = true;
+  db.collection('capsule').doc('current').onSnapshot(doc => {
+    renderCapsule(doc.exists ? doc.data() : null);
+  }, () => {
+    document.getElementById('capsuleCountdown').textContent = 'No se pudo cargar.';
+  });
+}
+
 document.getElementById('continueBtn').addEventListener('click', function(){
   goTo('final');
   setTimeout(() => {
@@ -1496,6 +1898,8 @@ document.getElementById('continueBtn').addEventListener('click', function(){
     goTo('dashboard');
     loadPlant();
     initMoodTracker();
+    loadCoupons();
+    loadCapsule();
   }, 4200);
 });
 
@@ -1524,6 +1928,16 @@ document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
     document.querySelectorAll('.dash-tab-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('dash-tab-' + btn.dataset.dashtab).classList.add('active');
+
+    if(btn.dataset.dashtab === 'regalos'){
+      /* la pestaña estaba oculta (display:none) cuando se renderizó la
+         cuponera la primera vez, así que el padding de centrado se calculó
+         con ancho 0. Al abrir la pestaña, recalculamos con el ancho real. */
+      requestAnimationFrame(() => {
+        updateCouponCarouselPadding();
+        updateCouponVisuals();
+      });
+    }
   });
 });
 
