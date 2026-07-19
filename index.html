@@ -113,6 +113,49 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px rgba(0,0,0,0.3);
   }
   .install-btn.show{display:block;} 
+
+  /* ---------- botón hamburguesa + panel lateral líquido (tema, color del año, mute) ---------- */
+  .settings-hamburger-row{display:flex;justify-content:flex-start;margin:0 0 14px;}
+  .hamburger-btn{
+    width:40px;height:40px;border-radius:50%;padding:0;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
+    color:var(--txt-1);font-size:1.15rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(10px) saturate(180%);
+    -webkit-backdrop-filter:blur(10px) saturate(180%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 14px rgba(0,0,0,0.25);
+    transition:transform .2s ease;
+  }
+  .hamburger-btn:hover{transform:scale(1.06);}
+
+  .liquid-panel-backdrop{
+    position:fixed;inset:0;z-index:49;background:rgba(0,0,0,0.22);
+    opacity:0;pointer-events:none;transition:opacity .3s ease;
+  }
+  .liquid-panel-backdrop.show{opacity:1;pointer-events:auto;}
+
+  .liquid-side-panel{
+    position:fixed;top:0;left:0;bottom:0;z-index:50;
+    width:min(100px,27vw);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:26px;padding:20px 6px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+    border-right:1px solid rgba(255,255,255,0.18);
+    backdrop-filter:blur(28px) saturate(200%);
+    -webkit-backdrop-filter:blur(28px) saturate(200%);
+    box-shadow:8px 0 40px rgba(0,0,0,0.28), inset -1px 0 0 rgba(255,255,255,0.12);
+    transform:translateX(-100%);
+    transition:transform .35s cubic-bezier(.2,.8,.3,1);
+  }
+  .liquid-side-panel.show{transform:translateX(0);}
+  .accent-swatches.vertical{display:none;flex-direction:column;gap:10px;}
+  .accent-swatches.vertical.show{display:flex;}
+  .mute-toggle-btn{
+    background:none;border:none;color:var(--txt-1);font-size:1.25rem;cursor:pointer;
+    padding:4px;
+  }
+
   .music-btn{
     position:fixed;bottom:5%;left:5%;z-index:20;
     background:linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
@@ -124,62 +167,30 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px rgba(0,0,0,0.3);
   }
 
-  /* ---------- BOTONES FLOTANTES: tema claro/oscuro y color del año ---------- */
-  .theme-toggle-btn, .accent-toggle-btn{
-    position:fixed;z-index:20;
-    background:linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
-    border:1px solid rgba(255,255,255,0.3);
-    color:#fff;width:40px;height:40px;border-radius:50%;
-    font-size:1rem;cursor:pointer;
-    display:none;align-items:center;justify-content:center;
-    backdrop-filter:blur(10px) saturate(180%);
-    -webkit-backdrop-filter:blur(10px) saturate(180%);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px rgba(0,0,0,0.3);
-    transition:transform .2s ease;
-  }
-  .theme-toggle-btn.show, .accent-toggle-btn.show{display:flex;}
-  .theme-toggle-btn:hover, .accent-toggle-btn:hover{transform:scale(1.06);}
-  .theme-toggle-btn{top:5%;left:5%;}
-  .accent-toggle-btn{bottom:5%;right:5%;}
-
-  .settings-popover{
-    position:fixed;z-index:21;
-    display:none;flex-direction:column;gap:14px;
-    width:min(230px,72vw);
-    background:linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.05));
-    border:1px solid rgba(255,255,255,0.25);
-    backdrop-filter:blur(20px) saturate(180%);
-    -webkit-backdrop-filter:blur(20px) saturate(180%);
-    border-radius:18px;padding:18px 16px;
-    box-shadow:0 16px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
-  }
-  .settings-popover.show{display:flex;}
-  #themePopover{top:calc(5% + 50px);left:5%;}
-  #accentPopover{bottom:calc(5% + 50px);right:5%;}
-  .settings-popover-title{
-    color:#fff;font-family:'Cormorant Garamond',serif;font-style:italic;
-    font-size:.95rem;margin:0;text-align:center;
-  }
-  body.theme-light .settings-popover-title{color:#000;}
-  .theme-switch{
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    background:none;border:none;cursor:pointer;padding:4px;
-  }
-  .theme-switch-icon{font-size:1rem;opacity:.65;}
+  .theme-switch-block{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .theme-switch-icon{font-size:1.3rem;line-height:1;}
   .theme-switch-track{
-    position:relative;width:46px;height:24px;border-radius:20px;
-    background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);
+    position:relative;width:42px;height:23px;border-radius:20px;padding:0;
+    background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.28);
+    cursor:pointer;
   }
   .theme-switch-thumb{
-    position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+    position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;
     background:linear-gradient(135deg,#fff,#ddd);
     transition:transform .3s cubic-bezier(.4,0,.2,1);
   }
-  body.theme-light .theme-switch-thumb{transform:translateX(22px);}
+  body.theme-light .theme-switch-thumb{transform:translateX(19px);}
 
+  .accent-picker-block{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .accent-trigger-btn{
+    width:34px;height:34px;border-radius:50%;padding:0;
+    border:2px solid rgba(255,255,255,0.4);cursor:pointer;
+    transition:transform .2s ease;
+  }
+  .accent-trigger-btn:hover{transform:scale(1.08);}
   .accent-swatches{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
   .accent-swatch{
-    width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);
+    width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);
     cursor:pointer;transition:transform .2s ease, border-color .2s ease;padding:0;
   }
   .accent-swatch:hover{transform:scale(1.1);}
@@ -636,6 +647,7 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 10px 30px rgba(0,0,0,0.35);
   }
   .bottom-nav-btn{
+    position:relative;
     width:56px;height:46px;border:none;border-radius:18px;
     background:transparent;color:var(--txt-2);
     font-size:1.15rem;cursor:pointer;
@@ -646,6 +658,89 @@
     background:linear-gradient(135deg, var(--pink-glow), var(--accent-violet));
     color:#fff;
   }
+
+  /* ---------- NOTIFICACIONES: badge + panel flotante de cristal ---------- */
+  .notif-badge{
+    position:absolute;top:2px;right:5px;
+    min-width:16px;height:16px;padding:0 4px;
+    background:#ff3b30;color:#fff;
+    font-size:.62rem;font-weight:700;
+    border-radius:999px;
+    display:none;align-items:center;justify-content:center;
+    line-height:1;font-family:'Quicksand',sans-serif;
+    box-shadow:0 0 0 2px rgba(5,4,22,0.5);
+  }
+  .notif-badge.show{display:flex;}
+
+  .notif-overlay{
+    display:none;position:fixed;inset:0;z-index:45;
+  }
+  .notif-overlay.show{display:block;}
+
+  .notif-panel{
+    position:fixed;left:50%;bottom:calc(14px + 74px);
+    transform:translateX(-50%) translateY(14px);
+    width:min(340px,90vw);max-height:56vh;
+    background:linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,255,255,0.05));
+    border:1px solid rgba(255,255,255,0.28);
+    border-radius:24px;
+    backdrop-filter:blur(30px) saturate(200%);
+    -webkit-backdrop-filter:blur(30px) saturate(200%);
+    box-shadow:0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+    padding:18px 16px;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease, transform .3s cubic-bezier(.2,.8,.3,1);
+    z-index:46;overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .notif-overlay.show .notif-panel{
+    opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;
+  }
+  .notif-panel::before{
+    content:'';position:absolute;inset:0;pointer-events:none;border-radius:24px;
+    background:
+      radial-gradient(circle at 28% 18%, rgba(255,255,255,0.28), transparent 55%),
+      radial-gradient(circle at 78% 78%, rgba(255,255,255,0.16), transparent 50%);
+    mix-blend-mode:overlay;
+    animation:notif-water-shimmer 8s ease-in-out infinite;
+  }
+  @keyframes notif-water-shimmer{
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(4%,-3%) scale(1.06);}
+  }
+  .notif-panel-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;flex-shrink:0;position:relative;z-index:1;
+  }
+  .notif-panel-title{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--txt-1);font-size:1.15rem;margin:0;
+  }
+  .notif-close-btn{
+    width:28px;height:28px;border-radius:50%;border:none;flex-shrink:0;
+    background:rgba(255,255,255,0.16);color:var(--txt-1);
+    font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .notif-list{
+    overflow-y:auto;display:flex;flex-direction:column;gap:8px;
+    position:relative;z-index:1;
+  }
+  .notif-empty{color:var(--txt-2);font-size:.82rem;text-align:center;padding:22px 8px;}
+  .notif-item{
+    display:flex;gap:10px;align-items:flex-start;
+    background:rgba(255,255,255,0.09);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:14px;padding:10px 12px;
+    transition:background .4s ease, border-color .4s ease;
+  }
+  .notif-item.unread{
+    background:linear-gradient(135deg, rgba(255,122,176,0.2), rgba(177,153,255,0.12));
+    border-color:rgba(255,255,255,0.24);
+  }
+  .notif-icon{font-size:1.25rem;line-height:1;flex-shrink:0;margin-top:1px;}
+  .notif-body{flex:1;min-width:0;}
+  .notif-text{color:var(--txt-1);font-size:.82rem;margin:0 0 3px;line-height:1.35;}
+  .notif-time{color:var(--txt-3);font-size:.68rem;margin:0;}
 
   /* ---------- TAMAGOTCHI: maceta de lavanda ---------- */
   .plant-card{
@@ -1021,11 +1116,12 @@
 
   .back-btn{
     position:absolute;top:6%;left:6%;z-index:5;
+    width:40px;height:40px;padding:0;
+    display:flex;align-items:center;justify-content:center;
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid var(--glass-3);
-    color:var(--txt-1);padding:10px 20px;border-radius:20px;
-    font-family:'Quicksand',sans-serif;font-size:.85rem;cursor:pointer;
-    min-height:40px;
+    border-radius:50%;
+    color:var(--txt-1);font-size:1.15rem;cursor:pointer;
     backdrop-filter:blur(10px) saturate(180%);
     -webkit-backdrop-filter:blur(10px) saturate(180%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 14px rgba(0,0,0,0.25);
@@ -1094,10 +1190,14 @@
     margin:6% auto 0;display:flex;flex-direction:column;
   }
   .buzon-header{
-    display:flex;align-items:center;justify-content:space-between;
-    margin-bottom:14px;
+    position:relative;
+    display:flex;align-items:center;justify-content:flex-end;
+    min-height:36px;margin-bottom:14px;
   }
   .buzon-title{
+    position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    white-space:nowrap;
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
     color:#f3e6c8;font-size:1.3rem;
   }
@@ -1273,29 +1373,28 @@
 </audio>
 <div id="app">
   <button class="install-btn" id="installBtn">📲 Instalar app 
-  </button> <button class="music-btn" id="musicBtn">🔊</button>
+  </button>
 
-  <button class="theme-toggle-btn" id="themeToggleBtn" title="Modo claro / oscuro">🌙</button>
-  <div class="settings-popover" id="themePopover">
-    <p class="settings-popover-title">Apariencia</p>
-    <button class="theme-switch" id="themeSwitch">
-      <span class="theme-switch-icon">🌙</span>
-      <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
-      <span class="theme-switch-icon">☀️</span>
-    </button>
-  </div>
-
-  <button class="accent-toggle-btn" id="accentToggleBtn" title="Color del año">🎨</button>
-  <div class="settings-popover" id="accentPopover">
-    <p class="settings-popover-title">Color del año</p>
-    <div class="accent-swatches">
-      <button class="accent-swatch selected" data-accent="" style="background:linear-gradient(135deg,#ff7ab0,#b199ff);" title="Violeta (original)"></button>
-      <button class="accent-swatch" data-accent="verde" style="background:linear-gradient(135deg,#5fd48a,#2f9e63);" title="Verde"></button>
-      <button class="accent-swatch" data-accent="azul" style="background:linear-gradient(135deg,#6fb8ff,#3f7fd6);" title="Azul"></button>
-      <button class="accent-swatch" data-accent="rojo" style="background:linear-gradient(135deg,#ff6f7a,#e6355f);" title="Rojo"></button>
-      <button class="accent-swatch" data-accent="dorado" style="background:linear-gradient(135deg,#ffcf7a,#e0a13a);" title="Dorado"></button>
-      <button class="accent-swatch" data-accent="rosa" style="background:linear-gradient(135deg,#ff8ad1,#d874e0);" title="Rosa"></button>
+  <div class="liquid-panel-backdrop" id="liquidPanelBackdrop"></div>
+  <div class="liquid-side-panel" id="liquidSidePanel">
+    <div class="theme-switch-block">
+      <span class="theme-switch-icon" id="themeSwitchIcon">🌙</span>
+      <button class="theme-switch-track" id="themeSwitch"><span class="theme-switch-thumb"></span></button>
     </div>
+
+    <div class="accent-picker-block">
+      <button class="accent-trigger-btn" id="accentTriggerBtn" style="background:linear-gradient(135deg,#ff7ab0,#b199ff);" title="Color del año"></button>
+      <div class="accent-swatches vertical" id="accentSwatchesList">
+        <button class="accent-swatch selected" data-accent="" style="background:linear-gradient(135deg,#ff7ab0,#b199ff);" title="Violeta (original)"></button>
+        <button class="accent-swatch" data-accent="verde" style="background:linear-gradient(135deg,#5fd48a,#2f9e63);" title="Verde"></button>
+        <button class="accent-swatch" data-accent="azul" style="background:linear-gradient(135deg,#6fb8ff,#3f7fd6);" title="Azul"></button>
+        <button class="accent-swatch" data-accent="rojo" style="background:linear-gradient(135deg,#ff6f7a,#e6355f);" title="Rojo"></button>
+        <button class="accent-swatch" data-accent="dorado" style="background:linear-gradient(135deg,#ffcf7a,#e0a13a);" title="Dorado"></button>
+        <button class="accent-swatch" data-accent="rosa" style="background:linear-gradient(135deg,#ff8ad1,#d874e0);" title="Rosa"></button>
+      </div>
+    </div>
+
+    <button class="mute-toggle-btn" id="musicBtn" title="Silenciar música">🔊</button>
   </div>
 
   <!-- ESCENA 1: LOGIN -->
@@ -1335,6 +1434,10 @@
     <div class="starfield-static" id="starfieldDashboard"></div>
     <div class="accent-particles" id="accentParticles"></div>
     <div class="dash-wrap">
+
+      <div class="settings-hamburger-row">
+        <button class="hamburger-btn" id="hamburgerBtn" title="Personalización">☰</button>
+      </div>
 
       <!-- pestaña: inicio -->
       <div class="dash-tab-panel active" id="dash-tab-home">
@@ -1442,6 +1545,10 @@
         <button class="bottom-nav-btn active" data-dashtab="home">🏠</button>
         <button class="bottom-nav-btn" data-dashtab="recuerdos">🖼️</button>
         <button class="bottom-nav-btn" data-dashtab="regalos">🎁</button>
+        <button class="bottom-nav-btn" id="notifBtn" title="Notificaciones">
+          🔔
+          <span class="notif-badge" id="notifBadge">0</span>
+        </button>
       </nav>
     </div>
   </section>
@@ -1449,7 +1556,7 @@
   <!-- ESCENA 6: MENSAJES DE NOSOTROS -->
   <section id="scene-diario" class="scene">
     <div class="starfield-static" id="starfieldDiario"></div>
-    <button class="back-btn" id="backFromDiario">← volver</button>
+    <button class="back-btn" id="backFromDiario">←</button>
     <div class="diario-box">
       <p class="panel-title">Mensajes de nosotros</p>
       <p class="panel-sub">Escribe algo bonito, quedará entre nosotros.</p>
@@ -1462,7 +1569,7 @@
   <!-- ESCENA 7: ÁLBUM DE FOTOS -->
   <section id="scene-album" class="scene">
     <div class="starfield-static" id="starfieldAlbum"></div>
-    <button class="back-btn" id="backFromAlbum">← volver</button>
+    <button class="back-btn" id="backFromAlbum">←</button>
     <div class="album-box">
       <p class="panel-title">Álbum de mejores fotos</p>
       <p class="panel-sub">Elige tus fotos favoritas de nosotros.</p>
@@ -1476,7 +1583,7 @@
 
   <!-- ESCENA 8: NUESTRO BUZÓN -->
   <section id="scene-buzon" class="scene">
-    <button class="back-btn" id="backFromBuzon">← volver</button>
+    <button class="back-btn" id="backFromBuzon">←</button>
     <div class="buzon-wrap">
       <div class="buzon-header">
         <p class="buzon-title">Nuestro Buzón</p>
@@ -1525,6 +1632,19 @@
     <div class="note-modal-actions">
       <button class="action-btn secondary" id="couponConfirmCancel" style="margin:0;">Cancelar</button>
       <button class="action-btn" id="couponConfirmYes" style="margin:0;">Sí, canjear</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- NOTIFICACIONES: lista flotante efecto cristal/agua ---------- -->
+<div class="notif-overlay" id="notifOverlay">
+  <div class="notif-panel">
+    <div class="notif-panel-header">
+      <p class="notif-panel-title">Notificaciones</p>
+      <button class="notif-close-btn" id="notifCloseBtn">✕</button>
+    </div>
+    <div class="notif-list" id="notifList">
+      <p class="notif-empty">Aún no hay notificaciones 💭</p>
     </div>
   </div>
 </div>
@@ -1663,7 +1783,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-19-28";
+const APP_VERSION = "2026-07-19-29";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -1693,47 +1813,56 @@ const APP_VERSION = "2026-07-19-28";
 /* ---------- PERSONALIZACIÓN: tema claro/oscuro y color del año ---------- */
 function applyTheme(theme){
   document.body.classList.toggle('theme-light', theme === 'light');
-  document.getElementById('themeToggleBtn').textContent = theme === 'light' ? '☀️' : '🌙';
+  const icon = document.getElementById('themeSwitchIcon');
+  if(icon) icon.textContent = theme === 'light' ? '☀️' : '🌙';
 }
+const ACCENT_GRADIENTS = {
+  '': 'linear-gradient(135deg,#ff7ab0,#b199ff)',
+  verde: 'linear-gradient(135deg,#5fd48a,#2f9e63)',
+  azul: 'linear-gradient(135deg,#6fb8ff,#3f7fd6)',
+  rojo: 'linear-gradient(135deg,#ff6f7a,#e6355f)',
+  dorado: 'linear-gradient(135deg,#ffcf7a,#e0a13a)',
+  rosa: 'linear-gradient(135deg,#ff8ad1,#d874e0)'
+};
 function applyAccent(accent){
   if(accent){ document.body.setAttribute('data-accent', accent); }
   else { document.body.removeAttribute('data-accent'); }
   document.querySelectorAll('.accent-swatch').forEach(sw => {
     sw.classList.toggle('selected', (sw.dataset.accent || '') === (accent || ''));
   });
+  const trigger = document.getElementById('accentTriggerBtn');
+  if(trigger) trigger.style.background = ACCENT_GRADIENTS[accent || ''];
 }
 
 applyTheme(localStorage.getItem('para_ti_theme') || 'dark');
 applyAccent(localStorage.getItem('para_ti_accent') || '');
 
-document.getElementById('themeToggleBtn').addEventListener('click', function(e){
+document.getElementById('hamburgerBtn').addEventListener('click', function(e){
   e.stopPropagation();
-  document.getElementById('themePopover').classList.toggle('show');
-  document.getElementById('accentPopover').classList.remove('show');
+  document.getElementById('liquidSidePanel').classList.toggle('show');
+  document.getElementById('liquidPanelBackdrop').classList.toggle('show');
 });
-document.getElementById('accentToggleBtn').addEventListener('click', function(e){
-  e.stopPropagation();
-  document.getElementById('accentPopover').classList.toggle('show');
-  document.getElementById('themePopover').classList.remove('show');
+document.getElementById('liquidPanelBackdrop').addEventListener('click', function(){
+  document.getElementById('liquidSidePanel').classList.remove('show');
+  document.getElementById('liquidPanelBackdrop').classList.remove('show');
+  document.getElementById('accentSwatchesList').classList.remove('show');
 });
 document.getElementById('themeSwitch').addEventListener('click', function(){
   const next = document.body.classList.contains('theme-light') ? 'dark' : 'light';
   applyTheme(next);
   localStorage.setItem('para_ti_theme', next);
 });
+document.getElementById('accentTriggerBtn').addEventListener('click', function(e){
+  e.stopPropagation();
+  document.getElementById('accentSwatchesList').classList.toggle('show');
+});
 document.querySelectorAll('.accent-swatch').forEach(sw => {
   sw.addEventListener('click', function(){
     const accent = this.dataset.accent || '';
     applyAccent(accent);
     localStorage.setItem('para_ti_accent', accent);
-    setTimeout(() => document.getElementById('accentPopover').classList.remove('show'), 250);
+    document.getElementById('accentSwatchesList').classList.remove('show');
   });
-});
-document.addEventListener('click', function(e){
-  if(!e.target.closest('.settings-popover')){
-    document.getElementById('themePopover').classList.remove('show');
-    document.getElementById('accentPopover').classList.remove('show');
-  }
 });
 
 /* partículas suaves y minimalistas del Dashboard, coloreadas según el color del año elegido */
@@ -1792,8 +1921,6 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       checkLetter(); // la carta solo se revisa/aparece para ella, nunca con la cuenta admin
     }
     document.getElementById('bgMusic').play().catch(() => {});
-    document.getElementById('themeToggleBtn').classList.add('show');
-    document.getElementById('accentToggleBtn').classList.add('show');
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     error.classList.add('show');
@@ -2066,8 +2193,138 @@ document.getElementById('waterBtn').addEventListener('click', function(){
       stage.classList.remove('plant-bump'); void stage.offsetWidth; stage.classList.add('plant-bump');
       spawnWaterDrops();
       logEvent('water_plant');
+      createNotification('plant_love');
     });
   }).catch(() => { msg.textContent = 'No se pudo regar, revisa tu conexión.'; });
+});
+
+/* ============================================================
+   NOTIFICACIONES: nota nueva, like, amor a la plantita,
+   mood tracker y cápsula del tiempo — individuales por usuario
+   ============================================================ */
+function myKeyNow(){
+  return currentUserLabel ? currentUserLabel.toLowerCase() : null;
+}
+function otherKeyOf(key){
+  return key === 'admin' ? 'mor' : 'admin';
+}
+function displayNameFor(key){
+  return key === 'admin' ? 'Oliver' : 'Love';
+}
+
+function createNotification(type, meta){
+  const myKey = myKeyNow();
+  if(!myKey) return;
+  db.collection('notifications').add({
+    type: type,
+    actorKey: myKey,
+    recipientKey: otherKeyOf(myKey),
+    meta: meta || {},
+    read: false,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(() => {});
+}
+
+function notifIconFor(type){
+  switch(type){
+    case 'note_new': return '💌';
+    case 'note_like': return '❤️';
+    case 'plant_love': return '🌱';
+    case 'mood': return '💭';
+    case 'capsule_new': return '⏳';
+    default: return '🔔';
+  }
+}
+function notifTextFor(item){
+  const actor = displayNameFor(item.actorKey);
+  const meta = item.meta || {};
+  switch(item.type){
+    case 'note_new': return `${actor} te dejó una nueva nota`;
+    case 'note_like': return `${actor} le dio like a tu nota`;
+    case 'plant_love': return `${actor} le dio amor a la plantita`;
+    case 'mood': return `${actor} se siente hoy: ${meta.emoji || ''} ${meta.label || ''}`.trim();
+    case 'capsule_new': return `${actor} agregó una nueva cápsula de tiempo`;
+    default: return `${actor} hizo algo nuevo`;
+  }
+}
+function formatRelativeTime(date){
+  const diffMs = Date.now() - date.getTime();
+  const min = Math.round(diffMs / 60000);
+  if(min < 1) return 'ahora mismo';
+  if(min < 60) return `hace ${min} min`;
+  const hrs = Math.round(min / 60);
+  if(hrs < 24) return `hace ${hrs} h`;
+  const days = Math.round(hrs / 24);
+  if(days < 7) return `hace ${days} d`;
+  return date.toLocaleDateString('es-MX', {day:'numeric', month:'short'});
+}
+
+let notifItems = [];
+let notificationsListenerStarted = false;
+
+function renderNotifications(){
+  const list = document.getElementById('notifList');
+  const badge = document.getElementById('notifBadge');
+  if(!list || !badge) return;
+
+  const unreadCount = notifItems.filter(n => !n.read).length;
+  if(unreadCount > 0){
+    badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+
+  if(!notifItems.length){
+    list.innerHTML = '<p class="notif-empty">Aún no hay notificaciones 💭</p>';
+    return;
+  }
+
+  list.innerHTML = notifItems.map(item => {
+    const date = item.timestamp ? item.timestamp.toDate() : new Date();
+    return `
+      <div class="notif-item ${item.read ? '' : 'unread'}">
+        <div class="notif-icon">${notifIconFor(item.type)}</div>
+        <div class="notif-body">
+          <p class="notif-text">${notifTextFor(item)}</p>
+          <p class="notif-time">${formatRelativeTime(date)}</p>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function startNotificationsListener(){
+  const myKey = myKeyNow();
+  if(!myKey || notificationsListenerStarted) return;
+  notificationsListenerStarted = true;
+  db.collection('notifications')
+    .where('recipientKey', '==', myKey)
+    .orderBy('timestamp', 'desc')
+    .limit(50)
+    .onSnapshot(snap => {
+      notifItems = [];
+      snap.forEach(doc => notifItems.push(Object.assign({ id: doc.id }, doc.data())));
+      renderNotifications();
+    }, () => {});
+}
+
+function markAllNotificationsRead(){
+  const unread = notifItems.filter(n => !n.read);
+  if(!unread.length) return;
+  const batch = db.batch();
+  unread.forEach(n => batch.update(db.collection('notifications').doc(n.id), { read:true }));
+  batch.commit().catch(() => {});
+}
+
+document.getElementById('notifBtn').addEventListener('click', function(){
+  document.getElementById('notifOverlay').classList.add('show');
+  setTimeout(markAllNotificationsRead, 900);
+});
+document.getElementById('notifCloseBtn').addEventListener('click', function(){
+  document.getElementById('notifOverlay').classList.remove('show');
+});
+document.getElementById('notifOverlay').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('show');
 });
 
 /* ---------- MOOD TRACKER: estado de ánimo en tiempo real ---------- */
@@ -2122,12 +2379,14 @@ function initMoodTracker(){
     // Si soltaste el dedo estando sobre un emoji, lo seleccionamos
     if(currentHoveredEmoji) {
       const emoji = currentHoveredEmoji.dataset.emoji;
+      const label = currentHoveredEmoji.dataset.label;
       
       db.collection('mood').doc('state').set({
         [myKey]: { emoji, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }
       }, {merge:true}).catch(() => {});
       
       logEvent(MOOD_EVENT_TYPE[emoji] || 'mood');
+      createNotification('mood', { emoji, label });
       currentHoveredEmoji.classList.remove('hovered');
       currentHoveredEmoji = null;
     }
@@ -2142,10 +2401,12 @@ function initMoodTracker(){
     btn.addEventListener('mouseleave', () => btn.classList.remove('hovered'));
     btn.addEventListener('click', function(){
       const emoji = this.dataset.emoji;
+      const label = this.dataset.label;
       db.collection('mood').doc('state').set({
         [myKey]: { emoji, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }
       }, {merge:true}).catch(() => {});
       logEvent(MOOD_EVENT_TYPE[emoji] || 'mood');
+      createNotification('mood', { emoji, label });
       floatingBar.classList.remove('active');
     });
   });
@@ -2513,7 +2774,28 @@ function loadCapsule(){
   if(capsuleListenerStarted) return;
   capsuleListenerStarted = true;
   db.collection('capsule').doc('current').onSnapshot(doc => {
-    renderCapsule(doc.exists ? doc.data() : null);
+    const data = doc.exists ? doc.data() : null;
+    renderCapsule(data);
+
+    // La cápsula se configura fuera de la app (consola de Firestore), así que
+    // detectamos cambios de "unlockDate" para avisar solo una vez por cápsula
+    // nueva, sin generar un aviso retroactivo la primera vez que se activa esto.
+    if(data && data.unlockDate){
+      if(data.notifiedFor === undefined){
+        db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
+      } else if(data.notifiedFor !== data.unlockDate){
+        db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
+        const actorKey = (data.author || 'admin').toLowerCase();
+        db.collection('notifications').add({
+          type: 'capsule_new',
+          actorKey: actorKey,
+          recipientKey: otherKeyOf(actorKey),
+          meta: {},
+          read: false,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(() => {});
+      }
+    }
   }, () => {
     document.getElementById('capsuleCountdown').textContent = 'No se pudo cargar.';
   });
@@ -2529,6 +2811,7 @@ document.getElementById('continueBtn').addEventListener('click', function(){
     initMoodTracker();
     loadCoupons();
     loadCapsule();
+    startNotificationsListener();
   }, 4200);
 });
 
@@ -2633,6 +2916,7 @@ document.getElementById('pinNoteBtn').addEventListener('click', function(){
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
     document.getElementById('noteModalOverlay').classList.remove('show');
+    createNotification('note_new');
   }).catch(() => {
     alert('No se pudo pegar la nota, revisa tu conexión.');
   });
@@ -2688,6 +2972,12 @@ function startNotesListener(){
           db.collection('notes').doc(doc.id).update({ liked: isLiked }).catch(() => {
              console.error("No se pudo guardar el like");
           });
+
+          // avisamos al autor de la nota solo cuando se DA like (no al quitarlo)
+          // y solo si quien da el like no es el propio autor
+          if(isLiked && d.author && currentUserLabel && d.author.toLowerCase() !== currentUserLabel.toLowerCase()){
+            createNotification('note_like');
+          }
           
           // Efecto de vibración muy leve si están en móvil (opcional pero bonito)
           if (navigator.vibrate && isLiked) navigator.vibrate(50);
