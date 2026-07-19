@@ -1783,7 +1783,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-19-29";
+const APP_VERSION = "2026-07-19-28";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -2222,7 +2222,9 @@ function createNotification(type, meta){
     meta: meta || {},
     read: false,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(() => {});
+  }).catch(err => {
+    console.error('No se pudo crear la notificación (revisa las reglas de Firestore para la colección "notifications"):', err);
+  });
 }
 
 function notifIconFor(type){
@@ -2305,7 +2307,9 @@ function startNotificationsListener(){
       notifItems = [];
       snap.forEach(doc => notifItems.push(Object.assign({ id: doc.id }, doc.data())));
       renderNotifications();
-    }, () => {});
+    }, err => {
+      console.error('No se pudieron leer las notificaciones (revisa las reglas de Firestore, o si pide crear un índice compuesto, abre el enlace que te dé este error):', err);
+    });
 }
 
 function markAllNotificationsRead(){
@@ -2313,7 +2317,9 @@ function markAllNotificationsRead(){
   if(!unread.length) return;
   const batch = db.batch();
   unread.forEach(n => batch.update(db.collection('notifications').doc(n.id), { read:true }));
-  batch.commit().catch(() => {});
+  batch.commit().catch(err => {
+    console.error('No se pudo marcar como leídas las notificaciones:', err);
+  });
 }
 
 document.getElementById('notifBtn').addEventListener('click', function(){
@@ -2793,7 +2799,9 @@ function loadCapsule(){
           meta: {},
           read: false,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(() => {});
+        }).catch(err => {
+          console.error('No se pudo crear la notificación de cápsula nueva:', err);
+        });
       }
     }
   }, () => {
@@ -3086,4 +3094,3 @@ window.addEventListener('appinstalled', () => {
 
 </body>
 </html>
-
