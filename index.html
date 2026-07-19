@@ -293,31 +293,76 @@
   .login-error.show{opacity:1;}
 
   /* ---------- arte de la flor (reutilizado en el Tamagotchi del Dashboard) ---------- */
+/* ---------- ARTE DE LA FLOR PROGRESIVA (21 DÍAS) ---------- */
   .flower-scale{
-    transform:scale(var(--fscale,1));
-    transform-origin:bottom center;
+    transform: scale(var(--fscale, 0.4));
+    transform-origin: bottom center;
+    transition: transform 0.6s ease;
   }
   .flower-sway{
-    animation:sway ease-in-out infinite;
-    transform-origin:bottom center;
+    animation: sway 3s ease-in-out infinite;
+    transform-origin: bottom center;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
   }
   @keyframes sway{
     0%,100%{transform:rotate(-3deg);}
     50%{transform:rotate(3deg);}
   }
+  
+  /* Tallo */
   .flower__stem{
-    width:3px;height:38px;background:var(--leaf);
-    margin:0 auto;border-radius:2px;
+    width: 4px; 
+    height: var(--stem-h, 5px); 
+    background: var(--leaf);
+    border-radius: 2px;
+    position: relative;
+    transition: height 0.6s ease;
   }
+  
+  /* Hojitas (Fase Semilla/Tallo/Planta) */
+  .plant-leaves {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%) scale(var(--leaf-scale, 0));
+    width: 2px;
+    height: 10px;
+    transition: transform 0.6s ease;
+  }
+  .plant-leaves::before, .plant-leaves::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 14px; height: 14px;
+    background: var(--leaf);
+    box-shadow: inset 2px 2px 4px rgba(255,255,255,0.2);
+  }
+  .plant-leaves::before {
+    right: 100%;
+    border-radius: 0 100% 0 100%;
+    transform-origin: bottom right;
+    transform: rotate(-25deg);
+  }
+  .plant-leaves::after {
+    left: 100%;
+    border-radius: 100% 0 100% 0;
+    transform-origin: bottom left;
+    transform: rotate(25deg);
+  }
+
+  /* Capullo a Lavanda Real */
   .flower__cluster{
-    width:38px;height:38px;border-radius:50%;
+    width: 38px; height: 38px; border-radius: 50%;
     background:
-      radial-gradient(circle at 30% 30%, #ffffff 0%, var(--lavender) 55%, transparent 70%),
-      radial-gradient(circle at 70% 35%, #ffffff 0%, var(--lavender) 50%, transparent 65%),
-      radial-gradient(circle at 45% 68%, #ffffff 0%, var(--lavender) 50%, transparent 65%),
-      radial-gradient(circle at 68% 66%, #ffffff 0%, #fff0fa 50%, transparent 65%);
-    filter:drop-shadow(0 3px 6px rgba(0,0,0,0.2));
-    margin-bottom:-2px;
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, var(--bud-color, var(--leaf)) 55%, transparent 70%),
+      radial-gradient(circle at 70% 35%, rgba(255,255,255,0.5) 0%, var(--bud-color, var(--leaf)) 50%, transparent 65%),
+      radial-gradient(circle at 45% 68%, rgba(255,255,255,0.5) 0%, var(--bud-color, var(--leaf)) 50%, transparent 65%),
+      radial-gradient(circle at 68% 66%, rgba(255,255,255,0.5) 0%, var(--bud-color, var(--leaf)) 50%, transparent 65%);
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
+    margin-bottom: -2px;
+    transform: scale(var(--flower-size, 0));
+    opacity: var(--flower-opacity, 0);
+    transition: all 0.6s ease;
   }
 
   /* ---------- ESCENAS 3 y 4: UNIVERSO ---------- */
@@ -1220,11 +1265,13 @@
         <div class="plant-card" id="plantCard">
           <div class="plant-streak" id="plantStreak">🔥 0 días de racha</div>
           <div class="plant-pot" id="plantPot">
-            <div class="plant-stage" id="plantStage">
+          <div class="plant-stage" id="plantStage">
               <div class="flower-scale" id="plantFlowerScale">
                 <div class="flower-sway">
                   <div class="flower__cluster" id="plantCluster"></div>
-                  <div class="flower__stem" id="plantStem"></div>
+                  <div class="flower__stem" id="plantStem">
+                    <div class="plant-leaves" id="plantLeaves"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1792,12 +1839,37 @@ function initUniverseStars(){
 }
 
 /* ---------- TAMAGOTCHI: maceta de lavanda compartida ---------- */
+/* ---------- TAMAGOTCHI: maceta de lavanda compartida (21 DÍAS) ---------- */
 const PLANT_STAGES = [
-  { stem: 12, scale: 0.45, glow: 0 },
-  { stem: 20, scale: 0.65, glow: 0 },
-  { stem: 28, scale: 0.9,  glow: 6 },
-  { stem: 36, scale: 1.1,  glow: 12 },
-  { stem: 42, scale: 1.35, glow: 22 },
+  // FASE 1: Semilla a Brote (Días 0 al 4)
+  { stem: 4,  scale: 0.4, leafScale: 0.0, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 0
+  { stem: 6,  scale: 0.5, leafScale: 0.2, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 1
+  { stem: 8,  scale: 0.5, leafScale: 0.4, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 2
+  { stem: 10, scale: 0.6, leafScale: 0.6, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 3
+  { stem: 12, scale: 0.6, leafScale: 0.8, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 4
+
+  // FASE 2: Tallo con hojitas creciendo (Días 5 al 9)
+  { stem: 16, scale: 0.7, leafScale: 1.0, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 5
+  { stem: 20, scale: 0.7, leafScale: 1.2, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 6
+  { stem: 24, scale: 0.8, leafScale: 1.4, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 7
+  { stem: 28, scale: 0.8, leafScale: 1.6, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 8
+  { stem: 32, scale: 0.9, leafScale: 1.8, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 9
+
+  // FASE 3: Planta madura (Días 10 al 14)
+  { stem: 36, scale: 1.0, leafScale: 2.0, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 10
+  { stem: 38, scale: 1.0, leafScale: 2.2, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 11
+  { stem: 40, scale: 1.1, leafScale: 2.4, fSize: 0,   fOp: 0,   color: '#4f6b45', glow: 0 }, // Día 12
+  { stem: 42, scale: 1.1, leafScale: 2.6, fSize: 0.3, fOp: 0.5, color: '#688e5b', glow: 0 }, // Día 13 (Nace capullo verde)
+  { stem: 44, scale: 1.2, leafScale: 2.8, fSize: 0.5, fOp: 0.8, color: '#8d9c7c', glow: 0 }, // Día 14 (Capullo cambia de color)
+
+  // FASE 4: Lavanda floreciendo (Días 15 al 21)
+  { stem: 46, scale: 1.2, leafScale: 3.0, fSize: 0.6, fOp: 1,   color: '#9a81cc', glow: 2 }, // Día 15 (Morado oscuro)
+  { stem: 47, scale: 1.3, leafScale: 3.1, fSize: 0.7, fOp: 1,   color: '#a990e5', glow: 4 }, // Día 16
+  { stem: 48, scale: 1.3, leafScale: 3.2, fSize: 0.8, fOp: 1,   color: '#b199ff', glow: 6 }, // Día 17
+  { stem: 49, scale: 1.4, leafScale: 3.3, fSize: 0.9, fOp: 1,   color: '#b199ff', glow: 8 }, // Día 18
+  { stem: 50, scale: 1.4, leafScale: 3.4, fSize: 1.0, fOp: 1,   color: '#c5b3ff', glow: 12 },// Día 19
+  { stem: 50, scale: 1.5, leafScale: 3.5, fSize: 1.1, fOp: 1,   color: '#d9c3ff', glow: 16 },// Día 20
+  { stem: 50, scale: 1.5, leafScale: 3.5, fSize: 1.2, fOp: 1,   color: '#d9c3ff', glow: 22 } // Día 21 (Lavanda radiante)
 ];
 const MAX_PLANT_STAGE = PLANT_STAGES.length - 1;
 
@@ -1812,12 +1884,24 @@ function daysBetweenStr(a, b){
 function renderPlant(state){
   const stageIdx = Math.min(Math.max(state.growthStage || 0, 0), MAX_PLANT_STAGE);
   const cfg = PLANT_STAGES[stageIdx];
+  
   const stem = document.getElementById('plantStem');
   const scaleWrap = document.getElementById('plantFlowerScale');
   const cluster = document.getElementById('plantCluster');
-  if(stem) stem.style.height = cfg.stem + 'px';
+  
+  // Aplicamos las nuevas variables CSS dinámicas a los elementos
   if(scaleWrap) scaleWrap.style.setProperty('--fscale', cfg.scale);
-  if(cluster) cluster.style.filter = cfg.glow ? `drop-shadow(0 0 ${cfg.glow}px var(--pink-glow)) brightness(1.15)` : 'none';
+  if(stem) {
+    stem.style.setProperty('--stem-h', cfg.stem + 'px');
+    stem.style.setProperty('--leaf-scale', cfg.leafScale);
+  }
+  if(cluster) {
+    cluster.style.setProperty('--flower-size', cfg.fSize);
+    cluster.style.setProperty('--flower-opacity', cfg.fOp);
+    cluster.style.setProperty('--bud-color', cfg.color);
+    cluster.style.filter = cfg.glow ? `drop-shadow(0 0 ${cfg.glow}px var(--pink-glow)) brightness(1.15)` : 'none';
+  }
+  
   const streak = state.streak || 0;
   document.getElementById('plantStreak').textContent = `🔥 ${streak} día${streak === 1 ? '' : 's'} de racha`;
 }
@@ -2511,3 +2595,4 @@ window.addEventListener('appinstalled', () => {
 
 </body>
 </html>
+
