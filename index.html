@@ -2299,16 +2299,24 @@ function startNotificationsListener(){
   const myKey = myKeyNow();
   if(!myKey || notificationsListenerStarted) return;
   notificationsListenerStarted = true;
+  // nota: a propósito NO se usa .orderBy() aquí junto al .where() — combinar
+  // ambos en Firestore exige crear un índice compuesto manualmente. En su
+  // lugar, pedimos todas las notificaciones del usuario y las ordenamos
+  // aquí mismo por fecha, así no depende de configurar nada en Firebase.
   db.collection('notifications')
     .where('recipientKey', '==', myKey)
-    .orderBy('timestamp', 'desc')
-    .limit(50)
     .onSnapshot(snap => {
-      notifItems = [];
-      snap.forEach(doc => notifItems.push(Object.assign({ id: doc.id }, doc.data())));
+      let items = [];
+      snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
+      items.sort((a, b) => {
+        const at = a.timestamp ? a.timestamp.toMillis() : 0;
+        const bt = b.timestamp ? b.timestamp.toMillis() : 0;
+        return bt - at;
+      });
+      notifItems = items.slice(0, 50);
       renderNotifications();
     }, err => {
-      console.error('No se pudieron leer las notificaciones (revisa las reglas de Firestore, o si pide crear un índice compuesto, abre el enlace que te dé este error):', err);
+      console.error('No se pudieron leer las notificaciones (revisa las reglas de Firestore para la colección "notifications"):', err);
     });
 }
 
@@ -2842,9 +2850,9 @@ function buildStaticStars(container, count){
   container.appendChild(dot);
 }
 
-document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+document.querySelectorAll('.bottom-nav-btn[data-dashtab]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.bottom-nav-btn[data-dashtab]').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.dash-tab-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('dash-tab-' + btn.dataset.dashtab).classList.add('active');
