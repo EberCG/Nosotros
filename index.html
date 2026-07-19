@@ -29,10 +29,40 @@
     --star-white:#fdfcf7;
     --accent-violet:#b199ff;
     --coupon-red:#e6355f;
+
+    /* ---- tokens de tema (claro/oscuro) — solo afectan universo/dashboard/diario/álbum ---- */
+    --page-bg:var(--space-black);
+    --txt-1:var(--cloud-white);
+    --txt-2:rgba(255,255,255,0.65);
+    --txt-3:rgba(255,255,255,0.45);
+    --glass-1:rgba(255,255,255,0.03);
+    --glass-2:rgba(255,255,255,0.14);
+    --glass-3:rgba(255,255,255,0.22);
+    --glass-4:rgba(255,255,255,0.08);
   }
 
+  body.theme-light{
+    --page-bg:linear-gradient(160deg,#eaf3ff 0%,#fdf6ff 45%,#fff3e0 100%);
+    --cloud-white:#332a4d;
+    --txt-1:#332a4d;
+    --txt-2:rgba(51,42,77,0.68);
+    --txt-3:rgba(51,42,77,0.5);
+    --star-white:#ffb84d;
+    --glass-1:rgba(124,92,191,0.05);
+    --glass-2:rgba(255,255,255,0.55);
+    --glass-3:rgba(124,92,191,0.25);
+    --glass-4:rgba(255,255,255,0.6);
+  }
+
+  /* ---- tokens de accent (color del año) ---- */
+  body[data-accent="verde"]{ --pink-glow:#5fd48a; --accent-violet:#2f9e63; }
+  body[data-accent="azul"]{ --pink-glow:#6fb8ff; --accent-violet:#3f7fd6; }
+  body[data-accent="rojo"]{ --pink-glow:#ff6f7a; --accent-violet:#e6355f; }
+  body[data-accent="dorado"]{ --pink-glow:#ffcf7a; --accent-violet:#e0a13a; }
+  body[data-accent="rosa"]{ --pink-glow:#ff8ad1; --accent-violet:#d874e0; }
+
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;height:100%;background:var(--space-black);overflow:hidden;font-family:'Quicksand',sans-serif;}
+  html,body{margin:0;padding:0;height:100%;background:var(--page-bg);overflow:hidden;font-family:'Quicksand',sans-serif;}
   @supports (height: 100dvh){
     html,body{height:100dvh;}
   }
@@ -92,6 +122,81 @@
     backdrop-filter:blur(10px) saturate(180%);
     -webkit-backdrop-filter:blur(10px) saturate(180%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px rgba(0,0,0,0.3);
+  }
+
+  /* ---------- BOTONES FLOTANTES: tema claro/oscuro y color del año ---------- */
+  .theme-toggle-btn, .accent-toggle-btn{
+    position:fixed;z-index:20;
+    background:linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+    border:1px solid rgba(255,255,255,0.3);
+    color:#fff;width:40px;height:40px;border-radius:50%;
+    font-size:1rem;cursor:pointer;
+    display:none;align-items:center;justify-content:center;
+    backdrop-filter:blur(10px) saturate(180%);
+    -webkit-backdrop-filter:blur(10px) saturate(180%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px rgba(0,0,0,0.3);
+    transition:transform .2s ease;
+  }
+  .theme-toggle-btn.show, .accent-toggle-btn.show{display:flex;}
+  .theme-toggle-btn:hover, .accent-toggle-btn:hover{transform:scale(1.06);}
+  .theme-toggle-btn{top:5%;left:5%;}
+  .accent-toggle-btn{bottom:5%;right:5%;}
+
+  .settings-popover{
+    position:fixed;z-index:21;
+    display:none;flex-direction:column;gap:14px;
+    width:min(230px,72vw);
+    background:linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.05));
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    border-radius:18px;padding:18px 16px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .settings-popover.show{display:flex;}
+  #themePopover{top:calc(5% + 50px);left:5%;}
+  #accentPopover{bottom:calc(5% + 50px);right:5%;}
+  .settings-popover-title{
+    color:#fff;font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:.95rem;margin:0;text-align:center;
+  }
+  .theme-switch{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    background:none;border:none;cursor:pointer;padding:4px;
+  }
+  .theme-switch-icon{font-size:1rem;opacity:.65;}
+  .theme-switch-track{
+    position:relative;width:46px;height:24px;border-radius:20px;
+    background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);
+  }
+  .theme-switch-thumb{
+    position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+    background:linear-gradient(135deg,#fff,#ddd);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  body.theme-light .theme-switch-thumb{transform:translateX(22px);}
+
+  .accent-swatches{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+  .accent-swatch{
+    width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);
+    cursor:pointer;transition:transform .2s ease, border-color .2s ease;padding:0;
+  }
+  .accent-swatch:hover{transform:scale(1.1);}
+  .accent-swatch.selected{border-color:#fff;transform:scale(1.12);}
+
+  /* ---------- partículas suaves del Dashboard, coloreadas según el color del año ---------- */
+  .accent-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+  .accent-particle{
+    position:absolute;border-radius:50%;
+    background:radial-gradient(circle, var(--pink-glow), transparent 70%);
+    opacity:0;filter:blur(1px);
+    animation:particle-float linear infinite;
+  }
+  @keyframes particle-float{
+    0%{transform:translateY(10vh) translateX(0) scale(1);opacity:0;}
+    10%{opacity:.32;}
+    88%{opacity:.32;}
+    100%{transform:translateY(-110vh) translateX(var(--drift,20px)) scale(1.2);opacity:0;}
   }
 
   /* ---------- AVISO DE ACTUALIZACIÓN ---------- */
@@ -216,7 +321,7 @@
   }
 
   /* ---------- ESCENAS 3 y 4: UNIVERSO ---------- */
-  #scene-universe, #scene-final{background:var(--space-black);}
+  #scene-universe, #scene-final{background:var(--page-bg);}
   .starfield{position:absolute;inset:0;overflow:hidden;}
   .warp-layer{
     position:absolute;top:50%;left:50%;width:1px;height:1px;
@@ -255,15 +360,15 @@
 
   .universe-hint{
     position:absolute;bottom:9%;left:50%;transform:translateX(-50%);
-    color:rgba(255,255,255,0.65);font-size:.85rem;
+    color:var(--txt-2);font-size:.85rem;
     font-family:'Cormorant Garamond',serif;font-style:italic;
     text-align:center;z-index:3;
   }
   .continue-btn{
     position:absolute;bottom:5%;left:50%;transform:translateX(-50%);
-    background:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03));
-    border:1px solid rgba(255,255,255,0.35);
-    color:var(--cloud-white);padding:10px 22px;border-radius:30px;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
+    color:var(--txt-1);padding:10px 22px;border-radius:30px;
     font-family:'Quicksand',sans-serif;font-size:.85rem;letter-spacing:.5px;
     cursor:pointer;opacity:0;z-index:4;
     backdrop-filter:blur(10px) saturate(180%);
@@ -272,7 +377,7 @@
     transition:opacity 1s ease, background .2s ease, transform .2s ease;
   }
   .continue-btn.show{opacity:1;}
-  .continue-btn:hover{background:linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.06));transform:translateX(-50%) translateY(-2px);}
+  .continue-btn:hover{background:linear-gradient(135deg, var(--glass-3), var(--glass-4));transform:translateX(-50%) translateY(-2px);}
 
   #scene-final .final-text{
     position:relative;z-index:3;
@@ -289,11 +394,11 @@
   }
   .restart-link{
     position:absolute;bottom:4%;left:50%;transform:translateX(-50%);
-    color:rgba(255,255,255,0.35);font-size:.72rem;
+    color:var(--txt-3);font-size:.72rem;
     font-family:'Quicksand',sans-serif;text-decoration:none;
     z-index:4;cursor:pointer;
   }
-  .restart-link:hover{color:rgba(255,255,255,0.6);}
+  .restart-link:hover{color:var(--txt-2);}
 
   /* ---------- CARTA SORPRESA ---------- */
   .letter-overlay{
@@ -400,7 +505,7 @@
   /* ---------- MENÚ / DIARIO / ÁLBUM ---------- */
   .starfield-static{position:absolute;inset:0;overflow:hidden;}
   /* ---------- ESCENA: DASHBOARD ---------- */
-  #scene-dashboard{background:var(--space-black);}
+  #scene-dashboard{background:var(--page-bg);}
   .dash-wrap{
     position:relative;z-index:2;
     width:min(480px,92vw);height:88%;
@@ -412,30 +517,30 @@
   .dash-header{display:flex;gap:14px;margin:4px 0 24px;}
   .dash-widget{
     flex:1;aspect-ratio:1/0.9;
-    background:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03));
-    border:1px solid rgba(255,255,255,0.25);
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
     backdrop-filter:blur(16px) saturate(180%);
     -webkit-backdrop-filter:blur(16px) saturate(180%);
     border-radius:18px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    color:var(--cloud-white);text-align:center;
+    color:var(--txt-1);text-align:center;
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 18px rgba(0,0,0,0.25);
   }
   .dash-widget-icon{font-size:1.6rem;margin-bottom:4px;}
   .dash-widget.clickable{cursor:pointer;transition:transform .2s ease;}
   .dash-widget.clickable:hover{transform:translateY(-2px);}
   .dash-widget-value{font-size:1.25rem;font-weight:700;}
-  .dash-widget-label{font-size:.66rem;color:rgba(255,255,255,0.55);margin-top:2px;}
+  .dash-widget-label{font-size:.66rem;color:var(--txt-2);margin-top:2px;}
 
   .dash-section-title{
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
-    color:var(--cloud-white);font-size:1.15rem;margin:0 0 12px;text-align:center;
+    color:var(--txt-1);font-size:1.15rem;margin:0 0 12px;text-align:center;
   }
   .dash-placeholder-card{
-    background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
     border-radius:18px;padding:26px 22px;text-align:center;
-    color:rgba(255,255,255,0.65);font-size:.85rem;line-height:1.5;
+    color:var(--txt-2);font-size:.85rem;line-height:1.5;
     backdrop-filter:blur(12px) saturate(160%);
     -webkit-backdrop-filter:blur(12px) saturate(160%);
   }
@@ -447,11 +552,11 @@
   .quick-action-btn{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
     padding:18px 6px;border-radius:16px;border:none;
-    border:1px solid rgba(255,255,255,0.25);
-    background:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03));
+    border:1px solid var(--glass-3);
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     backdrop-filter:blur(14px) saturate(180%);
     -webkit-backdrop-filter:blur(14px) saturate(180%);
-    color:var(--cloud-white);font-family:'Quicksand',sans-serif;font-weight:600;
+    color:var(--txt-1);font-family:'Quicksand',sans-serif;font-weight:600;
     font-size:.7rem;text-align:center;cursor:pointer;
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 14px rgba(0,0,0,0.25);
     transition:transform .25s ease, background .25s ease;
@@ -459,15 +564,15 @@
   .quick-action-btn .qa-icon{font-size:1.5rem;}
   .quick-action-btn:hover{
     transform:translateY(-3px);
-    background:linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.06));
+    background:linear-gradient(135deg, var(--glass-3), var(--glass-4));
   }
 
   .dash-restart-link{
     display:block;text-align:center;margin:22px 0 6px;
-    color:rgba(255,255,255,0.3);font-size:.7rem;
+    color:var(--txt-3);font-size:.7rem;
     font-family:'Quicksand',sans-serif;cursor:pointer;
   }
-  .dash-restart-link:hover{color:rgba(255,255,255,0.55);}
+  .dash-restart-link:hover{color:var(--txt-2);}
 
   /* ---------- barra de navegación inferior (cristal difuminado) ---------- */
   .bottom-nav{
@@ -477,27 +582,27 @@
     width:max-content;
     display:flex;justify-content:center;align-items:center;gap:6px;
     padding:8px;border-radius:26px;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.25);
+    background:var(--glass-4);
+    border:1px solid var(--glass-3);
     backdrop-filter:blur(20px) saturate(180%);
     -webkit-backdrop-filter:blur(20px) saturate(180%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 10px 30px rgba(0,0,0,0.35);
   }
   .bottom-nav-btn{
     width:56px;height:46px;border:none;border-radius:18px;
-    background:transparent;color:rgba(255,255,255,0.55);
+    background:transparent;color:var(--txt-2);
     font-size:1.15rem;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
     transition:background .25s ease, color .25s ease;
   }
   .bottom-nav-btn.active{
-    background:linear-gradient(135deg, rgba(255,122,176,0.35), rgba(177,153,255,0.35));
+    background:linear-gradient(135deg, var(--pink-glow), var(--accent-violet));
     color:#fff;
   }
 
   /* ---------- TAMAGOTCHI: maceta de lavanda ---------- */
   .plant-card{
-    background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
     border-radius:20px;padding:18px 18px 22px;text-align:center;
     backdrop-filter:blur(12px) saturate(160%);
@@ -539,28 +644,28 @@
   }
   .water-btn:hover{transform:translateY(-2px);}
   .water-btn:active{transform:translateY(0) scale(0.97);}
-  .plant-msg{color:rgba(255,255,255,0.6);font-size:.76rem;margin-top:10px;min-height:1.2em;}
+  .plant-msg{color:var(--txt-2);font-size:.76rem;margin-top:10px;min-height:1.2em;}
 
   /* ---------- MOOD TRACKER ---------- */
   .mood-card{
-    background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
     border-radius:20px;padding:20px 18px;text-align:center;
     backdrop-filter:blur(12px) saturate(160%);
     -webkit-backdrop-filter:blur(12px) saturate(160%);
   }
-  .mood-prompt{color:var(--cloud-white);font-size:.85rem;margin:0 0 12px;}
+  .mood-prompt{color:var(--txt-1);font-size:.85rem;margin:0 0 12px;}
 
   /* --- NUEVO: Botón principal que abre las reacciones --- */
   .mood-trigger-btn {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.25);
+    background: var(--glass-4);
+    border: 1px solid var(--glass-3);
     padding: 10px 24px;
     border-radius: 30px;
-    color: white;
+    color: var(--txt-1);
     font-family: 'Quicksand', sans-serif;
     font-size: 1.1rem;
     font-weight: 600;
@@ -568,7 +673,7 @@
     transition: background 0.3s ease, transform 0.2s ease;
     margin-bottom: 10px;
   }
-  .mood-trigger-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+  .mood-trigger-btn:hover { background: var(--glass-3); transform: translateY(-2px); }
 
   /* --- NUEVO: Barra flotante tipo Facebook (Glassmorphism) --- */
   .mood-floating-bar {
@@ -576,10 +681,10 @@
     bottom: 110%;
     left: 50%;
     transform: translateX(-50%) translateY(20px) scale(0.8);
-    background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+    background: linear-gradient(135deg, var(--glass-3), var(--glass-4));
     backdrop-filter: blur(15px) saturate(180%);
     -webkit-backdrop-filter: blur(15px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.3);
+    border: 1px solid var(--glass-3);
     border-radius: 35px;
     padding: 8px 14px;
     display: flex;
@@ -670,7 +775,7 @@
   }
   /* Texto de lo que siente tu pareja */
   .mood-partner {
-    color: #ffffff;
+    color: var(--txt-1);
     font-weight: bold;
     font-size: 0.9rem;
     margin: 10px 0 0;
@@ -746,20 +851,20 @@
   .coupon-redeem-btn:active{transform:translateY(0) scale(0.96);}
   .coupon-dots{display:flex;justify-content:center;gap:6px;margin-top:6px;}
   .coupon-dot{
-    width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.25);
+    width:6px;height:6px;border-radius:50%;background:var(--glass-3);
     transition:background .2s ease, transform .2s ease;
   }
   .coupon-dot.active{background:var(--pink-glow);transform:scale(1.3);}
   .coupon-empty-msg{
-    color:rgba(255,255,255,0.6);font-size:.85rem;text-align:center;
+    color:var(--txt-2);font-size:.85rem;text-align:center;
     padding:26px 16px;width:100%;
   }
 
   /* ---------- estatus de canje (debajo de la cuponera) ---------- */
   .coupon-status-panel{
     margin:14px 0 6px;
-    background:linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
-    border:1px solid rgba(255,255,255,0.22);
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
     border-radius:18px;padding:16px;text-align:center;
     backdrop-filter:blur(14px) saturate(180%);
     -webkit-backdrop-filter:blur(14px) saturate(180%);
@@ -769,15 +874,17 @@
   .coupon-status-icon{font-size:2.3rem;margin-bottom:6px;line-height:1;}
   .coupon-status-title{
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
-    color:var(--cloud-white);font-size:1.05rem;margin:0 0 4px;
+    color:var(--txt-1);font-size:1.05rem;margin:0 0 4px;
   }
   .coupon-status-text{font-size:.82rem;margin:0;font-weight:600;}
   .coupon-status-text.ok{color:#7cffb2;}
   .coupon-status-text.fail{color:#ff8a8a;}
+  body.theme-light .coupon-status-text.ok{color:#1f8a4c;}
+  body.theme-light .coupon-status-text.fail{color:#d43d3d;}
 
   /* ---------- CÁPSULA DEL TIEMPO ---------- */
   .capsule-card{
-    background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
     border-radius:20px;padding:28px 20px;text-align:center;
     backdrop-filter:blur(12px) saturate(160%);
@@ -793,7 +900,7 @@
   }
   .capsule-title{
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
-    color:var(--cloud-white);font-size:1.1rem;margin:0 0 10px;
+    color:var(--txt-1);font-size:1.1rem;margin:0 0 10px;
   }
   .capsule-countdown{
     color:var(--pink-glow);font-size:1rem;font-weight:600;
@@ -805,7 +912,7 @@
     box-shadow:0 8px 24px rgba(0,0,0,0.35);
   }
   .capsule-text{
-    color:rgba(255,255,255,0.8);font-family:'Cormorant Garamond',serif;font-style:italic;
+    color:var(--txt-1);font-family:'Cormorant Garamond',serif;font-style:italic;
     font-size:1rem;line-height:1.6;
   }
   .capsule-text p{margin:0 0 10px;}
@@ -813,9 +920,9 @@
 
   .back-btn{
     position:absolute;top:6%;left:6%;z-index:5;
-    background:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03));
-    border:1px solid rgba(255,255,255,0.3);
-    color:var(--cloud-white);padding:10px 20px;border-radius:20px;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
+    color:var(--txt-1);padding:10px 20px;border-radius:20px;
     font-family:'Quicksand',sans-serif;font-size:.85rem;cursor:pointer;
     min-height:40px;
     backdrop-filter:blur(10px) saturate(180%);
@@ -823,7 +930,7 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 14px rgba(0,0,0,0.25);
     transition:background .2s ease, transform .2s ease;
   }
-  .back-btn:hover{background:linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.06));transform:translateY(-2px);}
+  .back-btn:hover{background:linear-gradient(135deg, var(--glass-3), var(--glass-4));transform:translateY(-2px);}
 
   .diario-box, .album-box{
     position:relative;z-index:3;width:min(480px,88vw);
@@ -831,19 +938,19 @@
   }
   .panel-title{
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
-    color:var(--cloud-white);font-size:1.6rem;margin:0 0 6px;
+    color:var(--txt-1);font-size:1.6rem;margin:0 0 6px;
   }
-  .panel-sub{color:rgba(255,255,255,0.6);font-size:.85rem;margin:0 0 22px;}
-  .panel-hint{color:rgba(255,255,255,0.45);font-size:.72rem;margin-top:14px;line-height:1.4;}
+  .panel-sub{color:var(--txt-2);font-size:.85rem;margin:0 0 22px;}
+  .panel-hint{color:var(--txt-3);font-size:.72rem;margin-top:14px;line-height:1.4;}
 
   #diarioText{
     width:100%;min-height:150px;border-radius:14px;padding:16px;
-    background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.2);
-    color:#fff;font-family:'Cormorant Garamond',serif;font-size:16px;
+    background:var(--glass-4);border:1px solid var(--glass-3);
+    color:var(--txt-1);font-family:'Cormorant Garamond',serif;font-size:16px;
     resize:vertical;outline:none;transition:border .2s ease;
   }
   #diarioText:focus{border-color:var(--accent-violet);}
-  #diarioText::placeholder{color:rgba(255,255,255,0.35);}
+  #diarioText::placeholder{color:var(--txt-3);}
 
   .action-btn{
     display:inline-block;margin-top:16px;padding:12px 26px;border:none;
@@ -859,8 +966,8 @@
   }
   .action-btn:hover{filter:brightness(1.12);transform:translateY(-1px);}
   .action-btn.secondary{
-    background:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03));
-    border:1px solid rgba(255,255,255,0.35);
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
     backdrop-filter:blur(10px) saturate(180%);
     -webkit-backdrop-filter:blur(10px) saturate(180%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 14px rgba(0,0,0,0.2);
@@ -872,7 +979,7 @@
   }
   .gallery img{
     width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;
-    border:1px solid rgba(255,255,255,0.25);
+    border:1px solid var(--glass-3);
     box-shadow:0 4px 14px rgba(0,0,0,0.35);
   }
 
@@ -944,23 +1051,23 @@
   .note-modal-overlay.show{display:flex;}
   .note-modal{
     width:min(340px,88vw);
-    background:linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.05));
-    border:1px solid rgba(255,255,255,0.25);
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
     backdrop-filter:blur(18px) saturate(180%);
     -webkit-backdrop-filter:blur(18px) saturate(180%);
     border-radius:20px;padding:26px 22px;text-align:center;
   }
   .note-modal p.title{
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
-    color:var(--cloud-white);font-size:1.15rem;margin:0 0 14px;
+    color:var(--txt-1);font-size:1.15rem;margin:0 0 14px;
   }
   .note-modal textarea{
     width:100%;min-height:110px;border-radius:12px;padding:12px;
-    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);
-    color:#fff;font-family:'Quicksand',sans-serif;font-size:16px;
+    background:var(--glass-4);border:1px solid var(--glass-3);
+    color:var(--txt-1);font-family:'Quicksand',sans-serif;font-size:16px;
     resize:vertical;outline:none;
   }
-  .note-modal-sign{color:rgba(255,255,255,0.5);font-size:.75rem;margin:10px 0 4px;}
+  .note-modal-sign{color:var(--txt-3);font-size:.75rem;margin:10px 0 4px;}
   .note-modal-actions{display:flex;gap:10px;margin-top:14px;}
   .note-modal-actions button{flex:1;}
 
@@ -1033,6 +1140,29 @@
   <button class="install-btn" id="installBtn">📲 Instalar app 
   </button> <button class="music-btn" id="musicBtn">🔊</button>
 
+  <button class="theme-toggle-btn" id="themeToggleBtn" title="Modo claro / oscuro">🌙</button>
+  <div class="settings-popover" id="themePopover">
+    <p class="settings-popover-title">Apariencia</p>
+    <button class="theme-switch" id="themeSwitch">
+      <span class="theme-switch-icon">🌙</span>
+      <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
+      <span class="theme-switch-icon">☀️</span>
+    </button>
+  </div>
+
+  <button class="accent-toggle-btn" id="accentToggleBtn" title="Color del año">🎨</button>
+  <div class="settings-popover" id="accentPopover">
+    <p class="settings-popover-title">Color del año</p>
+    <div class="accent-swatches">
+      <button class="accent-swatch selected" data-accent="" style="background:linear-gradient(135deg,#ff7ab0,#b199ff);" title="Violeta (original)"></button>
+      <button class="accent-swatch" data-accent="verde" style="background:linear-gradient(135deg,#5fd48a,#2f9e63);" title="Verde"></button>
+      <button class="accent-swatch" data-accent="azul" style="background:linear-gradient(135deg,#6fb8ff,#3f7fd6);" title="Azul"></button>
+      <button class="accent-swatch" data-accent="rojo" style="background:linear-gradient(135deg,#ff6f7a,#e6355f);" title="Rojo"></button>
+      <button class="accent-swatch" data-accent="dorado" style="background:linear-gradient(135deg,#ffcf7a,#e0a13a);" title="Dorado"></button>
+      <button class="accent-swatch" data-accent="rosa" style="background:linear-gradient(135deg,#ff8ad1,#d874e0);" title="Rosa"></button>
+    </div>
+  </div>
+
   <!-- ESCENA 1: LOGIN -->
   <section id="scene-login" class="scene active">
     <video class="login-bg-video" id="loginBgVideo" muted playsinline loop autoplay></video>
@@ -1068,6 +1198,7 @@
   <!-- ESCENA 4: DASHBOARD -->
   <section id="scene-dashboard" class="scene">
     <div class="starfield-static" id="starfieldDashboard"></div>
+    <div class="accent-particles" id="accentParticles"></div>
     <div class="dash-wrap">
 
       <!-- pestaña: inicio -->
@@ -1421,6 +1552,71 @@ const APP_VERSION = "2026-07-18-23";
   document.getElementById('daysWidgetNum').textContent = days;
 })();
 
+/* ---------- PERSONALIZACIÓN: tema claro/oscuro y color del año ---------- */
+function applyTheme(theme){
+  document.body.classList.toggle('theme-light', theme === 'light');
+  document.getElementById('themeToggleBtn').textContent = theme === 'light' ? '☀️' : '🌙';
+}
+function applyAccent(accent){
+  if(accent){ document.body.setAttribute('data-accent', accent); }
+  else { document.body.removeAttribute('data-accent'); }
+  document.querySelectorAll('.accent-swatch').forEach(sw => {
+    sw.classList.toggle('selected', (sw.dataset.accent || '') === (accent || ''));
+  });
+}
+
+applyTheme(localStorage.getItem('para_ti_theme') || 'dark');
+applyAccent(localStorage.getItem('para_ti_accent') || '');
+
+document.getElementById('themeToggleBtn').addEventListener('click', function(e){
+  e.stopPropagation();
+  document.getElementById('themePopover').classList.toggle('show');
+  document.getElementById('accentPopover').classList.remove('show');
+});
+document.getElementById('accentToggleBtn').addEventListener('click', function(e){
+  e.stopPropagation();
+  document.getElementById('accentPopover').classList.toggle('show');
+  document.getElementById('themePopover').classList.remove('show');
+});
+document.getElementById('themeSwitch').addEventListener('click', function(){
+  const next = document.body.classList.contains('theme-light') ? 'dark' : 'light';
+  applyTheme(next);
+  localStorage.setItem('para_ti_theme', next);
+});
+document.querySelectorAll('.accent-swatch').forEach(sw => {
+  sw.addEventListener('click', function(){
+    const accent = this.dataset.accent || '';
+    applyAccent(accent);
+    localStorage.setItem('para_ti_accent', accent);
+    setTimeout(() => document.getElementById('accentPopover').classList.remove('show'), 250);
+  });
+});
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.settings-popover')){
+    document.getElementById('themePopover').classList.remove('show');
+    document.getElementById('accentPopover').classList.remove('show');
+  }
+});
+
+/* partículas suaves y minimalistas del Dashboard, coloreadas según el color del año elegido */
+function buildAccentParticles(){
+  const container = document.getElementById('accentParticles');
+  if(!container || container.childElementCount) return; // solo se arma una vez
+  const count = 14;
+  for(let i=0;i<count;i++){
+    const p = document.createElement('div');
+    p.className = 'accent-particle';
+    const size = 6 + Math.random()*14;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = Math.random()*100 + '%';
+    p.style.setProperty('--drift', (Math.random()*60 - 30) + 'px');
+    p.style.animationDuration = (14 + Math.random()*10) + 's';
+    p.style.animationDelay = '-' + (Math.random()*20) + 's';
+    container.appendChild(p);
+  }
+}
+
 const scenes = {
   login: document.getElementById('scene-login'),
   universe: document.getElementById('scene-universe'),
@@ -1458,6 +1654,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       checkLetter(); // la carta solo se revisa/aparece para ella, nunca con la cuenta admin
     }
     document.getElementById('bgMusic').play().catch(() => {});
+    document.getElementById('themeToggleBtn').classList.add('show');
+    document.getElementById('accentToggleBtn').classList.add('show');
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     error.classList.add('show');
@@ -1528,7 +1726,7 @@ function buildWarpField(container){
       const dist = Math.random()*600 + 40;
       const x = Math.round(Math.cos(angle)*dist);
       const y = Math.round(Math.sin(angle)*dist);
-      shadows.push(`${x}px ${y}px 0 #fff`);
+      shadows.push(`${x}px ${y}px 0 var(--star-white)`);
     }
     layer.style.width = cfg.size;
     layer.style.height = cfg.size;
@@ -2074,6 +2272,7 @@ document.getElementById('continueBtn').addEventListener('click', function(){
   goTo('final');
   setTimeout(() => {
     buildStaticStars(document.getElementById('starfieldDashboard'), 90);
+    buildAccentParticles();
     goTo('dashboard');
     loadPlant();
     initMoodTracker();
@@ -2091,7 +2290,7 @@ function buildStaticStars(container, count){
   container.innerHTML = '';
   let shadows = [];
   for(let i=0;i<count;i++){
-    shadows.push(`${Math.random()*100}vw ${Math.random()*100}vh #fff`);
+    shadows.push(`${Math.random()*100}vw ${Math.random()*100}vh var(--star-white)`);
   }
   const dot = document.createElement('div');
   dot.style.width='1px';dot.style.height='1px';
