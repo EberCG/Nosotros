@@ -160,6 +160,7 @@
     color:#fff;font-family:'Cormorant Garamond',serif;font-style:italic;
     font-size:.95rem;margin:0;text-align:center;
   }
+  body.theme-light .settings-popover-title{color:#000;}
   .theme-switch{
     display:flex;align-items:center;justify-content:center;gap:10px;
     background:none;border:none;cursor:pointer;padding:4px;
@@ -656,7 +657,41 @@
   .plant-streak{color:var(--pink-glow);font-size:.78rem;font-weight:600;margin-bottom:2px;}
   .plant-pot{position:relative;height:104px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;}
   .plant-stage{display:flex;align-items:flex-end;justify-content:center;height:66px;}
-  .pot-emoji{font-size:2rem;margin-top:-6px;}
+  /* --- NUEVA MACETA EN CSS (Estilo Terracota 3D) --- */
+  .css-pot {
+    position: relative;
+    width: 44px;
+    height: 36px;
+    background: linear-gradient(to right, #a34e2e, #d47453 25%, #8c3f22 80%);
+    border-radius: 4px 4px 18px 18px;
+    margin-top: 2px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  }
+  
+  /* El borde superior de la maceta (el labio) */
+  .css-pot::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -4px;
+    width: 52px;
+    height: 10px;
+    background: linear-gradient(to right, #b85b37, #e88d67 25%, #9c4828 80%);
+    border-radius: 4px;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.4);
+  }
+  
+  /* La tierrita oscura donde va plantada la semilla */
+  .css-pot::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 4px;
+    width: 36px;
+    height: 5px;
+    background: #311c11; /* Color tierra húmeda */
+    border-radius: 50%;
+  }
   .plant-bump{animation:plant-bump .6s ease;}
   @keyframes plant-bump{
     0%,100%{transform:scale(1);}
@@ -689,6 +724,7 @@
   }
   .water-btn:hover{transform:translateY(-2px);}
   .water-btn:active{transform:translateY(0) scale(0.97);}
+  body.theme-light .water-btn{color:#000;}
   .plant-msg{color:var(--txt-2);font-size:.76rem;margin-top:10px;min-height:1.2em;}
 
   /* ---------- MOOD TRACKER ---------- */
@@ -907,6 +943,7 @@
 
   /* ---------- estatus de canje (debajo de la cuponera) ---------- */
   .coupon-status-panel{
+    position:relative;
     margin:14px 0 6px;
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid var(--glass-3);
@@ -925,6 +962,24 @@
   .coupon-status-text.ok{color:#7cffb2;}
   .coupon-status-text.fail{color:#ff8a8a;}
   body.theme-light .coupon-status-text.ok{color:#1f8a4c;}
+  .coupon-ack-btn{
+    margin-top:10px;background:none;border:none;cursor:pointer;
+    font-size:1.4rem;line-height:1;display:inline-flex;
+    transition:transform .15s ease;
+  }
+  .coupon-ack-btn:hover{transform:scale(1.15);}
+  .coupon-status-panel.splitting > *:not(.coupon-split-half){opacity:0;}
+  .coupon-split-half{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    padding:inherit;box-sizing:border-box;pointer-events:none;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .coupon-split-half.left{clip-path:inset(0 50% 0 0);}
+  .coupon-split-half.right{clip-path:inset(0 0 0 50%);}
+  .coupon-split-half.animate.left{animation:coupon-split-left .7s ease forwards;}
+  .coupon-split-half.animate.right{animation:coupon-split-right .7s ease forwards;}
+  @keyframes coupon-split-left{to{transform:translateX(-50px) rotate(-10deg);opacity:0;}}
+  @keyframes coupon-split-right{to{transform:translateX(50px) rotate(10deg);opacity:0;}}
   body.theme-light .coupon-status-text.fail{color:#d43d3d;}
 
   /* ---------- CÁPSULA DEL TIEMPO ---------- */
@@ -1265,7 +1320,7 @@
         <div class="plant-card" id="plantCard">
           <div class="plant-streak" id="plantStreak">🔥 0 días de racha</div>
           <div class="plant-pot" id="plantPot">
-          <div class="plant-stage" id="plantStage">
+            <div class="plant-stage" id="plantStage">
               <div class="flower-scale" id="plantFlowerScale">
                 <div class="flower-sway">
                   <div class="flower__cluster" id="plantCluster"></div>
@@ -1275,7 +1330,7 @@
                 </div>
               </div>
             </div>
-            <div class="pot-emoji">🪴</div>
+            <div class="css-pot"></div>
           </div>
           <button class="water-btn" id="waterBtn">💧Dar amor</button>
           <p class="plant-msg" id="plantMsg"></p>
@@ -1339,6 +1394,7 @@
           <div class="coupon-status-icon" id="couponStatusIcon">🎁</div>
           <p class="coupon-status-title" id="couponStatusTitle">–</p>
           <p class="coupon-status-text" id="couponStatusText">–</p>
+          <button class="coupon-ack-btn" id="couponAckBtn" title="Ya lo vi">✅</button>
         </div>
         <div class="quick-actions-grid">
           <button class="quick-action-btn" id="btnDiario"><span class="qa-icon">📔</span>Mandar Mensaje</button>
@@ -2116,7 +2172,7 @@ function seedCouponsIfEmpty(){
     const batch = db.batch();
     DEFAULT_COUPONS.forEach((c, i) => {
       const ref = db.collection('coupons').doc('coupon_' + (i+1));
-      batch.set(ref, Object.assign({}, c, { redeemed:false, redeemedBy:null, redeemedAt:null }));
+      batch.set(ref, Object.assign({}, c, { redeemed:false, redeemedBy:null, redeemedAt:null, acknowledged:false }));
     });
     return batch.commit();
   }).catch(() => {});
@@ -2219,6 +2275,31 @@ function renderCoupons(coupons){
 
   updateCouponCarouselPadding();
   requestAnimationFrame(updateCouponVisuals);
+
+  updateCouponStatusPanel(coupons);
+}
+
+/* El aviso de "qué cupón canjeé" ahora se arma a partir de Firebase (campo
+   "acknowledged"), así que sigue apareciendo aunque cierres sesión y vuelvas
+   a entrar — solo desaparece cuando tocas la palomita ✅. */
+function updateCouponStatusPanel(coupons){
+  const pending = coupons
+    .filter(c => c.redeemed && !c.acknowledged)
+    .sort((a, b) => {
+      const at = (a.redeemedAt && a.redeemedAt.toMillis) ? a.redeemedAt.toMillis() : 0;
+      const bt = (b.redeemedAt && b.redeemedAt.toMillis) ? b.redeemedAt.toMillis() : 0;
+      return bt - at;
+    });
+  if(!pending.length){
+    const panel = document.getElementById('couponStatusPanel');
+    if(!panel.classList.contains('splitting')){
+      panel.style.display = 'none';
+      panel.removeAttribute('data-coupon-id');
+    }
+    return;
+  }
+  const c = pending[0];
+  showCouponStatus(c.id, c.icon, c.title, true);
 }
 
 window.addEventListener('resize', () => {
@@ -2243,19 +2324,64 @@ document.getElementById('couponConfirmCancel').addEventListener('click', functio
   selectedCouponForConfirm = null;
 });
 
-function showCouponStatus(icon, title, ok){
+function showCouponStatus(couponId, icon, title, ok){
   const panel = document.getElementById('couponStatusPanel');
   const iconEl = document.getElementById('couponStatusIcon');
   const titleEl = document.getElementById('couponStatusTitle');
   const textEl = document.getElementById('couponStatusText');
+  const ackBtn = document.getElementById('couponAckBtn');
   iconEl.textContent = icon || '🎁';
   titleEl.textContent = title || '';
   textEl.textContent = ok ? 'Haz canjeado este cupon!' : '❌ No se pudo canjear, intenta de nuevo';
   textEl.className = 'coupon-status-text ' + (ok ? 'ok' : 'fail');
+  if(ok && couponId){
+    panel.dataset.couponId = couponId;
+    ackBtn.style.display = 'inline-flex';
+  } else {
+    panel.removeAttribute('data-coupon-id');
+    ackBtn.style.display = 'none';
+  }
+  panel.classList.remove('splitting');
+  panel.querySelectorAll('.coupon-split-half').forEach(el => el.remove());
   panel.style.display = 'none';
   void panel.offsetWidth; /* reinicia la animación de entrada */
   panel.style.display = 'block';
 }
+
+/* al tocar la palomita, el cupón canjeado se "parte en dos" y desaparece;
+   ahí (y solo ahí) se marca como visto en Firebase, para que ya no vuelva a aparecer */
+document.getElementById('couponAckBtn').addEventListener('click', function(){
+  const panel = document.getElementById('couponStatusPanel');
+  const couponId = panel.dataset.couponId;
+  if(!couponId){ panel.style.display = 'none'; return; }
+
+  const left = document.createElement('div');
+  left.className = 'coupon-split-half left';
+  left.innerHTML = panel.innerHTML;
+  const right = document.createElement('div');
+  right.className = 'coupon-split-half right';
+  right.innerHTML = panel.innerHTML;
+  panel.appendChild(left);
+  panel.appendChild(right);
+  panel.classList.add('splitting');
+
+  requestAnimationFrame(() => {
+    left.classList.add('animate');
+    right.classList.add('animate');
+  });
+
+  setTimeout(() => {
+    panel.style.display = 'none';
+    panel.classList.remove('splitting');
+    left.remove();
+    right.remove();
+    panel.removeAttribute('data-coupon-id');
+  }, 720);
+
+  db.collection('coupons').doc(couponId).set({ acknowledged: true }, {merge:true}).catch(() => {
+    console.error('No se pudo marcar el cupón como visto.');
+  });
+});
 
 document.getElementById('couponConfirmYes').addEventListener('click', function(){
   if(!selectedCouponForConfirm) return;
@@ -2266,15 +2392,21 @@ document.getElementById('couponConfirmYes').addEventListener('click', function()
   db.collection('coupons').doc(couponId).set({
     redeemed: true,
     redeemedBy: currentUserLabel,
-    redeemedAt: firebase.firestore.FieldValue.serverTimestamp()
+    redeemedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    acknowledged: false
   }, {merge:true}).then(() => {
     logEvent('coupon_redeemed', { couponTitle: title });
     document.getElementById('couponConfirmOverlay').classList.remove('show');
-    showCouponStatus(icon, title, true);
     selectedCouponForConfirm = null;
+    // el panel de estatus lo muestra updateCouponStatusPanel() en cuanto llegue
+    // el cambio en tiempo real, así ya no depende de la memoria de esta sesión
   }).catch(() => {
     document.getElementById('couponConfirmOverlay').classList.remove('show');
-    showCouponStatus(icon, title, false);
+    showCouponStatus(null, icon, title, false);
+    setTimeout(() => {
+      const panel = document.getElementById('couponStatusPanel');
+      if(!panel.dataset.couponId){ panel.style.display = 'none'; }
+    }, 3500);
     alert('No se pudo canjear el cupón, revisa tu conexión.');
   });
 });
