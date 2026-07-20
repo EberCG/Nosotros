@@ -2476,17 +2476,7 @@ let couponsListenerStarted = false;
 let selectedCouponForConfirm = null;
 let selectedCouponIcon = '🎁';
 
-function seedCouponsIfEmpty(){
-  return db.collection('coupons').limit(1).get().then(snap => {
-    if(!snap.empty) return;
-    const batch = db.batch();
-    DEFAULT_COUPONS.forEach((c, i) => {
-      const ref = db.collection('coupons').doc('coupon_' + (i+1));
-      batch.set(ref, Object.assign({}, c, { redeemed:false, redeemedBy:null, redeemedAt:null, acknowledged:false }));
-    });
-    return batch.commit();
-  }).catch(() => {});
-}
+
 
 /* Efecto carrusel centrado: la tarjeta del centro se ve nítida y a tamaño
    completo; las de los costados se ven más chicas, atenuadas y difuminadas. */
@@ -2618,14 +2608,14 @@ window.addEventListener('resize', () => {
 });
 
 function loadCoupons(){
-  seedCouponsIfEmpty().then(() => {
-    if(couponsListenerStarted) return;
-    couponsListenerStarted = true;
-    db.collection('coupons').onSnapshot(snap => {
-      const coupons = [];
-      snap.forEach(doc => coupons.push(Object.assign({ id: doc.id }, doc.data())));
-      renderCoupons(coupons);
-    });
+  // Eliminamos la llamada a seedCouponsIfEmpty()
+  if(couponsListenerStarted) return;
+  couponsListenerStarted = true;
+  
+  db.collection('coupons').onSnapshot(snap => {
+    const coupons = [];
+    snap.forEach(doc => coupons.push(Object.assign({ id: doc.id }, doc.data())));
+    renderCoupons(coupons);
   });
 }
 
