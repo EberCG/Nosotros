@@ -275,34 +275,27 @@
   .login-form input::placeholder{color:rgba(255,255,255,0.6);}
   .login-form input:focus{border-color:var(--accent-violet);}
   /* ---------- botón "liquid glass" ---------- */
+  /* ---------- botón "liquid glass" ---------- */
   .login-btn{
     position:relative;overflow:hidden;
-    padding:12px 30px;border:1px solid rgba(255,255,255,0.5);
+    padding:12px 30px;
+    border:1px solid rgba(255,255,255,0.4);
     border-radius:999px;
-    background:linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08) 55%, rgba(255,255,255,0.22));
-    backdrop-filter:blur(16px) saturate(180%);
-    -webkit-backdrop-filter:blur(16px) saturate(180%);
+    /* Efecto Liquid Glass usando tu plantilla */
+    background:transparent;
+    backdrop-filter: blur(6px) url(#distorsion);
+    -webkit-backdrop-filter: blur(6px) url(#distorsion);
     color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;
     font-size:.92rem;letter-spacing:.4px;cursor:pointer;margin-top:4px;
-    box-shadow:
-      inset 0 1px 1px rgba(255,255,255,0.7),
-      inset 0 -6px 10px rgba(255,255,255,0.1),
-      inset 0 8px 18px rgba(255,122,176,0.18),
-      0 8px 22px rgba(0,0,0,0.35);
-    transition:transform .25s ease, box-shadow .25s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    transition:all 0.6s ease;
   }
-  .login-btn::before{
-    content:'';position:absolute;top:-50%;left:-30%;
-    width:50%;height:200%;
-    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
-    transform:rotate(20deg);
-    transition:left 1s ease;
+  .login-btn:hover{
+    background: rgba(255,255,255,0.05);
+    box-shadow: 0 8px 32px rgba(255,122,176,0.3);
+    transform:translateY(-2px);
   }
-  .login-btn:hover::before{left:130%;}
-  .login-btn:hover{transform:translateY(-2px);}
   .login-btn:active{transform:translateY(0) scale(0.98);}
-  .login-error{color:#ff9db3;font-size:.78rem;margin-top:14px;min-height:1em;opacity:0;transition:opacity .3s ease;}
-  .login-error.show{opacity:1;}
 
   /* ---------- arte de la flor (reutilizado en el Tamagotchi del Dashboard) ---------- */
 /* ---------- ARTE DE LA FLOR PROGRESIVA (21 DÍAS) ---------- */
@@ -631,6 +624,98 @@
     font-family:'Quicksand',sans-serif;cursor:pointer;
   }
   .dash-restart-link:hover{color:var(--txt-2);}
+  /*------------ flip card --------------------- */
+  /* ---------- FLIP CARD WIDGET (Buzón) ---------- */
+  .card.dash-widget {
+    flex: 1;
+    aspect-ratio: 1/0.9;
+    overflow: visible;
+    perspective: 1000px; 
+    background: none; border: none; box-shadow: none; padding: 0; backdrop-filter: none;
+  }
+  .card.dash-widget .content {
+    width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 18px;
+  }
+  .card.dash-widget:hover .content {
+    transform: rotateY(180deg);
+  }
+  
+  .card.dash-widget .front, .card.dash-widget .back {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 18px; overflow: hidden;
+    display: flex; justify-content: center; align-items: center;
+  }
+
+  /* --- LUCES ROTATORIAS PARA AMBAS CARAS --- */
+  .card.dash-widget .front::before, .card.dash-widget .back::before {
+    position: absolute; content: ''; display: block;
+    width: 150px; height: 150%;
+    background: linear-gradient(90deg, transparent, var(--pink-glow), var(--accent-violet), var(--pink-glow), transparent);
+    animation: rotation_481 4000ms infinite linear;
+  }
+  @keyframes rotation_481 { 0% { transform: rotateZ(0deg); } 100% { transform: rotateZ(360deg); } }
+
+  /* =========================================
+     LADO FRONTAL (Sin tocar: "Abrir Buzón") 
+     ========================================= */
+  .card.dash-widget .front {
+    transform: rotateY(0deg);
+    background: var(--space-black);
+  }
+  .card.dash-widget .front-content {
+    position: absolute; width: calc(100% - 4px); height: calc(100% - 4px);
+    background: var(--space-black);
+    border-radius: 16px; color: var(--txt-1);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px;
+    z-index: 2;
+  }
+
+  /* =========================================
+     LADO TRASERO (Al girar: Cristal y Notas)
+     ========================================= */
+  .card.dash-widget .back {
+    transform: rotateY(180deg);
+    background: var(--space-black); /* Fondo base oscuro */
+  }
+  .card.dash-widget .back-content {
+    position: absolute; width: calc(100% - 4px); height: calc(100% - 4px);
+    border-radius: 16px; border: 1px solid var(--glass-3);
+    
+    /* BLUR EXTREMO: Oculta el texto de atrás por completo */
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    backdrop-filter: blur(45px) saturate(200%);
+    -webkit-backdrop-filter: blur(45px) saturate(200%);
+    
+    overflow: hidden; z-index: 2;
+    padding: 12px; display: flex; flex-direction: column; justify-content: space-between;
+  }
+
+  /* Detalles del texto de la cara de cristal */
+  .card.dash-widget .badge {
+    background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 8px;
+    backdrop-filter: blur(5px); width: fit-content; font-size: 0.65rem; font-weight: 600; color: var(--txt-1);
+  }
+  .card.dash-widget .description {
+    width: 100%; padding: 8px; background: rgba(0,0,0,0.25);
+    backdrop-filter: blur(5px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); text-align: left; color: var(--txt-1);
+  }
+  .card.dash-widget .title { font-size: 0.95rem; margin: 0; font-weight: bold; }
+  .card.dash-widget .card-footer { color: var(--txt-2); margin-top: 2px; font-size: 0.7rem; }
+  
+  /* Bolitas flotantes detrás del cristal */
+  .card.dash-widget .img { position: absolute; inset: 0; z-index: -1; }
+  .card.dash-widget .circle {
+    width: 70px; height: 70px; border-radius: 50%;
+    background-color: var(--accent-violet); position: absolute;
+    filter: blur(15px); animation: floating 2600ms infinite linear; opacity: 0.5;
+  }
+  .card.dash-widget #bottom { background-color: var(--pink-glow); left: 10%; top: 30%; width: 60px; height: 60px; animation-delay: -800ms; }
+  .card.dash-widget #right { background-color: var(--coupon-red); left: 60%; top: -10%; width: 50px; height: 50px; animation-delay: -1800ms; }
+  @keyframes floating { 0% { transform: translateY(0px); } 50% { transform: translateY(8px); } 100% { transform: translateY(0px); } }
 
   /* ---------- barra de navegación inferior (cristal difuminado) ---------- */
   .bottom-nav{
@@ -1316,6 +1401,15 @@
 </head>
 <body>
 
+  <svg style="display: none;">
+  <defs>
+    <filter id="distorsion">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="turbulence" />
+      <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="8" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </defs>
+</svg>
+
 <!-- ================================================================
       HTML 
      ================================================================ -->
@@ -1442,11 +1536,36 @@
       <!-- pestaña: inicio -->
       <div class="dash-tab-panel active" id="dash-tab-home">
         <div class="dash-header">
-          <div class="dash-widget clickable" id="buzonWidget">
-            <div class="dash-widget-icon">📮</div>
-            <div class="dash-widget-value" style="font-size:.95rem;">Buzón</div>
-            <div class="dash-widget-label">notitas para los dos</div>
+        <div class="card dash-widget clickable" id="buzonWidget">
+  <div class="content">
+    
+    <div class="front">
+      <div class="front-content">
+        <span style="font-size: 2.2rem;">💌</span>
+        <strong style="font-family:'Quicksand', sans-serif; font-size: 1.05rem;">Abrir Buzón</strong>
+      </div>
+    </div>
+    
+    <div class="back">
+      <div class="back-content">
+        <div class="img">
+          <div class="circle"></div>
+          <div class="circle" id="right"></div>
+          <div class="circle" id="bottom"></div>
+        </div>
+        
+        <small class="badge">Nuestro Espacio</small>
+        <div class="description">
+          <div class="title">
+            <p class="title">📮 Buzón</p>
           </div>
+          <p class="card-footer">notitas para los dos</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
           <div class="dash-widget">
             <div class="dash-widget-icon">💜</div>
             <div class="dash-widget-value" id="daysWidgetNum">–</div>
@@ -3092,3 +3211,4 @@ window.addEventListener('appinstalled', () => {
 
 </body>
 </html>
+
