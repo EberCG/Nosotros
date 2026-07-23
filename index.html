@@ -357,18 +357,38 @@
   }
 
   /* Capullo a Lavanda Real */
-  .flower__cluster{
-    width: 38px; height: 38px; border-radius: 50%;
+ /* Capullo a Lavanda Real (Forma de Espiga 🪻) */
+  .flower__cluster {
+    width: 24px; 
+    height: 48px;
+    /* Quitamos el border-radius para que deje de ser un círculo */
+    border-radius: 0; 
+    
+    /* Dibujamos múltiples "pétalos" ovalados para dar la textura de la lavanda */
     background:
-      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, var(--bud-color, var(--leaf)) 55%, transparent 70%),
-      radial-gradient(circle at 70% 35%, rgba(255,255,255,0.5) 0%, var(--bud-color, var(--leaf)) 50%, transparent 65%),
-      radial-gradient(circle at 45% 68%, rgba(255,255,255,0.5) 0%, var(--bud-color, var(--leaf)) 50%, transparent 65%),
-      radial-gradient(circle at 68% 66%, rgba(255,255,255,0.5) 0%, var(--bud-color, var(--leaf)) 50%, transparent 65%);
-    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
-    margin-bottom: -10px; /* <--- AQUÍ ESTÁ LA MAGIA, baja el capullo para tapar el hueco */
+      /* Punta */
+      radial-gradient(ellipse 5px 6px at 50% 5%, var(--bud-color) 40%, transparent 55%),
+      /* Lado Izquierdo */
+      radial-gradient(ellipse 6px 4px at 20% 22%, var(--bud-color) 40%, transparent 55%),
+      radial-gradient(ellipse 6px 4px at 15% 42%, var(--bud-color) 40%, transparent 55%),
+      radial-gradient(ellipse 6px 4px at 20% 62%, var(--bud-color) 40%, transparent 55%),
+      radial-gradient(ellipse 5px 4px at 30% 82%, var(--bud-color) 40%, transparent 55%),
+      /* Lado Derecho */
+      radial-gradient(ellipse 6px 4px at 80% 22%, var(--bud-color) 40%, transparent 55%),
+      radial-gradient(ellipse 6px 4px at 85% 42%, var(--bud-color) 40%, transparent 55%),
+      radial-gradient(ellipse 6px 4px at 80% 62%, var(--bud-color) 40%, transparent 55%),
+      radial-gradient(ellipse 5px 4px at 70% 82%, var(--bud-color) 40%, transparent 55%),
+      /* Relleno Central (Para que no quede hueca) */
+      radial-gradient(ellipse 5px 6px at 50% 30%, var(--bud-color) 45%, transparent 60%),
+      radial-gradient(ellipse 5px 6px at 50% 50%, var(--bud-color) 45%, transparent 60%),
+      radial-gradient(ellipse 5px 6px at 50% 70%, var(--bud-color) 45%, transparent 60%);
+    
+    background-repeat: no-repeat;
+    margin-bottom: -10px; /* Conecta perfecto con la punta del tallo */
     transform: scale(var(--flower-size, 0));
+    transform-origin: bottom center; /* Importante: Asegura que crezca de abajo hacia arriba */
     opacity: var(--flower-opacity, 0);
-    transition: all 0.6s ease;
+    transition: transform 0.6s ease, opacity 0.6s ease, filter 0.6s ease;
   }
 
   /* ---------- ESCENAS 3 y 4: UNIVERSO ---------- */
