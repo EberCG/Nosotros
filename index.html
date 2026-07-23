@@ -1680,7 +1680,7 @@
 </div>
         </div>
 
-        <div class="card" id="daysCounterCard" onclick="this.classList.toggle('active')">
+        <div class="card" id="daysCounterCard" onclick="handleDaysCardTap(this)">
           <img src="tu-foto.jpg" alt="Nuestra Foto">
           <div class="card__content">
             <p class="card__title">Llevamos</p>
@@ -2095,6 +2095,21 @@ const APP_VERSION = "2026-07-19-28";
   const days = Math.max(0, Math.floor((now - start) / 86400000));
   document.getElementById('daysWidgetNum').textContent = days;
 })();
+let daysCardTimeout = null;
+function handleDaysCardTap(card){
+  const isMobile = window.matchMedia('(hover: none)').matches;
+  if(!isMobile){
+    card.classList.toggle('active');
+    return;
+  }
+  clearTimeout(daysCardTimeout);
+  if(card.classList.contains('active')){
+    card.classList.remove('active');
+  } else {
+    card.classList.add('active');
+    daysCardTimeout = setTimeout(() => card.classList.remove('active'), 10000);
+  }
+}
 
 /* ---------- PERSONALIZACIÓN: tema claro/oscuro y color del año ---------- */
 function applyTheme(theme){
