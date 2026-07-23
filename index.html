@@ -153,8 +153,30 @@
   .accent-swatches.vertical.show{display:flex;}
   .mute-toggle-btn{
     background:none;border:none;color:var(--txt-1);font-size:1.25rem;cursor:pointer;
-    padding:4px;
+    padding:4px;display:flex;align-items:center;justify-content:center;
   }
+
+  /* ---------- iconos de línea minimalistas (reemplazan emojis en dashboard/mute) ---------- */
+  .icon-line{
+    fill:none;
+    stroke:var(--accent-violet);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    transition:stroke .3s ease, transform .2s ease;
+  }
+  .mute-toggle-btn svg{
+    width:20px;height:20px;
+    fill:none;stroke:var(--txt-1);
+    stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+    transition:stroke .3s ease, transform .2s ease;
+  }
+  .mute-toggle-btn svg .speaker-body{fill:var(--txt-1);stroke:none;}
+  .mute-toggle-btn svg .wave{opacity:1;transition:opacity .25s ease;}
+  .mute-toggle-btn svg .mute-line{opacity:0;stroke:var(--pink-glow);transition:opacity .25s ease;}
+  .mute-toggle-btn.muted svg .wave{opacity:0;}
+  .mute-toggle-btn.muted svg .mute-line{opacity:1;}
+  .mute-toggle-btn:hover svg{transform:scale(1.08);}
 
   .music-btn{
     position:fixed;bottom:5%;left:5%;z-index:20;
@@ -640,6 +662,46 @@
     font-family:'Quicksand',sans-serif;cursor:pointer;
   }
   .dash-restart-link:hover{color:var(--txt-2);}
+
+  /* ---------- BOTÓN FLOTANTE "TE EXTRAÑO" ---------- */
+  .poke-float-btn{
+    position:fixed;right:6%;bottom:16%;z-index:15;
+    width:58px;height:58px;border-radius:50%;padding:0;border:none;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--glass-3);
+    background:linear-gradient(135deg, var(--glass-3), var(--glass-1));
+    backdrop-filter:blur(14px) saturate(180%);
+    -webkit-backdrop-filter:blur(14px) saturate(180%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 8px 22px rgba(0,0,0,0.3);
+    cursor:pointer;
+    transition:transform .2s ease, background .2s ease;
+  }
+  .poke-float-btn:hover{transform:translateY(-2px);}
+  .poke-float-btn:active{transform:scale(0.92);}
+  .poke-float-btn::before, .poke-float-btn::after{
+    content:'';position:absolute;inset:0;border-radius:50%;
+    border:1.5px solid var(--pink-glow);
+    opacity:0;pointer-events:none;
+    animation:poke-pulse 2.6s ease-out infinite;
+  }
+  .poke-float-btn::after{animation-delay:1.3s;}
+  @keyframes poke-pulse{
+    0%{transform:scale(1);opacity:.55;}
+    100%{transform:scale(1.65);opacity:0;}
+  }
+  .poke-float-btn svg{
+    width:24px;height:24px;position:relative;z-index:1;
+    fill:none;stroke:var(--pink-glow);
+    stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+    transition:stroke .3s ease, transform .2s ease, fill .3s ease;
+  }
+  .poke-float-btn.sent{animation:poke-tap .5s ease;}
+  .poke-float-btn.sent svg{fill:var(--pink-glow);transform:scale(1.12);}
+  @keyframes poke-tap{
+    0%,100%{transform:scale(1);}
+    40%{transform:scale(0.88);}
+    70%{transform:scale(1.08);}
+  }
 
   /* =========================================
    WIDGET CONTADOR DE DÍAS (CARTA ANIMADA)
@@ -1657,7 +1719,14 @@
       </div>
     </div>
 
-    <button class="mute-toggle-btn" id="musicBtn" title="Silenciar música">🔊</button>
+    <button class="mute-toggle-btn" id="musicBtn" title="Silenciar música">
+      <svg viewBox="0 0 24 24">
+        <path class="speaker-body" d="M4 9.5v5h3.6l5.1 3.8V5.7L7.6 9.5H4z"/>
+        <path class="wave" d="M16.3 8.2a5.4 5.4 0 0 1 0 7.6"/>
+        <path class="wave" d="M18.8 5.6a9 9 0 0 1 0 12.8"/>
+        <line class="mute-line" x1="18.5" y1="5.5" x2="5.5" y2="18.5"/>
+      </svg>
+    </button>
   </div>
 
   <!-- ESCENA 1: LOGIN -->
@@ -1696,6 +1765,13 @@
   <section id="scene-dashboard" class="scene">
     <div class="starfield-static" id="starfieldDashboard"></div>
     <div class="accent-particles" id="accentParticles"></div>
+
+    <button class="poke-float-btn" id="btnPoke" title="Te extraño">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 20.2s-7.2-4.4-9.6-8.8C.8 7.9 2.9 4.3 6.5 4.3c2 0 3.6 1.1 4.5 2.6.9-1.5 2.5-2.6 4.5-2.6 3.6 0 5.7 3.6 4.1 7.1-2.4 4.4-9.6 8.8-9.6 8.8z"/>
+      </svg>
+    </button>
+
     <div class="dash-wrap">
 
       <div class="settings-hamburger-row">
@@ -1710,7 +1786,10 @@
     
     <div class="front">
       <div class="front-content">
-        <span style="font-size: 2.2rem;">💌</span>
+        <svg class="icon-line" viewBox="0 0 24 24" width="34" height="34">
+          <rect x="3" y="5.5" width="18" height="13" rx="2.2"/>
+          <path d="M3.5 7l8.5 6 8.5-6"/>
+        </svg>
         <strong style="font-family:'Quicksand', sans-serif; font-size: 1.05rem;">Abrir Buzón</strong>
       </div>
     </div>
@@ -1824,11 +1903,6 @@
           <p class="coupon-status-title" id="couponStatusTitle">–</p>
           <p class="coupon-status-text" id="couponStatusText">–</p>
           <button class="coupon-ack-btn" id="couponAckBtn" title="Ya lo vi">✅</button>
-        </div>
-        <div class="quick-actions-grid">
-          <button class="quick-action-btn" id="btnDiario"><span class="qa-icon">📔</span>Mandar Mensaje</button>
-          <button class="quick-action-btn" id="btnAlbum"><span class="qa-icon">📸</span>Galería</button>
-          <button class="quick-action-btn" id="btnPoke"><span class="qa-icon">🥺</span>Te Extraño</button>
         </div>
       </div>
 
@@ -3223,14 +3297,6 @@ document.querySelectorAll('.bottom-nav-btn[data-dashtab]').forEach(btn => {
   });
 });
 
-document.getElementById('btnDiario').addEventListener('click', function(){
-  buildStaticStars(document.getElementById('starfieldDiario'), 90);
-  goTo('diario');
-});
-document.getElementById('btnAlbum').addEventListener('click', function(){
-  buildStaticStars(document.getElementById('starfieldAlbum'), 90);
-  goTo('album');
-});
 document.getElementById('backFromDiario').addEventListener('click', () => { goTo('dashboard'); loadPlant(); });
 document.getElementById('backFromAlbum').addEventListener('click', () => { goTo('dashboard'); loadPlant(); });
 
@@ -3494,9 +3560,9 @@ const pokeMessages = [
 document.getElementById('btnPoke').addEventListener('click', function(){
   const msg = pokeMessages[Math.floor(Math.random()*pokeMessages.length)];
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-  const original = this.textContent;
-  this.textContent = '💌 Enviado';
-  setTimeout(() => { this.textContent = original; }, 1800);
+  if(navigator.vibrate) navigator.vibrate([30, 25, 30]);
+  this.classList.remove('sent'); void this.offsetWidth; this.classList.add('sent');
+  setTimeout(() => this.classList.remove('sent'), 900);
 });
 
 /* ---------- DIARIO DE NOSOTROS (envía por WhatsApp) ---------- */
@@ -3543,8 +3609,10 @@ const musicBtn = document.getElementById('musicBtn');
 let musicOn = true;
 musicBtn.addEventListener('click', function(){
   musicOn = !musicOn;
-  if(musicOn){ bgMusic.play().catch(()=>{}); musicBtn.textContent = '🔊'; }
-  else { bgMusic.pause(); musicBtn.textContent = '🔇'; }
+  musicBtn.classList.toggle('muted', !musicOn);
+  musicBtn.title = musicOn ? 'Silenciar música' : 'Activar música';
+  if(musicOn){ bgMusic.play().catch(()=>{}); }
+  else { bgMusic.pause(); }
 });
 /* ---------- PWA: service worker + botón de instalar ---------- */
 if('serviceWorker' in navigator){
