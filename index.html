@@ -1356,13 +1356,16 @@
   }
   .sticky-note-sign{font-family:'Dancing Script',cursive;font-weight:700;font-size:.95rem;}
 
-  .add-note-btn{
+  .buzon-actions-row{
     position:absolute;bottom:4%;left:50%;transform:translateX(-50%);
+    display:flex;gap:10px;z-index:3;flex-wrap:wrap;justify-content:center;
+  }
+  .add-note-btn{
     background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
-    color:#fff;border:none;padding:13px 26px;border-radius:30px;
-    font-family:'Quicksand',sans-serif;font-weight:600;font-size:.9rem;
+    color:#fff;border:none;padding:13px 22px;border-radius:30px;
+    font-family:'Quicksand',sans-serif;font-weight:600;font-size:.85rem;
     cursor:pointer;box-shadow:0 8px 22px rgba(255,122,176,0.4);
-    z-index:3;
+    white-space:nowrap;
   }
 
   .note-modal-overlay{
@@ -1391,6 +1394,23 @@
   .note-modal-sign{color:var(--txt-3);font-size:.75rem;margin:10px 0 4px;}
   .note-modal-actions{display:flex;gap:10px;margin-top:14px;}
   .note-modal-actions button{flex:1;}
+
+  /* ---------- editor de carta (buzón mutuo) ---------- */
+  .mail-editor-modal{
+    width:min(380px,90vw);max-height:86vh;overflow-y:auto;
+    text-align:left;
+  }
+  .mail-editor-modal p.title{text-align:center;}
+  .mail-editor-modal label{
+    display:block;color:var(--txt-2);font-size:.72rem;margin:12px 0 4px;
+  }
+  .mail-editor-modal input, .mail-editor-modal textarea{
+    width:100%;padding:10px 12px;border-radius:10px;
+    background:var(--glass-4);border:1px solid var(--glass-3);
+    color:var(--txt-1);font-size:16px;font-family:'Quicksand',sans-serif;
+    outline:none;resize:vertical;
+  }
+  .mail-editor-modal input:focus, .mail-editor-modal textarea:focus{border-color:var(--accent-violet);}
 
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:0.001s !important; animation-iteration-count:1 !important;}
@@ -1713,7 +1733,10 @@
         <p class="corkboard-empty" id="corkboardEmpty">Aún no hay notitas — sé el primero en dejar una 💌</p>
       </div>
     </div>
-    <button class="add-note-btn" id="addNoteBtn">+ Añadir nota</button>
+    <div class="buzon-actions-row">
+      <button class="add-note-btn" id="addNoteBtn">+ Añadir nota</button>
+      <button class="add-note-btn" id="newMailLetterBtn" style="background:linear-gradient(135deg,#8a5a34,#5c3a20);">✉️ Nueva carta</button>
+    </div>
   </section>
 
 </div>
@@ -1766,6 +1789,55 @@
     <div class="notif-list" id="notifList">
       <p class="notif-empty">Aún no hay notificaciones 💭</p>
     </div>
+  </div>
+</div>
+
+<!-- ---------- MODAL: escribir carta (buzón mutuo) ---------- -->
+<div class="note-modal-overlay" id="mailEditorOverlay">
+  <div class="note-modal mail-editor-modal">
+    <p class="title">Editar carta</p>
+    <label>Dedicatoria</label>
+    <input type="text" id="mailEditDedication" placeholder="Mi amor">
+    <label>Fecha</label>
+    <input type="text" id="mailEditDate" placeholder="22 Jul 26">
+    <label>Contenido (deja una línea en blanco entre párrafos)</label>
+    <textarea id="mailEditBody" rows="8"></textarea>
+    <label>Posdata</label>
+    <textarea id="mailEditPs" rows="2"></textarea>
+    <label>Firma</label>
+    <input type="text" id="mailEditSignature" placeholder="Con amor">
+    <div class="note-modal-actions">
+      <button class="action-btn secondary" id="cancelMailEditorBtn" style="margin:0;">Cancelar</button>
+      <button class="action-btn" id="sendMailLetterBtn" style="margin:0;">Enviar +</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- CARTA RECIBIDA (buzón mutuo): mismo pergamino que la carta sorpresa ---------- -->
+<div class="letter-overlay" id="mailLetterOverlay">
+  <div class="letter-warning" id="mailLetterWarning">
+    <div class="letter-warning-icon">💌</div>
+    <p class="title">Tienes una carta nueva</p>
+    <p class="letter-warning-text">Solo se puede abrir una vez. En cuanto la termines de leer y toques "Leído", desaparecerá para siempre.</p>
+    <button class="action-btn" id="openMailLetterBtn">Abrir carta</button>
+  </div>
+
+  <div class="scroll-wrap" id="mailScrollWrap">
+    <div class="scroll-rod"></div>
+    <div class="scroll-paper" id="mailScrollPaper">
+      <p class="letter-meta" id="mailLetterMeta">Para: &nbsp;|&nbsp;</p>
+
+      <p class="spoiler-hint">toca para leer 💭</p>
+      <div class="spoiler-block" id="mailLetterSpoiler">
+        <div class="letter-body" id="mailLetterBody"></div>
+      </div>
+
+      <p class="letter-ps" id="mailLetterPs"></p>
+      <p class="letter-signature" id="mailLetterSignature"></p>
+
+      <button class="action-btn" id="mailLeidoBtn">Leído</button>
+    </div>
+    <div class="scroll-rod"></div>
   </div>
 </div>
 
@@ -2038,8 +2110,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     document.getElementById('loginBgVideo').pause(); // el video deja de reproducirse al pasar a la siguiente ventana
     logEvent('login');
     if(currentUserLabel === 'Mor'){
-      checkLetter(); // la carta solo se revisa/aparece para ella, nunca con la cuenta admin
+      checkLetter(); // la carta sorpresa original solo se revisa/aparece para ella, nunca con la cuenta admin
     }
+    startMailLetterListener(); // el buzón de cartas mutuas sí aplica para ambas cuentas
     document.getElementById('bgMusic').play().catch(() => {});
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
@@ -2354,6 +2427,7 @@ function notifIconFor(type){
     case 'plant_love': return '🌱';
     case 'mood': return '💭';
     case 'capsule_new': return '⏳';
+    case 'letter_new': return '📜';
     default: return '🔔';
   }
 }
@@ -2366,6 +2440,7 @@ function notifTextFor(item){
     case 'plant_love': return `${actor} le dio amor a la plantita`;
     case 'mood': return `${actor} se siente hoy: ${meta.emoji || ''} ${meta.label || ''}`.trim();
     case 'capsule_new': return `${actor} agregó una nueva cápsula de tiempo`;
+    case 'letter_new': return `${actor} te mandó una carta 💌`;
     default: return `${actor} hizo algo nuevo`;
   }
 }
@@ -3021,6 +3096,126 @@ document.getElementById('saveSignatureBtn').addEventListener('click', function()
     document.getElementById('currentSignatureLabel').textContent = val;
   }
   document.getElementById('signatureModalOverlay').classList.remove('show');
+});
+
+/* ---------- BUZÓN: cartas mutuas de una sola vista (pergamino) ---------- */
+document.getElementById('newMailLetterBtn').addEventListener('click', function(){
+  document.getElementById('mailEditDedication').value = '';
+  document.getElementById('mailEditDate').value = '';
+  document.getElementById('mailEditBody').value = '';
+  document.getElementById('mailEditPs').value = '';
+  document.getElementById('mailEditSignature').value = '';
+  document.getElementById('mailEditorOverlay').classList.add('show');
+});
+document.getElementById('cancelMailEditorBtn').addEventListener('click', function(){
+  document.getElementById('mailEditorOverlay').classList.remove('show');
+});
+document.getElementById('sendMailLetterBtn').addEventListener('click', function(){
+  const dedication = document.getElementById('mailEditDedication').value.trim();
+  const date = document.getElementById('mailEditDate').value.trim();
+  const body = document.getElementById('mailEditBody').value.trim();
+  const ps = document.getElementById('mailEditPs').value.trim();
+  const signature = document.getElementById('mailEditSignature').value.trim();
+  if(!body){ alert('Escribe al menos el contenido de la carta.'); return; }
+  if(!currentUserLabel) return;
+  const myKey = myKeyNow();
+
+  db.collection('mailLetters').add({
+    from: currentUserLabel,
+    to: displayCapitalized(otherKeyOf(myKey)),
+    dedication: dedication,
+    date: date,
+    body: body,
+    ps: ps,
+    signature: signature,
+    read: false,
+    readAt: null,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    document.getElementById('mailEditorOverlay').classList.remove('show');
+    createNotification('letter_new');
+  }).catch(() => {
+    alert('No se pudo enviar la carta, revisa tu conexión.');
+  });
+});
+function displayCapitalized(key){
+  return key === 'admin' ? 'Admin' : 'Mor';
+}
+
+let mailLetterListenerStarted = false;
+let mailLetterQueue = [];
+let currentMailLetterId = null;
+function startMailLetterListener(){
+  if(mailLetterListenerStarted) return;
+  mailLetterListenerStarted = true;
+  const myKey = displayCapitalized(myKeyNow());
+
+  // igual que en notificaciones: sin .orderBy() junto al .where() para no
+  // necesitar crear un índice compuesto en Firebase; se ordena aquí mismo.
+  db.collection('mailLetters')
+    .where('to', '==', myKey)
+    .where('read', '==', false)
+    .onSnapshot(snap => {
+      let items = [];
+      snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
+      items.sort((a, b) => {
+        const at = a.createdAt ? a.createdAt.toMillis() : 0;
+        const bt = b.createdAt ? b.createdAt.toMillis() : 0;
+        return at - bt; // la más antigua primero, como un buzón real
+      });
+      mailLetterQueue = items;
+      maybeShowNextMailLetter();
+    }, err => {
+      console.error('No se pudieron leer las cartas del buzón (revisa las reglas de Firestore para "mailLetters"):', err);
+    });
+}
+
+function maybeShowNextMailLetter(){
+  const overlayShown = document.getElementById('mailLetterOverlay').classList.contains('show');
+  if(overlayShown || !mailLetterQueue.length) return;
+  showMailLetter(mailLetterQueue[0]);
+}
+
+function showMailLetter(data){
+  currentMailLetterId = data.id;
+  document.getElementById('mailLetterMeta').innerHTML =
+    `Para: ${data.dedication || ''} &nbsp;|&nbsp; ${data.date || ''}`;
+  const paragraphs = (data.body || '').split('\n\n').map(p => p.trim()).filter(Boolean);
+  document.getElementById('mailLetterBody').innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+  document.getElementById('mailLetterPs').textContent = data.ps || '';
+  document.getElementById('mailLetterSignature').textContent = data.signature || '';
+
+  // reinicia el pergamino a su estado cerrado antes de mostrarlo
+  document.getElementById('mailLetterWarning').style.display = '';
+  document.getElementById('mailScrollWrap').classList.remove('show');
+  document.getElementById('mailScrollPaper').classList.remove('unrolling');
+  document.getElementById('mailLetterSpoiler').classList.remove('revealed');
+
+  document.getElementById('mailLetterOverlay').classList.add('show');
+}
+
+document.getElementById('openMailLetterBtn').addEventListener('click', function(){
+  document.getElementById('mailLetterWarning').style.display = 'none';
+  const scrollWrap = document.getElementById('mailScrollWrap');
+  scrollWrap.classList.add('show');
+  requestAnimationFrame(() => {
+    document.getElementById('mailScrollPaper').classList.add('unrolling');
+  });
+});
+document.getElementById('mailLetterSpoiler').addEventListener('click', function(){
+  this.classList.toggle('revealed');
+});
+document.getElementById('mailLeidoBtn').addEventListener('click', function(){
+  if(!currentMailLetterId) return;
+  db.collection('mailLetters').doc(currentMailLetterId).update({
+    read: true,
+    readAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(() => {});
+  document.getElementById('mailLetterOverlay').classList.remove('show');
+  currentMailLetterId = null;
+  // el listener en vivo va a quitar esta carta de la fila; si hay otra pendiente,
+  // se muestra sola un momento después.
+  setTimeout(maybeShowNextMailLetter, 900);
 });
 
 /* añadir nota */
