@@ -652,7 +652,7 @@
     transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
   }
 
-  .card:hover, .card.active {
+  .card.active {
     transform: rotate(-3deg) scale(1.03);
     box-shadow: 0 10px 25px rgba(255, 122, 176, 0.3);
   }
@@ -679,7 +679,7 @@
     border-radius: 16px;
   }
 
-  .card:hover .card__content, .card.active .card__content {
+  .card.active .card__content {
     transform: translate(-50%, -50%) rotate(0deg);
     opacity: 1;
   }
@@ -707,9 +707,27 @@
     margin: 4px 0;
   }
 
-  .card:hover img, .card.active img {
+  .card.active img {
     scale: 0;
     transform: rotate(-45deg);
+  }
+
+  /* El :hover con mouse real (escritorio) solo se activa en dispositivos
+     que de verdad tienen hover — así en móvil nunca queda "pegado" el
+     estado al tocar, y todo el control queda en la clase .active vía JS */
+  @media (hover: hover) {
+    .card:hover {
+      transform: rotate(-3deg) scale(1.03);
+      box-shadow: 0 10px 25px rgba(255, 122, 176, 0.3);
+    }
+    .card:hover .card__content {
+      transform: translate(-50%, -50%) rotate(0deg);
+      opacity: 1;
+    }
+    .card:hover img {
+      scale: 0;
+      transform: rotate(-45deg);
+    }
   }
   /* =========================================
    fin WIDGET CONTADOR DE DÍAS
@@ -2095,6 +2113,7 @@ const APP_VERSION = "2026-07-19-28";
   const days = Math.max(0, Math.floor((now - start) / 86400000));
   document.getElementById('daysWidgetNum').textContent = days;
 })();
+
 let daysCardTimeout = null;
 function handleDaysCardTap(card){
   const isMobile = window.matchMedia('(hover: none)').matches;
@@ -2107,7 +2126,7 @@ function handleDaysCardTap(card){
     card.classList.remove('active');
   } else {
     card.classList.add('active');
-    daysCardTimeout = setTimeout(() => card.classList.remove('active'), 8000);
+    daysCardTimeout = setTimeout(() => card.classList.remove('active'), 4000);
   }
 }
 
