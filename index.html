@@ -358,37 +358,33 @@
 
   /* Capullo a Lavanda Real */
  /* Capullo a Lavanda Real (Forma de Espiga 🪻) */
+/* 1. Lavanda más tupida y con color morado protegido */
   .flower__cluster {
     width: 24px; 
-    height: 48px;
-    /* Quitamos el border-radius para que deje de ser un círculo */
+    height: 42px; /* Un poco más bajita para apretar los pétalos */
     border-radius: 0; 
-    
-    /* Dibujamos múltiples "pétalos" ovalados para dar la textura de la lavanda */
     background:
       /* Punta */
-      radial-gradient(ellipse 5px 6px at 50% 5%, var(--bud-color) 40%, transparent 55%),
+      radial-gradient(ellipse 7px 8px at 50% 12%, var(--bud-color) 45%, transparent 60%),
       /* Lado Izquierdo */
-      radial-gradient(ellipse 6px 4px at 20% 22%, var(--bud-color) 40%, transparent 55%),
-      radial-gradient(ellipse 6px 4px at 15% 42%, var(--bud-color) 40%, transparent 55%),
-      radial-gradient(ellipse 6px 4px at 20% 62%, var(--bud-color) 40%, transparent 55%),
-      radial-gradient(ellipse 5px 4px at 30% 82%, var(--bud-color) 40%, transparent 55%),
+      radial-gradient(ellipse 7px 6px at 25% 30%, var(--bud-color) 45%, transparent 60%),
+      radial-gradient(ellipse 7px 6px at 20% 50%, var(--bud-color) 45%, transparent 60%),
+      radial-gradient(ellipse 7px 6px at 25% 70%, var(--bud-color) 45%, transparent 60%),
       /* Lado Derecho */
-      radial-gradient(ellipse 6px 4px at 80% 22%, var(--bud-color) 40%, transparent 55%),
-      radial-gradient(ellipse 6px 4px at 85% 42%, var(--bud-color) 40%, transparent 55%),
-      radial-gradient(ellipse 6px 4px at 80% 62%, var(--bud-color) 40%, transparent 55%),
-      radial-gradient(ellipse 5px 4px at 70% 82%, var(--bud-color) 40%, transparent 55%),
-      /* Relleno Central (Para que no quede hueca) */
-      radial-gradient(ellipse 5px 6px at 50% 30%, var(--bud-color) 45%, transparent 60%),
-      radial-gradient(ellipse 5px 6px at 50% 50%, var(--bud-color) 45%, transparent 60%),
-      radial-gradient(ellipse 5px 6px at 50% 70%, var(--bud-color) 45%, transparent 60%);
-    
+      radial-gradient(ellipse 7px 6px at 75% 30%, var(--bud-color) 45%, transparent 60%),
+      radial-gradient(ellipse 7px 6px at 80% 50%, var(--bud-color) 45%, transparent 60%),
+      radial-gradient(ellipse 7px 6px at 75% 70%, var(--bud-color) 45%, transparent 60%),
+      /* Relleno Central (Para juntarlos y hacer bulto) */
+      radial-gradient(ellipse 7px 8px at 50% 40%, var(--bud-color) 50%, transparent 65%),
+      radial-gradient(ellipse 7px 8px at 50% 65%, var(--bud-color) 50%, transparent 65%),
+      radial-gradient(ellipse 6px 6px at 50% 85%, var(--bud-color) 50%, transparent 65%);
     background-repeat: no-repeat;
-    margin-bottom: -10px; /* Conecta perfecto con la punta del tallo */
+    margin-bottom: -10px;
     transform: scale(var(--flower-size, 0));
-    transform-origin: bottom center; /* Importante: Asegura que crezca de abajo hacia arriba */
+    transform-origin: bottom center;
     opacity: var(--flower-opacity, 0);
     transition: transform 0.6s ease, opacity 0.6s ease, filter 0.6s ease;
+    mix-blend-mode: normal !important; /* <--- Evita que el tema claro la vuelva blanca */
   }
 
   /* ---------- ESCENAS 3 y 4: UNIVERSO ---------- */
@@ -965,7 +961,31 @@
     backdrop-filter:blur(12px) saturate(160%);
     -webkit-backdrop-filter:blur(12px) saturate(160%);
   }
-  .plant-streak{color:var(--pink-glow);font-size:.78rem;font-weight:600;margin-bottom:2px;}
+  /* Manda la racha a la esquina superior DERECHA */
+  .plant-card {
+    position: relative; /* Asegura que la esquina de referencia sea la tarjeta de la planta */
+  }
+
+  .plant-streak {
+    position: absolute;
+    top: 15px;
+    right: 15px; /* Mueve la racha a la esquina superior derecha */
+    text-align: right; /* Alinea el texto a la derecha */
+    line-height: 1.1;
+    font-size: 1.3rem; /* Hace el número llamativo */
+    font-weight: bold;
+    color: var(--pink-glow);
+    z-index: 10;
+  }
+  /* Empuja la planta y la maceta hacia abajo para dar espacio arriba */
+  .plant-pot {
+    margin-top: 25px !important;
+  }
+
+  /* Ajusta la distancia del botón de regar */
+  .water-btn {
+    margin-top: 18px !important;
+  }
   .plant-pot{position:relative;height:104px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;}
   .plant-stage{display:flex;align-items:flex-end;justify-content:center;height:66px;}
   /* --- NUEVA MACETA EN CSS (Estilo Terracota 3D) --- */
@@ -2106,7 +2126,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-23-31";
+const APP_VERSION = "2026-07-23-32";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -2463,7 +2483,7 @@ function renderPlant(state){
   }
   
   const streak = state.streak || 0;
-  document.getElementById('plantStreak').textContent = `🔥 ${streak} día${streak === 1 ? '' : 's'} de racha`;
+ document.getElementById('plantStreak').innerHTML = `🔥 ${streak}<br><span style="font-size: 0.65em; font-weight: normal; opacity: 0.8;">Días de racha</span>`;
 }
 
 function loadPlant(){
