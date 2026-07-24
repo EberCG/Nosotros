@@ -1755,7 +1755,7 @@
 <div class="update-overlay" id="updateOverlay">
   <div class="update-box">
     <div class="update-spinner"></div>
-    <p>✨ Actualizacion 33 Barra de navegacion y notificaciones y perfil </p>
+    <p>✨ Actualizacion V.30 Barra de navegacion y notificaciones mor  </p>
   </div>
 </div>
 
@@ -3257,13 +3257,17 @@ function startProfileCapsuleCountListener(){
   }, () => {});
 }
 
-/* ---- cuadrícula 3x3: notas likeadas (y, cuando exista el carrusel, fotos likeadas) ---- */
+/* ---- cuadrícula 3x3: notas likeadas por mí, escritas por la otra persona
+   (y, cuando exista el carrusel, fotos likeadas) ---- */
 function startProfileLikedListener(){
   if(profileLikedListenerStarted || !currentUserLabel) return;
   profileLikedListenerStarted = true;
   db.collection('notes').where('liked', '==', true).onSnapshot(snap => {
     let items = [];
     snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
+    // solo notas que NO son mías (es decir, las que yo le di like a mi pareja,
+    // no las mías que mi pareja likeó)
+    items = items.filter(n => n.author !== currentUserLabel);
     items.sort((a, b) => {
       const at = a.timestamp ? a.timestamp.toMillis() : 0;
       const bt = b.timestamp ? b.timestamp.toMillis() : 0;
