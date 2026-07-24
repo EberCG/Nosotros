@@ -1446,7 +1446,7 @@
   }
   .back-btn:hover{background:linear-gradient(135deg, var(--glass-3), var(--glass-4));transform:translateY(-2px);}
 
-  .diario-box, .album-box{
+  .album-box{
     position:relative;z-index:3;width:min(480px,88vw);
     text-align:center;max-height:82vh;overflow-y:auto;
   }
@@ -1456,15 +1456,6 @@
   }
   .panel-sub{color:var(--txt-2);font-size:.85rem;margin:0 0 22px;}
   .panel-hint{color:var(--txt-3);font-size:.72rem;margin-top:14px;line-height:1.4;}
-
-  #diarioText{
-    width:100%;min-height:150px;border-radius:14px;padding:16px;
-    background:var(--glass-4);border:1px solid var(--glass-3);
-    color:var(--txt-1);font-family:'Cormorant Garamond',serif;font-size:16px;
-    resize:vertical;outline:none;transition:border .2s ease;
-  }
-  #diarioText:focus{border-color:var(--accent-violet);}
-  #diarioText::placeholder{color:var(--txt-3);}
 
   .action-btn{
     display:inline-block;margin-top:16px;padding:12px 26px;border:none;
@@ -1503,13 +1494,13 @@
     align-items:flex-start;
   }
   .buzon-wrap{
-    position:relative;z-index:2;width:min(480px,92vw);height:88%;
-    margin:6% auto 0;display:flex;flex-direction:column;
+    position:relative;z-index:2;width:min(480px,92vw);height:76%;
+    margin:5% auto 0;display:flex;flex-direction:column;
   }
   .buzon-header{
     position:relative;
-    display:flex;align-items:center;justify-content:flex-end;
-    min-height:36px;margin-bottom:14px;
+    display:flex;align-items:center;justify-content:space-between;
+    min-height:40px;margin-bottom:14px;
   }
   .buzon-title{
     position:absolute;left:50%;top:50%;
@@ -1588,7 +1579,7 @@
   .sticky-note-sign{font-family:'Dancing Script',cursive;font-weight:700;font-size:.95rem;}
 
   .buzon-actions-row{
-    position:absolute;bottom:4%;left:50%;transform:translateX(-50%);
+    position:absolute;bottom:calc(78px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
     display:flex;gap:10px;z-index:3;flex-wrap:wrap;justify-content:center;
   }
   .add-note-btn{
@@ -1808,47 +1799,13 @@
       <!-- pestaña: inicio -->
       <div class="dash-tab-panel active" id="dash-tab-home">
         <div class="dash-header">
-        <div class="card dash-widget clickable" id="buzonWidget">
-  <div class="content">
-    
-    <div class="front">
-      <div class="front-content">
-        <svg class="icon-line" viewBox="0 0 24 24" width="34" height="34">
-          <rect x="3" y="5.5" width="18" height="13" rx="2.2"/>
-          <path d="M3.5 7l8.5 6 8.5-6"/>
-        </svg>
-        <strong style="font-family:'Quicksand', sans-serif; font-size: 1.05rem;">Abrir Buzón</strong>
-      </div>
-    </div>
-    
-    <div class="back">
-      <div class="back-content">
-        <div class="img">
-          <div class="circle"></div>
-          <div class="circle" id="right"></div>
-          <div class="circle" id="bottom"></div>
-        </div>
-        
-        <small class="badge">Nuestro Espacio</small>
-        <div class="description">
-          <div class="title">
-            <p class="title">📮 Buzón</p>
-          </div>
-          <p class="card-footer">notitas para los dos</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-        </div>
-
         <div class="card" id="daysCounterCard" onclick="handleDaysCardTap(this)">
           <img src="tu-foto.jpg" alt="Nuestra Foto">
           <div class="card__content">
             <p class="card__title">Llevamos</p>
             <p class="card__description"><span id="daysWidgetNum">–</span> días juntos 💖</p>
           </div>
+        </div>
         </div>
 
         <p class="dash-section-title">Tamagotchi</p>
@@ -1940,6 +1897,12 @@
             <path d="M6 10v9h5v-5h2v5h5v-9"/>
           </svg>
         </button>
+        <button class="bottom-nav-btn" data-goto="buzon" title="Buzón">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M21.5 2.5 10.8 13.2"/>
+            <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
+          </svg>
+        </button>
         <button class="bottom-nav-btn" data-dashtab="recuerdos" title="Recuerdos">
           <svg class="nav-icon" viewBox="0 0 24 24">
             <rect x="3.5" y="5" width="17" height="14" rx="2"/>
@@ -1960,19 +1923,6 @@
     </div>
   </section>
 
-  <!-- ESCENA 6: MENSAJES DE NOSOTROS -->
-  <section id="scene-diario" class="scene">
-    <div class="starfield-static" id="starfieldDiario"></div>
-    <button class="back-btn" id="backFromDiario">←</button>
-    <div class="diario-box">
-      <p class="panel-title">Mensajes de nosotros</p>
-      <p class="panel-sub">Escribe algo bonito, quedará entre nosotros.</p>
-      <textarea id="diarioText" placeholder="Escribe aquí lo que quieras decirme..."></textarea>
-      <button class="action-btn" id="sendDiario">Enviar por WhatsApp</button>
-      <p class="panel-hint" id="diarioHint">Se abrirá WhatsApp con tu mensaje listo — solo debes presionar enviar.</p>
-    </div>
-  </section>
-
   <!-- ESCENA 7: ÁLBUM DE FOTOS -->
   <section id="scene-album" class="scene">
     <div class="starfield-static" id="starfieldAlbum"></div>
@@ -1990,9 +1940,9 @@
 
   <!-- ESCENA 8: NUESTRO BUZÓN -->
   <section id="scene-buzon" class="scene">
-    <button class="back-btn" id="backFromBuzon">←</button>
     <div class="buzon-wrap">
       <div class="buzon-header">
+        <button class="hamburger-btn" id="hamburgerBtnBuzon" title="Personalización">☰</button>
         <p class="buzon-title">Nuestro Buzón</p>
         <button class="signature-btn" id="signatureBtn">✎ firma: <span id="currentSignatureLabel">–</span></button>
       </div>
@@ -2004,6 +1954,37 @@
       <button class="add-note-btn" id="addNoteBtn">+ Añadir nota</button>
       <button class="add-note-btn" id="newMailLetterBtn" style="background:linear-gradient(135deg,#8a5a34,#5c3a20);">✉️ Nueva carta</button>
     </div>
+
+    <nav class="bottom-nav">
+      <button class="bottom-nav-btn" data-dashtab="home" title="Inicio">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M4 11.5 12 4l8 7.5"/>
+          <path d="M6 10v9h5v-5h2v5h5v-9"/>
+        </svg>
+      </button>
+      <button class="bottom-nav-btn active" data-goto="buzon" title="Buzón">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M21.5 2.5 10.8 13.2"/>
+          <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
+        </svg>
+      </button>
+      <button class="bottom-nav-btn" data-dashtab="recuerdos" title="Recuerdos">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <rect x="3.5" y="5" width="17" height="14" rx="2"/>
+          <circle cx="9" cy="10" r="1.4"/>
+          <path d="M4 16.5l4.5-4.5 3.5 3.5 3-3 4.5 4.5"/>
+        </svg>
+      </button>
+      <button class="bottom-nav-btn" data-dashtab="regalos" title="Regalos">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <rect x="3.5" y="9" width="17" height="11" rx="1.5"/>
+          <path d="M3.5 9h17"/>
+          <path d="M12 9v11"/>
+          <path d="M8.5 9c-1.4 0-2.5-1-2.5-2.5S7.1 4 8.5 4.5C10 5 12 9 12 9"/>
+          <path d="M15.5 9c1.4 0 2.5-1 2.5-2.5S16.9 4 15.5 4.5C14 5 12 9 12 9"/>
+        </svg>
+      </button>
+    </nav>
   </section>
 
 </div>
@@ -2312,10 +2293,12 @@ function applyAccent(accent){
 applyTheme(localStorage.getItem('para_ti_theme') || 'dark');
 applyAccent(localStorage.getItem('para_ti_accent') || '');
 
-document.getElementById('hamburgerBtn').addEventListener('click', function(e){
-  e.stopPropagation();
-  document.getElementById('liquidSidePanel').classList.toggle('show');
-  document.getElementById('liquidPanelBackdrop').classList.toggle('show');
+document.querySelectorAll('.hamburger-btn').forEach(btn => {
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    document.getElementById('liquidSidePanel').classList.toggle('show');
+    document.getElementById('liquidPanelBackdrop').classList.toggle('show');
+  });
 });
 document.getElementById('liquidPanelBackdrop').addEventListener('click', function(){
   document.getElementById('liquidSidePanel').classList.remove('show');
@@ -2364,7 +2347,6 @@ const scenes = {
   universe: document.getElementById('scene-universe'),
   final: document.getElementById('scene-final'),
   dashboard: document.getElementById('scene-dashboard'),
-  diario: document.getElementById('scene-diario'),
   album: document.getElementById('scene-album'),
   buzon: document.getElementById('scene-buzon'),
 };
@@ -3325,10 +3307,11 @@ function buildStaticStars(container, count){
 
 document.querySelectorAll('.bottom-nav-btn[data-dashtab]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.bottom-nav-btn[data-dashtab]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.dash-tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
+    document.querySelectorAll('.bottom-nav-btn[data-dashtab="' + btn.dataset.dashtab + '"]').forEach(b => b.classList.add('active'));
     document.getElementById('dash-tab-' + btn.dataset.dashtab).classList.add('active');
+    goTo('dashboard');
 
     if(btn.dataset.dashtab === 'regalos'){
       /* la pestaña estaba oculta (display:none) cuando se renderizó la
@@ -3342,8 +3325,25 @@ document.querySelectorAll('.bottom-nav-btn[data-dashtab]').forEach(btn => {
   });
 });
 
-document.getElementById('backFromDiario').addEventListener('click', () => { goTo('dashboard'); loadPlant(); });
-document.getElementById('backFromAlbum').addEventListener('click', () => { goTo('dashboard'); loadPlant(); });
+document.querySelectorAll('.bottom-nav-btn[data-goto]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.bottom-nav-btn[data-goto="' + btn.dataset.goto + '"]').forEach(b => b.classList.add('active'));
+    const target = btn.dataset.goto;
+    if(target === 'buzon'){
+      document.getElementById('currentSignatureLabel').textContent = getMySignature();
+      goTo('buzon');
+      startNotesListener();
+    }
+  });
+});
+
+function resetBottomNavToHome(){
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav-btn[data-dashtab="home"]').forEach(b => b.classList.add('active'));
+}
+
+document.getElementById('backFromAlbum').addEventListener('click', () => { goTo('dashboard'); loadPlant(); resetBottomNavToHome(); });
 
 /* ---------- NUESTRO BUZÓN ---------- */
 const SIGNATURE_DEFAULTS = { Mor: 'Love', Admin: 'Rame' };
@@ -3353,13 +3353,6 @@ function getMySignature(){
   if(saved) return saved;
   return SIGNATURE_DEFAULTS[currentUserLabel] || currentUserLabel || '💌';
 }
-
-document.getElementById('buzonWidget').addEventListener('click', function(){
-  document.getElementById('currentSignatureLabel').textContent = getMySignature();
-  goTo('buzon');
-  startNotesListener();
-});
-document.getElementById('backFromBuzon').addEventListener('click', () => goTo('dashboard'));
 
 /* firma */
 document.getElementById('signatureBtn').addEventListener('click', function(){
@@ -3608,19 +3601,6 @@ document.getElementById('btnPoke').addEventListener('click', function(){
   if(navigator.vibrate) navigator.vibrate([30, 25, 30]);
   this.classList.remove('sent'); void this.offsetWidth; this.classList.add('sent');
   setTimeout(() => this.classList.remove('sent'), 900);
-});
-
-/* ---------- DIARIO DE NOSOTROS (envía por WhatsApp) ---------- */
-document.getElementById('sendDiario').addEventListener('click', function(){
-  const text = document.getElementById('diarioText').value.trim();
-  const hint = document.getElementById('diarioHint');
-  if(!text){
-    hint.textContent = 'Escribe algo antes de enviarlo 💌';
-    return;
-  }
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-  window.open(url, '_blank');
-  hint.textContent = 'Se abrió WhatsApp con tu mensaje — solo presiona enviar.';
 });
 
 /* ---------- ÁLBUM DE MEJORES FOTOS ---------- */
