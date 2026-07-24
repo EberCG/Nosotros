@@ -1634,6 +1634,101 @@
   }
   .mail-editor-modal input:focus, .mail-editor-modal textarea:focus{border-color:var(--accent-violet);}
 
+  /* ---------- ESCENA: PERFIL ---------- */
+  #scene-perfil{background:var(--page-bg);}
+  .perfil-wrap{
+    position:relative;z-index:2;
+    width:min(480px,92vw);height:88%;
+    display:flex;flex-direction:column;
+  }
+  .perfil-scroll{flex:1;overflow-y:auto;padding:2px 2px 84px;}
+
+  .perfil-avatar-block{display:flex;flex-direction:column;align-items:center;margin:6px 0 22px;}
+  .perfil-avatar-wrap{position:relative;width:104px;height:104px;cursor:pointer;}
+  .perfil-avatar{
+    width:104px;height:104px;border-radius:50%;object-fit:cover;
+    border:2px solid var(--glass-3);
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 8px 22px rgba(0,0,0,0.3);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2.4rem;color:var(--txt-2);
+  }
+  .perfil-avatar-wrap input[type="file"]{display:none;}
+  .perfil-avatar-edit{
+    position:absolute;bottom:0;right:0;
+    width:30px;height:30px;border-radius:50%;
+    background:linear-gradient(135deg, var(--pink-glow), var(--accent-violet));
+    display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--page-bg);color:#fff;
+    box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  }
+  .perfil-avatar-edit svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .perfil-username{
+    margin:12px 0 0;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--txt-1);font-size:1.3rem;text-align:center;
+  }
+
+  .perfil-counters-row{
+    display:flex;justify-content:space-around;align-items:center;
+    margin:0 0 22px;padding:16px 6px;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);border-radius:18px;
+    backdrop-filter:blur(14px) saturate(180%);
+    -webkit-backdrop-filter:blur(14px) saturate(180%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 18px rgba(0,0,0,0.25);
+  }
+  .perfil-counter{display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .perfil-counter-num{font-size:1.35rem;font-weight:700;color:var(--txt-1);}
+  .perfil-counter-label{font-size:.66rem;color:var(--txt-2);}
+
+  .perfil-mood-line{
+    text-align:center;color:var(--txt-1);font-size:.9rem;margin:0 0 22px;
+    font-family:'Quicksand',sans-serif;
+  }
+
+  .perfil-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .perfil-grid-item{
+    position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;
+    cursor:pointer;border:1px solid var(--glass-3);
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    transition:transform .2s ease;
+  }
+  .perfil-grid-item:active{transform:scale(0.95);}
+  .perfil-grid-item img{width:100%;height:100%;object-fit:cover;display:block;}
+  .perfil-grid-item .perfil-grid-note-text{
+    font-size:.6rem;color:var(--txt-1);text-align:center;padding:8px;
+    overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;
+  }
+  .perfil-grid-item .perfil-grid-heart{position:absolute;top:4px;right:6px;font-size:.7rem;}
+  .perfil-grid-empty{grid-column:1/-1;text-align:center;color:var(--txt-3);font-size:.8rem;padding:26px 10px;}
+
+  .perfil-expand-overlay{
+    display:none;position:fixed;inset:0;z-index:55;
+    background:rgba(5,4,22,0.85);align-items:center;justify-content:center;padding:24px;
+  }
+  .perfil-expand-overlay.show{display:flex;}
+  .perfil-expand-box{
+    width:min(360px,90vw);max-height:80vh;overflow-y:auto;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);border-radius:20px;padding:22px;
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+  }
+  .perfil-expand-box img{width:100%;border-radius:14px;display:block;}
+  .perfil-expand-box .perfil-expand-text{
+    color:var(--txt-1);font-size:1rem;line-height:1.5;white-space:pre-wrap;word-break:break-word;
+    font-family:'Quicksand',sans-serif;
+  }
+  .perfil-expand-meta{
+    margin-top:14px;color:var(--txt-3);text-align:right;
+    font-family:'Dancing Script',cursive;font-size:1rem;
+  }
+  .perfil-expand-close{
+    display:block;margin:16px auto 0;background:none;border:none;color:var(--txt-2);
+    font-size:.8rem;cursor:pointer;font-family:'Quicksand',sans-serif;
+  }
+
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:0.001s !important; animation-iteration-count:1 !important;}
   }
@@ -1660,7 +1755,7 @@
 <div class="update-overlay" id="updateOverlay">
   <div class="update-box">
     <div class="update-spinner"></div>
-    <p>✨ Actualizacion V.30 Barra de navegacion y notificaciones mor  </p>
+    <p>✨ Actualizacion 33 Barra de navegacion y notificaciones y perfil </p>
   </div>
 </div>
 
@@ -1919,6 +2014,12 @@
             <path d="M15.5 9c1.4 0 2.5-1 2.5-2.5S16.9 4 15.5 4.5C14 5 12 9 12 9"/>
           </svg>
         </button>
+        <button class="bottom-nav-btn" data-goto="perfil" title="Perfil">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="3.6"/>
+            <path d="M4.5 20c1.2-4 4-6 7.5-6s6.3 2 7.5 6"/>
+          </svg>
+        </button>
       </nav>
     </div>
   </section>
@@ -1984,7 +2085,110 @@
           <path d="M15.5 9c1.4 0 2.5-1 2.5-2.5S16.9 4 15.5 4.5C14 5 12 9 12 9"/>
         </svg>
       </button>
+      <button class="bottom-nav-btn" data-goto="perfil" title="Perfil">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="3.6"/>
+          <path d="M4.5 20c1.2-4 4-6 7.5-6s6.3 2 7.5 6"/>
+        </svg>
+      </button>
     </nav>
+  </section>
+
+  <!-- ESCENA 9: PERFIL -->
+  <section id="scene-perfil" class="scene">
+    <div class="starfield-static" id="starfieldPerfil"></div>
+
+    <button class="poke-float-btn" id="btnPokePerfil" title="Te extraño">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 20.2s-7.2-4.4-9.6-8.8C.8 7.9 2.9 4.3 6.5 4.3c2 0 3.6 1.1 4.5 2.6.9-1.5 2.5-2.6 4.5-2.6 3.6 0 5.7 3.6 4.1 7.1-2.4 4.4-9.6 8.8-9.6 8.8z"/>
+      </svg>
+    </button>
+
+    <div class="perfil-wrap">
+      <div class="settings-hamburger-row">
+        <button class="hamburger-btn" id="hamburgerBtnPerfil" title="Personalización">☰</button>
+        <button class="notif-heart-btn" id="notifBtnPerfil" title="Notificaciones">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 20.2s-7.2-4.4-9.6-8.8C.8 7.9 2.9 4.3 6.5 4.3c2 0 3.6 1.1 4.5 2.6.9-1.5 2.5-2.6 4.5-2.6 3.6 0 5.7 3.6 4.1 7.1-2.4 4.4-9.6 8.8-9.6 8.8z"/>
+          </svg>
+          <span class="notif-badge" id="notifBadgePerfil">0</span>
+        </button>
+      </div>
+
+      <div class="perfil-scroll">
+        <div class="perfil-avatar-block">
+          <label class="perfil-avatar-wrap" for="profileAvatarInput" title="Cambiar foto de perfil">
+            <div class="perfil-avatar" id="profileAvatarImgWrap">🤍</div>
+            <span class="perfil-avatar-edit">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 16.5V19h2.5L17.8 7.7l-2.5-2.5L4 16.5z"/>
+                <path d="M16.3 4.4l2.5 2.5"/>
+              </svg>
+            </span>
+            <input type="file" id="profileAvatarInput" accept="image/*">
+          </label>
+          <p class="perfil-username" id="profileUsername">–</p>
+        </div>
+
+        <div class="perfil-counters-row">
+          <div class="perfil-counter">
+            <span class="perfil-counter-num" id="profileNotesCount">0</span>
+            <span class="perfil-counter-label">notas</span>
+          </div>
+          <div class="perfil-counter">
+            <span class="perfil-counter-num" id="profileLettersCount">0</span>
+            <span class="perfil-counter-label">cartas</span>
+          </div>
+          <div class="perfil-counter">
+            <span class="perfil-counter-num" id="profileCapsulesCount">0</span>
+            <span class="perfil-counter-label">cápsulas</span>
+          </div>
+        </div>
+
+        <p class="perfil-mood-line" id="profileMoodLine">Hoy me siento: 🤍</p>
+
+        <div class="perfil-grid" id="profileGrid">
+          <p class="perfil-grid-empty">Aún no tienes notas ni fotos con like 💜</p>
+        </div>
+      </div>
+
+      <nav class="bottom-nav">
+        <button class="bottom-nav-btn" data-dashtab="home" title="Inicio">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M4 11.5 12 4l8 7.5"/>
+            <path d="M6 10v9h5v-5h2v5h5v-9"/>
+          </svg>
+        </button>
+        <button class="bottom-nav-btn" data-goto="buzon" title="Buzón">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M21.5 2.5 10.8 13.2"/>
+            <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
+          </svg>
+        </button>
+        <button class="bottom-nav-btn" data-dashtab="recuerdos" title="Recuerdos">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <rect x="3.5" y="5" width="17" height="14" rx="2"/>
+            <circle cx="9" cy="10" r="1.4"/>
+            <path d="M4 16.5l4.5-4.5 3.5 3.5 3-3 4.5 4.5"/>
+          </svg>
+        </button>
+        <button class="bottom-nav-btn" data-dashtab="regalos" title="Regalos">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <rect x="3.5" y="9" width="17" height="11" rx="1.5"/>
+            <path d="M3.5 9h17"/>
+            <path d="M12 9v11"/>
+            <path d="M8.5 9c-1.4 0-2.5-1-2.5-2.5S7.1 4 8.5 4.5C10 5 12 9 12 9"/>
+            <path d="M15.5 9c1.4 0 2.5-1 2.5-2.5S16.9 4 15.5 4.5C14 5 12 9 12 9"/>
+          </svg>
+        </button>
+        <button class="bottom-nav-btn active" data-goto="perfil" title="Perfil">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="3.6"/>
+            <path d="M4.5 20c1.2-4 4-6 7.5-6s6.3 2 7.5 6"/>
+          </svg>
+        </button>
+      </nav>
+    </div>
   </section>
 
 </div>
@@ -2037,6 +2241,16 @@
     <div class="notif-list" id="notifList">
       <p class="notif-empty">Aún no hay notificaciones 💭</p>
     </div>
+  </div>
+</div>
+
+<!-- ---------- OVERLAY: expandir nota/foto likeada del perfil ---------- -->
+<div class="perfil-expand-overlay" id="perfilExpandOverlay">
+  <div class="perfil-expand-box">
+    <img id="perfilExpandImg" style="display:none;">
+    <p class="perfil-expand-text" id="perfilExpandText" style="display:none;"></p>
+    <p class="perfil-expand-meta" id="perfilExpandMeta"></p>
+    <button class="perfil-expand-close" id="perfilExpandCloseBtn">Cerrar ✕</button>
   </div>
 </div>
 
@@ -2223,7 +2437,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-23-33";
+const APP_VERSION = "2026-07-23-34";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -2349,6 +2563,7 @@ const scenes = {
   dashboard: document.getElementById('scene-dashboard'),
   album: document.getElementById('scene-album'),
   buzon: document.getElementById('scene-buzon'),
+  perfil: document.getElementById('scene-perfil'),
 };
 
 function goTo(name){
@@ -2728,18 +2943,18 @@ let notificationsListenerStarted = false;
 
 function renderNotifications(){
   const list = document.getElementById('notifList');
-  const badge = document.getElementById('notifBadge');
-  const heartBtn = document.getElementById('notifBtn');
-  if(!list || !badge) return;
+  const badges = document.querySelectorAll('.notif-badge');
+  const heartBtns = document.querySelectorAll('.notif-heart-btn');
+  if(!list || !badges.length) return;
 
   const unreadCount = notifItems.filter(n => !n.read).length;
   if(unreadCount > 0){
-    badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
-    badge.classList.add('show');
-    if(heartBtn) heartBtn.classList.add('has-unread');
+    const label = unreadCount > 9 ? '9+' : String(unreadCount);
+    badges.forEach(badge => { badge.textContent = label; badge.classList.add('show'); });
+    heartBtns.forEach(btn => btn.classList.add('has-unread'));
   } else {
-    badge.classList.remove('show');
-    if(heartBtn) heartBtn.classList.remove('has-unread');
+    badges.forEach(badge => badge.classList.remove('show'));
+    heartBtns.forEach(btn => btn.classList.remove('has-unread'));
   }
 
   if(!notifItems.length){
@@ -2795,9 +3010,11 @@ function markAllNotificationsRead(){
   });
 }
 
-document.getElementById('notifBtn').addEventListener('click', function(){
-  document.getElementById('notifOverlay').classList.add('show');
-  setTimeout(markAllNotificationsRead, 900);
+document.querySelectorAll('.notif-heart-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.getElementById('notifOverlay').classList.add('show');
+    setTimeout(markAllNotificationsRead, 900);
+  });
 });
 document.getElementById('notifCloseBtn').addEventListener('click', function(){
   document.getElementById('notifOverlay').classList.remove('show');
@@ -2906,6 +3123,8 @@ function initMoodTracker(){
         currentEmoji.textContent = mine.emoji;
         currentText.textContent = btnTarget.dataset.label;
       }
+      const profileMoodLine = document.getElementById('profileMoodLine');
+      if(profileMoodLine) profileMoodLine.textContent = `Hoy me siento: ${mine.emoji}`;
     }
 
     const partnerLine = document.getElementById('moodPartnerLine');
@@ -2926,6 +3145,189 @@ function initMoodTracker(){
   });
 }
 
+
+/* ============================================================
+   ESCENA: PERFIL — foto, contadores, mood y cuadrícula de likes
+   ============================================================ */
+let profileAvatarListenerStarted = false;
+let profileNotesCountListenerStarted = false;
+let profileLettersCountListenerStarted = false;
+let profileCapsuleCountListenerStarted = false;
+let profileLikedListenerStarted = false;
+let profileLikedNotes = [];
+
+function initProfilePage(){
+  if(!currentUserLabel) return;
+  document.getElementById('profileUsername').textContent = currentUserLabel;
+
+  // mood: refleja de inmediato lo que ya se sabe (si initMoodTracker ya corrió)
+  const currentEmoji = document.getElementById('currentMoodEmoji');
+  if(currentEmoji && currentEmoji.textContent && currentEmoji.textContent !== '🤍'){
+    document.getElementById('profileMoodLine').textContent = `Hoy me siento: ${currentEmoji.textContent}`;
+  }
+
+  startProfileAvatarListener();
+  startProfileNotesCountListener();
+  startProfileLettersCountListener();
+  startProfileCapsuleCountListener();
+  startProfileLikedListener();
+}
+
+/* ---- foto de perfil (se guarda como imagen reducida en Firestore, así se ve en cualquier dispositivo) ---- */
+function startProfileAvatarListener(){
+  if(profileAvatarListenerStarted || !currentUserLabel) return;
+  profileAvatarListenerStarted = true;
+  const myKey = myKeyNow();
+  db.collection('users').doc(myKey).onSnapshot(doc => {
+    const wrap = document.getElementById('profileAvatarImgWrap');
+    if(!wrap) return;
+    const data = doc.exists ? doc.data() : null;
+    if(data && data.photoURL){
+      wrap.innerHTML = `<img src="${data.photoURL}" alt="Foto de perfil" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    } else {
+      wrap.textContent = '🤍';
+    }
+  }, err => {
+    console.error('No se pudo cargar la foto de perfil (revisa las reglas de Firestore para la colección "users"):', err);
+  });
+}
+
+document.getElementById('profileAvatarInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file || !currentUserLabel) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      // reducimos la foto a un cuadrado pequeño antes de guardarla, para
+      // que quepa cómoda dentro de un documento de Firestore
+      const size = 260;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const minSide = Math.min(img.width, img.height);
+      const sx = (img.width - minSide) / 2;
+      const sy = (img.height - minSide) / 2;
+      ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+      db.collection('users').doc(myKeyNow()).set({
+        photoURL: dataUrl,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true}).catch(() => {
+        alert('No se pudo guardar tu foto de perfil, revisa tu conexión.');
+      });
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ---- contador: notas creadas por el usuario ---- */
+function startProfileNotesCountListener(){
+  if(profileNotesCountListenerStarted || !currentUserLabel) return;
+  profileNotesCountListenerStarted = true;
+  db.collection('notes').where('author', '==', currentUserLabel).onSnapshot(snap => {
+    const el = document.getElementById('profileNotesCount');
+    if(el) el.textContent = snap.size;
+  }, () => {});
+}
+
+/* ---- contador: cartas recibidas ---- */
+function startProfileLettersCountListener(){
+  if(profileLettersCountListenerStarted || !currentUserLabel) return;
+  profileLettersCountListenerStarted = true;
+  db.collection('mailLetters').where('to', '==', currentUserLabel).onSnapshot(snap => {
+    const el = document.getElementById('profileLettersCount');
+    if(el) el.textContent = snap.size;
+  }, () => {});
+}
+
+/* ---- contador: cápsulas de tiempo recibidas y ya abiertas ---- */
+function startProfileCapsuleCountListener(){
+  if(profileCapsuleCountListenerStarted || !currentUserLabel) return;
+  profileCapsuleCountListenerStarted = true;
+  db.collection('capsule').doc('current').onSnapshot(doc => {
+    const el = document.getElementById('profileCapsulesCount');
+    if(!el) return;
+    const data = doc.exists ? doc.data() : null;
+    const myKey = myKeyNow();
+    const isMine = data && data.author && data.author.toLowerCase() === myKey;
+    const isUnlocked = data && data.unlockDate && (new Date(data.unlockDate).getTime() - Date.now()) <= 0;
+    el.textContent = (data && isUnlocked && !isMine) ? 1 : 0;
+  }, () => {});
+}
+
+/* ---- cuadrícula 3x3: notas likeadas (y, cuando exista el carrusel, fotos likeadas) ---- */
+function startProfileLikedListener(){
+  if(profileLikedListenerStarted || !currentUserLabel) return;
+  profileLikedListenerStarted = true;
+  db.collection('notes').where('liked', '==', true).onSnapshot(snap => {
+    let items = [];
+    snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
+    items.sort((a, b) => {
+      const at = a.timestamp ? a.timestamp.toMillis() : 0;
+      const bt = b.timestamp ? b.timestamp.toMillis() : 0;
+      return bt - at;
+    });
+    profileLikedNotes = items;
+    renderProfileLikedGrid();
+  }, () => {});
+}
+
+function renderProfileLikedGrid(){
+  const grid = document.getElementById('profileGrid');
+  if(!grid) return;
+
+  // aquí se combinan notas likeadas con fotos likeadas del carrusel de Google
+  // Fotos cuando ese carrusel exista; por ahora solo hay notas.
+  const items = profileLikedNotes.map(n => ({ type:'note', data:n }));
+
+  if(!items.length){
+    grid.innerHTML = '<p class="perfil-grid-empty">Aún no tienes notas ni fotos con like 💜</p>';
+    return;
+  }
+
+  grid.innerHTML = '';
+  items.forEach(item => {
+    const cell = document.createElement('div');
+    cell.className = 'perfil-grid-item';
+    if(item.type === 'note'){
+      cell.innerHTML = `<span class="perfil-grid-heart">❤️</span><span class="perfil-grid-note-text"></span>`;
+      cell.querySelector('.perfil-grid-note-text').textContent = item.data.text;
+    } else if(item.type === 'photo'){
+      cell.innerHTML = `<span class="perfil-grid-heart">❤️</span><img src="${item.data.url}" alt="Foto likeada">`;
+    }
+    cell.addEventListener('click', () => openProfileExpand(item));
+    grid.appendChild(cell);
+  });
+}
+
+function openProfileExpand(item){
+  const overlay = document.getElementById('perfilExpandOverlay');
+  const imgEl = document.getElementById('perfilExpandImg');
+  const textEl = document.getElementById('perfilExpandText');
+  const metaEl = document.getElementById('perfilExpandMeta');
+
+  if(item.type === 'photo'){
+    imgEl.src = item.data.url;
+    imgEl.style.display = 'block';
+    textEl.style.display = 'none';
+    metaEl.textContent = '';
+  } else {
+    textEl.textContent = item.data.text;
+    textEl.style.display = 'block';
+    imgEl.style.display = 'none';
+    metaEl.textContent = item.data.signature ? `— ${item.data.signature}` : '';
+  }
+  overlay.classList.add('show');
+}
+
+document.getElementById('perfilExpandCloseBtn').addEventListener('click', function(){
+  document.getElementById('perfilExpandOverlay').classList.remove('show');
+});
+document.getElementById('perfilExpandOverlay').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('show');
+});
 
 /* ---------- CUPONERA ---------- */
 const DEFAULT_COUPONS = [
@@ -3334,6 +3736,9 @@ document.querySelectorAll('.bottom-nav-btn[data-goto]').forEach(btn => {
       document.getElementById('currentSignatureLabel').textContent = getMySignature();
       goTo('buzon');
       startNotesListener();
+    } else if(target === 'perfil'){
+      goTo('perfil');
+      initProfilePage();
     }
   });
 });
@@ -3595,12 +4000,14 @@ const pokeMessages = [
   "Ojalá estuvieras aquí conmigo 🌙",
   "Solo quería recordarte que te extraño 💫"
 ];
-document.getElementById('btnPoke').addEventListener('click', function(){
-  const msg = pokeMessages[Math.floor(Math.random()*pokeMessages.length)];
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-  if(navigator.vibrate) navigator.vibrate([30, 25, 30]);
-  this.classList.remove('sent'); void this.offsetWidth; this.classList.add('sent');
-  setTimeout(() => this.classList.remove('sent'), 900);
+document.querySelectorAll('.poke-float-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    const msg = pokeMessages[Math.floor(Math.random()*pokeMessages.length)];
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+    if(navigator.vibrate) navigator.vibrate([30, 25, 30]);
+    this.classList.remove('sent'); void this.offsetWidth; this.classList.add('sent');
+    setTimeout(() => this.classList.remove('sent'), 900);
+  });
 });
 
 /* ---------- ÁLBUM DE MEJORES FOTOS ---------- */
