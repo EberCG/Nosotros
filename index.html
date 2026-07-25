@@ -1924,6 +1924,60 @@
   .echo-send-btn.has-text .echo-icon-send{opacity:1;transform:scale(1) rotate(0deg);}
   .echo-send-btn.has-text .echo-icon-mic{opacity:0;transform:scale(0.5);}
 
+  /* ---------- GIFs ---------- */
+  .echo-gif-btn{
+    flex-shrink:0;border:none;background:transparent;color:var(--pink-glow);
+    font-size:.66rem;font-weight:800;letter-spacing:.3px;
+    padding:8px 6px 8px 10px;cursor:pointer;font-family:'Quicksand',sans-serif;
+  }
+  .echo-gif-overlay{
+    display:none;position:fixed;inset:0;z-index:75;
+    background:rgba(5,4,22,0.55);
+    align-items:flex-end;justify-content:center;
+  }
+  .echo-gif-overlay.show{display:flex;}
+  .echo-gif-panel{
+    width:100%;max-width:480px;max-height:72vh;
+    background:var(--glass-2);backdrop-filter:blur(24px) saturate(180%);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid var(--glass-3);border-bottom:none;
+    border-radius:24px 24px 0 0;
+    padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:10px;
+    transform:translateY(100%);transition:transform .35s cubic-bezier(.22,.61,.36,1);
+  }
+  .echo-gif-overlay.show .echo-gif-panel{transform:translateY(0);}
+  .echo-gif-panel-header{display:flex;align-items:center;justify-content:space-between;}
+  .echo-gif-panel-title{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--txt-1);font-size:1.1rem;margin:0;}
+  .echo-gif-close-btn{
+    width:28px;height:28px;border-radius:50%;border:none;flex-shrink:0;
+    background:var(--glass-3);color:var(--txt-1);cursor:pointer;
+  }
+  .echo-gif-search-row input{
+    width:100%;padding:10px 14px;border-radius:20px;border:1px solid var(--glass-3);
+    background:var(--glass-1);color:var(--txt-1);font-family:'Quicksand',sans-serif;font-size:.85rem;outline:none;
+  }
+  .echo-gif-search-row input::placeholder{color:var(--txt-3);}
+  .echo-gif-grid{
+    flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;min-height:140px;
+  }
+  .echo-gif-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:pointer;transition:transform .15s ease;}
+  .echo-gif-grid img:active{transform:scale(0.94);}
+  .echo-gif-empty{grid-column:1/-1;text-align:center;color:var(--txt-3);font-size:.8rem;padding:24px 10px;}
+  .echo-gif-paste-row{display:flex;gap:6px;}
+  .echo-gif-paste-row input{
+    flex:1;min-width:0;padding:9px 12px;border-radius:16px;border:1px solid var(--glass-3);
+    background:var(--glass-1);color:var(--txt-1);font-size:.78rem;outline:none;font-family:'Quicksand',sans-serif;
+  }
+  .echo-gif-paste-row input::placeholder{color:var(--txt-3);}
+  .echo-gif-paste-row button{
+    border:none;border-radius:16px;padding:9px 16px;background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
+    color:#fff;font-weight:600;font-size:.78rem;cursor:pointer;flex-shrink:0;font-family:'Quicksand',sans-serif;
+  }
+  .echo-gif-bubble{padding:4px !important;overflow:hidden;}
+  .echo-gif-bubble img{display:block;width:100%;max-width:200px;border-radius:12px;margin-bottom:2px;}
+  .echo-gif-bubble .echo-bubble-meta{padding:0 4px 3px;}
+
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:0.001s !important; animation-iteration-count:1 !important;}
   }
@@ -2549,12 +2603,32 @@
         <svg viewBox="0 0 24 24"><path d="M12 20.2s-7.2-4.4-9.6-8.8C.8 7.9 2.9 4.3 6.5 4.3c2 0 3.6 1.1 4.5 2.6.9-1.5 2.5-2.6 4.5-2.6 3.6 0 5.7 3.6 4.1 7.1-2.4 4.4-9.6 8.8-9.6 8.8z"/></svg>
       </button>
       <div class="echo-input-pill">
+        <button class="echo-gif-btn" id="echoGifBtn" title="Enviar GIF">GIF</button>
         <input type="text" id="echoTextInput" placeholder="Escribe algo bonito..." autocomplete="off">
       </div>
       <button class="echo-send-btn" id="echoSendBtn" title="Mantén presionado para grabar audio">
         <svg class="echo-icon-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v3.5"/><path d="M9 20.5h6"/></svg>
         <svg class="echo-icon-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg>
       </button>
+    </div>
+  </div>
+</div>
+
+<div class="echo-gif-overlay" id="echoGifOverlay">
+  <div class="echo-gif-panel">
+    <div class="echo-gif-panel-header">
+      <p class="echo-gif-panel-title">Enviar GIF</p>
+      <button class="echo-gif-close-btn" id="echoGifCloseBtn">✕</button>
+    </div>
+    <div class="echo-gif-search-row">
+      <input type="text" id="echoGifSearchInput" placeholder="Busca un GIF (ej. amor, buenos días)...">
+    </div>
+    <div class="echo-gif-grid" id="echoGifGrid">
+      <p class="echo-gif-empty">Escribe algo para buscar 🔎</p>
+    </div>
+    <div class="echo-gif-paste-row">
+      <input type="text" id="echoGifUrlInput" placeholder="o pega aquí el link directo de un GIF...">
+      <button id="echoGifUrlSendBtn">Enviar</button>
     </div>
   </div>
 </div>
@@ -4467,6 +4541,17 @@ function echoRenderBubble(msg, myKey){
       </div>`;
   }
 
+  if(msg.type === 'gif' && msg.gifURL){
+    const heartGif = mine ? `<span class="echo-bubble-heart ${msg.read ? 'read' : ''}">${msg.read ? '💖' : '🤍'}</span>` : '';
+    return `
+      <div class="echo-bubble-row ${mine ? 'sent' : 'received'}">
+        <div class="echo-bubble echo-gif-bubble ${colorClass}">
+          <img src="${msg.gifURL}" alt="GIF" loading="lazy">
+          <div class="echo-bubble-meta"><span class="echo-bubble-time">${timeStr}</span>${heartGif}</div>
+        </div>
+      </div>`;
+  }
+
   const heart = mine ? `<span class="echo-bubble-heart ${msg.read ? 'read' : ''}">${msg.read ? '💖' : '🤍'}</span>` : '';
   const text = (msg.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   return `
@@ -4859,6 +4944,108 @@ document.getElementById('echoPokeBtn').addEventListener('click', function(){
   echoSheet.classList.remove('echo-shake-screen'); void echoSheet.offsetWidth; echoSheet.classList.add('echo-shake-screen');
   echoSendPoke();
 });
+
+/* ---------- GIFs ----------
+   Para el buscador se usa la API gratuita de Tenor (de Google, sin
+   necesidad de plan de pago ni tarjeta). Consigue tu key gratis en
+   https://developers.google.com/tenor/guides/quickstart y pégala abajo.
+   Si la dejas vacía, el buscador queda desactivado pero se puede seguir
+   enviando cualquier GIF pegando su link directo. */
+const TENOR_API_KEY = 'nx6k47LDMFOnXrYQFmokPSBCK5W2sU0v';
+
+const echoGifOverlay = document.getElementById('echoGifOverlay');
+const echoGifGrid = document.getElementById('echoGifGrid');
+const echoGifSearchInput = document.getElementById('echoGifSearchInput');
+let echoGifSearchTimer = null;
+
+function echoResetGifPicker(){
+  echoGifSearchInput.value = '';
+  document.getElementById('echoGifUrlInput').value = '';
+  if(TENOR_API_KEY){
+    echoGifGrid.innerHTML = '<p class="echo-gif-empty">Escribe algo para buscar 🔎</p>';
+    echoGifSearchInput.disabled = false;
+    echoGifSearchInput.placeholder = 'Busca un GIF (ej. amor, buenos días)...';
+  } else {
+    echoGifGrid.innerHTML = '<p class="echo-gif-empty">Búsqueda no configurada todavía — usa el link de abajo 👇</p>';
+    echoGifSearchInput.disabled = true;
+    echoGifSearchInput.placeholder = 'Búsqueda de GIFs no configurada';
+  }
+}
+
+document.getElementById('echoGifBtn').addEventListener('click', function(){
+  echoResetGifPicker();
+  echoGifOverlay.classList.add('show');
+});
+document.getElementById('echoGifCloseBtn').addEventListener('click', function(){
+  echoGifOverlay.classList.remove('show');
+});
+echoGifOverlay.addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('show');
+});
+
+echoGifSearchInput.addEventListener('input', function(){
+  clearTimeout(echoGifSearchTimer);
+  const q = this.value.trim();
+  if(!q){
+    echoGifGrid.innerHTML = '<p class="echo-gif-empty">Escribe algo para buscar 🔎</p>';
+    return;
+  }
+  echoGifSearchTimer = setTimeout(() => echoSearchGifs(q), 450);
+});
+
+function echoSearchGifs(query){
+  echoGifGrid.innerHTML = '<p class="echo-gif-empty">Buscando…</p>';
+  const url = `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=${TENOR_API_KEY}&client_key=echo_para_ti&limit=18&media_filter=tinygif&contentfilter=medium`;
+  fetch(url).then(r => r.json()).then(data => {
+    const results = data.results || [];
+    if(!results.length){
+      echoGifGrid.innerHTML = '<p class="echo-gif-empty">No encontré nada — prueba otra palabra</p>';
+      return;
+    }
+    echoGifGrid.innerHTML = results.map(g => {
+      const formats = g.media_formats || {};
+      const thumb = (formats.tinygif || formats.gif || {}).url;
+      const full = (formats.gif || formats.tinygif || {}).url;
+      if(!thumb) return '';
+      return `<img src="${thumb}" data-full="${full || thumb}" loading="lazy" alt="GIF">`;
+    }).join('');
+  }).catch(err => {
+    console.error('No se pudo buscar GIFs:', err);
+    echoGifGrid.innerHTML = '<p class="echo-gif-empty">No se pudo buscar, revisa tu conexión</p>';
+  });
+}
+
+echoGifGrid.addEventListener('click', function(e){
+  const img = e.target.closest('img');
+  if(!img) return;
+  echoSendGif(img.dataset.full || img.src);
+});
+
+document.getElementById('echoGifUrlSendBtn').addEventListener('click', function(){
+  const input = document.getElementById('echoGifUrlInput');
+  const url = input.value.trim();
+  if(!url) return;
+  echoSendGif(url);
+});
+
+function echoSendGif(url){
+  const myKey = myKeyNow();
+  if(!myKey || !url) return;
+  db.collection('echoMessages').add({
+    sender: myKey,
+    type: 'gif',
+    gifURL: url,
+    read: false,
+    readAt: null,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    createNotification('echo_message', { preview: '🎞️ GIF' });
+    echoGifOverlay.classList.remove('show');
+  }).catch(function(err){
+    console.error('No se pudo enviar el GIF:', err);
+    alert('No se pudo enviar el GIF, revisa tu conexión.');
+  });
+}
 </script>
 
 
