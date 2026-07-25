@@ -1805,9 +1805,16 @@
   .echo-audio-play svg{width:12px;height:12px;fill:currentColor;}
   .echo-audio-wave{display:flex;align-items:center;gap:2px;height:18px;flex:1;}
   .echo-audio-wave span{
-    width:2.5px;border-radius:2px;background:var(--txt-1);opacity:.55;
+    width:2.5px;border-radius:2px;background:var(--txt-1);opacity:.35;
     animation:echo-wave-bar 1.6s ease-in-out infinite;
+    animation-play-state:paused;
+    transition:opacity .25s ease;
   }
+  .echo-audio-bubble.playing .echo-audio-wave span{
+    opacity:.9;animation-play-state:running;
+  }
+  .echo-audio-play svg{transition:transform .15s ease;}
+  .echo-audio-bubble.playing .echo-audio-play{background:rgba(255,255,255,0.4);}
   .echo-audio-wave span:nth-child(1){height:40%;animation-delay:-1.4s;}
   .echo-audio-wave span:nth-child(2){height:70%;animation-delay:-1.2s;}
   .echo-audio-wave span:nth-child(3){height:100%;animation-delay:-1.0s;}
@@ -1943,7 +1950,7 @@
 <div class="update-overlay" id="updateOverlay">
   <div class="update-box">
     <div class="update-spinner"></div>
-    <p>✨ Actualizacion V.30 Barra de navegacion y notificaciones mor  </p>
+    <p>✨ ahora tenemos un chat privado aun me faltan algunas implementaciones pero funciona jsjs  </p>
   </div>
 </div>
 
@@ -2534,7 +2541,7 @@
     </div>
 
     <div class="echo-recording-indicator" id="echoRecordingIndicator">
-      <span class="echo-rec-dot"></span> Grabando… (Fase 3 — aún no se sube el audio)
+      <span class="echo-rec-dot"></span> <span id="echoRecordingLabel">Grabando…</span>
     </div>
 
     <div class="echo-input-bar">
@@ -2544,7 +2551,7 @@
       <div class="echo-input-pill">
         <input type="text" id="echoTextInput" placeholder="Escribe algo bonito..." autocomplete="off">
       </div>
-      <button class="echo-send-btn" id="echoSendBtn" title="Mantén presionado para grabar audio (Fase 3)">
+      <button class="echo-send-btn" id="echoSendBtn" title="Mantén presionado para grabar audio">
         <svg class="echo-icon-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v3.5"/><path d="M9 20.5h6"/></svg>
         <svg class="echo-icon-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg>
       </button>
@@ -2686,7 +2693,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-23-35";
+const APP_VERSION = "2026-07-25-35";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4332,16 +4339,18 @@ window.addEventListener('appinstalled', () => {
 });
 
 /* ================================================================
-   MÓDULO "ECHO" — FASE 2 (tiempo real con Firestore)
+   MÓDULO "ECHO" — FASE 3 (notas de voz reales)
    Colecciones usadas:
    - echoMessages: {sender:'admin'|'mor', type:'text'|'audio', text,
-       audioURL, read, readAt, createdAt}
+       audioURL, duration, read, readAt, createdAt}
    - presence/{key}: {online, lastSeen}
    - typing/{key}: {typing, updatedAt}
    - echoPokes/{recipientKey}: {from, ts}  (el "zumbido")
    - users/{key}.photoURL ya existe (foto que cada quien sube en Perfil)
-   Fase 3 (pendiente): grabar audio real con MediaRecorder + Storage,
-   y que los mensajes type:'audio' usen audioURL en vez de text.
+   Audio: el plan gratuito Spark de Firebase ya no permite activar Cloud
+   Storage, así que el audio se comprime (opus/webm) y se guarda como
+   base64 directo en "audioURL" (mismo truco que ya usa la foto de perfil),
+   con un tope de duración para no pasarnos del límite de 1MB por documento.
    ================================================================ */
 const echoSheetOverlay = document.getElementById('echoSheetOverlay');
 const echoSheet = document.getElementById('echoSheet');
@@ -4363,6 +4372,12 @@ let echoLastMessagesSnapshotAt = 0;
 
 function echoFormatTime(date){
   return date.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'});
+}
+function echoFormatDuration(totalSeconds){
+  const s = Math.max(0, Math.round(totalSeconds || 0));
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${sec < 10 ? '0' : ''}${sec}`;
 }
 
 /* ---- foto de perfil real (misma que se sube en la sección Perfil) ---- */
@@ -4441,12 +4456,13 @@ function echoRenderBubble(msg, myKey){
   const timeStr = echoFormatTime(date);
 
   if(msg.type === 'audio' && msg.audioURL){
+    const durationLabel = echoFormatDuration(msg.duration || 0);
     return `
       <div class="echo-bubble-row ${mine ? 'sent' : 'received'}">
         <div class="echo-bubble echo-audio-bubble ${colorClass}" data-audio-url="${msg.audioURL}">
           <button class="echo-audio-play" data-play-audio="${msg.id}"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8V4z"/></svg></button>
           <div class="echo-audio-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          <span class="echo-audio-duration">${timeStr}</span>
+          <span class="echo-audio-duration" data-full="${durationLabel}">${durationLabel}</span>
         </div>
       </div>`;
   }
@@ -4482,6 +4498,7 @@ function startEchoMessagesListener(){
         }
       });
       echoMessagesList.innerHTML = html;
+      echoSyncPlayingUI();
 
       if(toMarkRead.length){
         const batch = db.batch();
@@ -4649,19 +4666,190 @@ echoSendBtn.addEventListener('click', function(){
   // si no hay texto, este botón es el micrófono — la grabación real llega en la Fase 3
 });
 
-/* mic: mantener presionado muestra la maqueta de "grabando" (sin grabar audio real todavía — Fase 3) */
-function echoStartRecordingMock(){
-  if(echoSendBtn.classList.contains('has-text')) return;
-  echoRecordingIndicator.classList.add('show');
+/* ---- reproducción de notas de voz ----
+   se usa un único <audio> compartido (fuera del DOM de mensajes) para que
+   la reproducción no se corte si llega un mensaje nuevo y la lista se
+   vuelve a dibujar; echoSyncPlayingUI() restaura el ícono/onda correctos
+   después de cada re-render. */
+const echoAudioPlayer = new Audio();
+let echoCurrentPlayingId = null;
+const ECHO_PLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8V4z"/></svg>';
+const ECHO_PAUSE_ICON = '<svg viewBox="0 0 24 24"><path d="M7 4h4v16H7zM13 4h4v16h-4z"/></svg>';
+
+function echoSyncPlayingUI(){
+  document.querySelectorAll('.echo-audio-bubble').forEach(bubble => {
+    const btn = bubble.querySelector('.echo-audio-play');
+    if(!btn) return;
+    const id = btn.dataset.playAudio;
+    const isPlaying = (id === echoCurrentPlayingId) && !echoAudioPlayer.paused && !echoAudioPlayer.ended;
+    bubble.classList.toggle('playing', isPlaying);
+    btn.innerHTML = isPlaying ? ECHO_PAUSE_ICON : ECHO_PLAY_ICON;
+    const durEl = bubble.querySelector('.echo-audio-duration');
+    if(durEl && !isPlaying && durEl.dataset.full) durEl.textContent = durEl.dataset.full;
+  });
 }
-function echoStopRecordingMock(){
+
+function echoPlayAudio(id, url){
+  if(echoCurrentPlayingId === id && !echoAudioPlayer.paused){
+    echoAudioPlayer.pause();
+    return;
+  }
+  echoCurrentPlayingId = id;
+  if(!echoAudioPlayer.src || echoAudioPlayer.src !== url){
+    echoAudioPlayer.src = url;
+  }
+  echoAudioPlayer.currentTime = 0;
+  echoAudioPlayer.play().catch(err => {
+    console.error('No se pudo reproducir la nota de voz:', err);
+    alert('No se pudo reproducir el audio, revisa tu conexión.');
+  });
+}
+
+echoMessagesList.addEventListener('click', function(e){
+  const btn = e.target.closest('[data-play-audio]');
+  if(!btn) return;
+  const bubble = btn.closest('.echo-audio-bubble');
+  echoPlayAudio(btn.dataset.playAudio, bubble.dataset.audioUrl);
+});
+
+echoAudioPlayer.addEventListener('play', echoSyncPlayingUI);
+echoAudioPlayer.addEventListener('pause', echoSyncPlayingUI);
+echoAudioPlayer.addEventListener('ended', function(){
+  echoCurrentPlayingId = null;
+  echoSyncPlayingUI();
+});
+echoAudioPlayer.addEventListener('timeupdate', function(){
+  if(!echoCurrentPlayingId || echoAudioPlayer.paused) return;
+  const durEl = document.querySelector(`.echo-audio-play[data-play-audio="${echoCurrentPlayingId}"]`)
+    ?.closest('.echo-audio-bubble')?.querySelector('.echo-audio-duration');
+  if(durEl) durEl.textContent = echoFormatDuration(echoAudioPlayer.currentTime);
+});
+
+/* ---- grabación real (MediaRecorder) + subida a Firebase Storage ---- */
+let echoMediaRecorder = null;
+let echoAudioChunks = [];
+let echoRecordingStartedAt = 0;
+let echoIsRecording = false;
+let echoRecordingStream = null;
+let echoMaxDurationTimer = null;
+const ECHO_MAX_RECORDING_SEC = 60; // tope para no pasarnos del límite de 1MB por documento en Firestore
+
+function echoPickMimeType(){
+  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+  if(!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+  for(const type of candidates){
+    if(MediaRecorder.isTypeSupported(type)) return type;
+  }
+  return '';
+}
+
+async function echoStartRecording(){
+  if(echoSendBtn.classList.contains('has-text') || echoIsRecording) return;
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder){
+    alert('Tu navegador no permite grabar audio aquí. Prueba desde Chrome o Safari actualizados.');
+    return;
+  }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    echoRecordingStream = stream;
+    const mimeType = echoPickMimeType();
+    echoMediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    echoAudioChunks = [];
+
+    echoMediaRecorder.addEventListener('dataavailable', function(e){
+      if(e.data && e.data.size > 0) echoAudioChunks.push(e.data);
+    });
+    echoMediaRecorder.addEventListener('stop', function(){
+      stream.getTracks().forEach(t => t.stop());
+      echoRecordingStream = null;
+      clearTimeout(echoMaxDurationTimer);
+      const durationSec = (Date.now() - echoRecordingStartedAt) / 1000;
+      if(durationSec < 0.8 || !echoAudioChunks.length){
+        // toque accidental / demasiado corto: se descarta sin guardar nada
+        return;
+      }
+      const blob = new Blob(echoAudioChunks, { type: echoMediaRecorder.mimeType || 'audio/webm' });
+      echoSaveAudioMessage(blob, durationSec);
+    });
+
+    echoMediaRecorder.start();
+    echoRecordingStartedAt = Date.now();
+    echoIsRecording = true;
+    document.getElementById('echoRecordingLabel').textContent = 'Grabando…';
+    echoRecordingIndicator.classList.add('show');
+
+    // corte de seguridad: si se queda pegado el dedo, no seguimos grabando para
+    // siempre (además de la duración, esto evita notas gigantes en Firestore)
+    echoMaxDurationTimer = setTimeout(echoStopRecording, ECHO_MAX_RECORDING_SEC * 1000);
+  }catch(err){
+    console.error('No se pudo acceder al micrófono:', err);
+    alert('No se pudo acceder al micrófono. Revisa los permisos de tu navegador.');
+  }
+}
+
+function echoStopRecording(){
+  if(!echoIsRecording) return;
+  echoIsRecording = false;
+  clearTimeout(echoMaxDurationTimer);
+  if(echoMediaRecorder && echoMediaRecorder.state !== 'inactive'){
+    echoMediaRecorder.stop();
+  } else if(echoRecordingStream){
+    echoRecordingStream.getTracks().forEach(t => t.stop());
+  }
   echoRecordingIndicator.classList.remove('show');
 }
-echoSendBtn.addEventListener('mousedown', echoStartRecordingMock);
-echoSendBtn.addEventListener('touchstart', echoStartRecordingMock, {passive:true});
-echoSendBtn.addEventListener('mouseup', echoStopRecordingMock);
-echoSendBtn.addEventListener('mouseleave', echoStopRecordingMock);
-echoSendBtn.addEventListener('touchend', echoStopRecordingMock);
+
+/* Firebase Storage no está disponible en el plan gratuito Spark, así que
+   el audio (ya comprimido en opus/webm por el propio navegador) se guarda
+   como base64 directo en el mensaje — el mismo truco que ya usa la foto
+   de perfil. Los documentos de Firestore tienen un límite de 1MB, por eso
+   se limita la duración y se valida el tamaño antes de guardar. */
+function echoSaveAudioMessage(blob, durationSec){
+  const myKey = myKeyNow();
+  if(!myKey) return;
+  const label = document.getElementById('echoRecordingLabel');
+  label.textContent = 'Guardando audio…';
+  echoRecordingIndicator.classList.add('show');
+
+  const reader = new FileReader();
+  reader.onloadend = function(){
+    const base64 = reader.result;
+    // ~900KB de margen de seguridad bajo el 1MB máximo por documento
+    if(base64.length > 900000){
+      echoRecordingIndicator.classList.remove('show');
+      alert('Esa nota de voz quedó muy pesada. Intenta grabar algo un poco más corto.');
+      return;
+    }
+    db.collection('echoMessages').add({
+      sender: myKey,
+      type: 'audio',
+      audioURL: base64,
+      duration: durationSec,
+      read: false,
+      readAt: null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      createNotification('echo_message', { preview: '🎙️ Nota de voz' });
+    }).catch(function(err){
+      console.error('No se pudo guardar la nota de voz:', err);
+      alert('No se pudo enviar la nota de voz, revisa tu conexión.');
+    }).finally(function(){
+      echoRecordingIndicator.classList.remove('show');
+    });
+  };
+  reader.onerror = function(){
+    echoRecordingIndicator.classList.remove('show');
+    alert('No se pudo procesar el audio grabado, intenta de nuevo.');
+  };
+  reader.readAsDataURL(blob);
+}
+
+echoSendBtn.addEventListener('mousedown', echoStartRecording);
+echoSendBtn.addEventListener('touchstart', echoStartRecording, {passive:true});
+echoSendBtn.addEventListener('mouseup', echoStopRecording);
+echoSendBtn.addEventListener('mouseleave', echoStopRecording);
+echoSendBtn.addEventListener('touchend', echoStopRecording);
+echoSendBtn.addEventListener('touchcancel', echoStopRecording);
 
 /* zumbido "Te extraño": vibra y sacude localmente, y ahora sí llega en vivo
    al celular de la otra persona (vía Firestore) más una notificación en la campanita */
