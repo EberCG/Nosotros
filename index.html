@@ -643,6 +643,8 @@
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
     color:var(--txt-1);font-size:1.15rem;margin:0 0 12px;text-align:center;
   }
+  .recuerdos-top-row{display:flex;align-items:center;gap:6px;margin:0 0 14px;}
+  .recuerdos-top-spacer{width:40px;flex-shrink:0;}
   .dash-placeholder-card{
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
@@ -1321,6 +1323,10 @@
     font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
     color:var(--txt-1);font-size:1.1rem;margin:0 0 10px;
   }
+  .capsule-author-line{
+    color:var(--pink-glow);font-size:.72rem;font-weight:600;
+    font-family:'Quicksand',sans-serif;margin:-4px 0 12px;
+  }
   .capsule-countdown{
     color:var(--pink-glow);font-size:1rem;font-weight:600;
     font-family:'Quicksand',sans-serif;letter-spacing:.3px;margin:0;
@@ -1539,6 +1545,10 @@
     outline:none;resize:vertical;
   }
   .mail-editor-modal input:focus, .mail-editor-modal textarea:focus{border-color:var(--accent-violet);}
+  .capsule-editor-hint{
+    color:#ff8a8a;font-size:.72rem;margin:8px 0 0;min-height:1.1em;
+    font-family:'Quicksand',sans-serif;
+  }
 
   /* ---------- ESCENA: PERFIL ---------- */
   #scene-perfil{background:var(--page-bg);}
@@ -2199,11 +2209,22 @@
 
       <!-- pestaña: recuerdos -->
       <div class="dash-tab-panel" id="dash-tab-recuerdos">
-        <p class="dash-section-title">Recuerdos</p>
+        <div class="recuerdos-top-row">
+          <span class="recuerdos-top-spacer"></span>
+          <p class="dash-section-title" style="margin:0;flex:1;">Recuerdos</p>
+          <button class="notif-heart-btn" id="capsuleNewBtn" title="Nueva cápsula">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="8.5"/>
+              <path d="M12 8v4l3 2"/>
+              <path d="M12 2.5v2M9.5 2.8l.6 1.9M14.5 2.8l-.6 1.9"/>
+            </svg>
+          </button>
+        </div>
 
         <div class="capsule-card" id="capsuleCard">
           <div class="capsule-lock-icon" id="capsuleLockIcon">🔒</div>
           <p class="capsule-title" id="capsuleTitle">Cápsula del Tiempo</p>
+          <p class="capsule-author-line" id="capsuleAuthorLine" style="display:none;"></p>
           <p class="capsule-countdown" id="capsuleCountdown">Cargando…</p>
           <div class="capsule-reveal" id="capsuleReveal" style="display:none;">
             <img class="capsule-image" id="capsuleImage" style="display:none;">
@@ -2534,8 +2555,29 @@
   </div>
 </div>
 
+<!-- ---------- MODAL: nueva cápsula del tiempo (para ambos perfiles) ---------- -->
+<div class="note-modal-overlay" id="capsuleEditorOverlay">
+  <div class="note-modal mail-editor-modal">
+    <p class="title">Nueva cápsula del tiempo</p>
+    <label>Se abre el día</label>
+    <input type="date" id="capsuleDateInput">
+    <label>A esta hora</label>
+    <input type="time" id="capsuleTimeInput">
+    <label>Título</label>
+    <input type="text" id="capsuleTitleInput" placeholder="Un secreto para el futuro...">
+    <label>Contenido (deja una línea en blanco entre párrafos)</label>
+    <textarea id="capsuleContentInput" rows="7" placeholder="Escribe lo que quieras que leamos cuando se abra..."></textarea>
+    <p class="capsule-editor-hint" id="capsuleEditorHint"></p>
+    <div class="note-modal-actions">
+      <button class="action-btn secondary" id="cancelCapsuleEditorBtn" style="margin:0;">Cancelar</button>
+      <button class="action-btn" id="publishCapsuleBtn" style="margin:0;">Publicar cápsula</button>
+    </div>
+  </div>
+</div>
+
 <!-- ---------- CARTA RECIBIDA (buzón mutuo): mismo pergamino que la carta sorpresa ---------- -->
 <div class="letter-overlay" id="mailLetterOverlay">
+
   <div class="letter-warning" id="mailLetterWarning">
     <div class="letter-warning-icon">💌</div>
     <p class="title">Tienes una carta nueva</p>
@@ -2767,7 +2809,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-38";
+const APP_VERSION = "2026-07-25-40";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3935,6 +3977,7 @@ function formatCountdown(ms){
 function renderCapsule(data){
   const lockIcon = document.getElementById('capsuleLockIcon');
   const title = document.getElementById('capsuleTitle');
+  const authorLine = document.getElementById('capsuleAuthorLine');
   const countdown = document.getElementById('capsuleCountdown');
   const reveal = document.getElementById('capsuleReveal');
   const image = document.getElementById('capsuleImage');
@@ -3945,9 +3988,20 @@ function renderCapsule(data){
   if(!data || !data.unlockDate){
     lockIcon.textContent = '🔒';
     title.textContent = 'Cápsula del Tiempo';
+    authorLine.style.display = 'none';
     countdown.textContent = 'Aún no hay ninguna cápsula guardada.';
     reveal.style.display = 'none';
     return;
+  }
+
+  // el nombre de quien la publicó se muestra tal cual la cuenta (Admin/Mor),
+  // no el apodo cariñoso, para que quede claro quién dejó la sorpresa
+  if(data.author){
+    const authorLabel = data.author.toLowerCase() === 'admin' ? 'Admin' : 'Mor';
+    authorLine.textContent = `Dejada por ${authorLabel} 💌`;
+    authorLine.style.display = 'block';
+  } else {
+    authorLine.style.display = 'none';
   }
 
   const unlockTime = new Date(data.unlockDate).getTime();
@@ -3987,9 +4041,10 @@ function loadCapsule(){
     const data = doc.exists ? doc.data() : null;
     renderCapsule(data);
 
-    // La cápsula se configura fuera de la app (consola de Firestore), así que
-    // detectamos cambios de "unlockDate" para avisar solo una vez por cápsula
-    // nueva, sin generar un aviso retroactivo la primera vez que se activa esto.
+    // La cápsula puede llegar por dos vías: publicada desde el editor de la
+    // app (que ya guarda notifiedFor junto con el resto, ver publishCapsule),
+    // o editada a mano en la consola de Firestore — para ese segundo caso
+    // seguimos detectando cambios de "unlockDate" para avisar una sola vez.
     if(data && data.unlockDate){
       if(data.notifiedFor === undefined){
         db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
@@ -4012,6 +4067,80 @@ function loadCapsule(){
     document.getElementById('capsuleCountdown').textContent = 'No se pudo cargar.';
   });
 }
+
+/* ---------- EDITOR DE CÁPSULA NUEVA (disponible para Admin y Mor) ---------- */
+const capsuleEditorOverlay = document.getElementById('capsuleEditorOverlay');
+const capsuleEditorHint = document.getElementById('capsuleEditorHint');
+
+function openCapsuleEditor(){
+  document.getElementById('capsuleDateInput').value = '';
+  document.getElementById('capsuleTimeInput').value = '';
+  document.getElementById('capsuleTitleInput').value = '';
+  document.getElementById('capsuleContentInput').value = '';
+  capsuleEditorHint.textContent = '';
+  capsuleEditorOverlay.classList.add('show');
+}
+function closeCapsuleEditor(){
+  capsuleEditorOverlay.classList.remove('show');
+}
+
+document.getElementById('capsuleNewBtn').addEventListener('click', openCapsuleEditor);
+document.getElementById('cancelCapsuleEditorBtn').addEventListener('click', closeCapsuleEditor);
+
+document.getElementById('publishCapsuleBtn').addEventListener('click', function(){
+  const dateVal = document.getElementById('capsuleDateInput').value;
+  const timeVal = document.getElementById('capsuleTimeInput').value;
+  const title = document.getElementById('capsuleTitleInput').value.trim();
+  const content = document.getElementById('capsuleContentInput').value.trim();
+
+  if(!dateVal || !timeVal){
+    capsuleEditorHint.textContent = 'Elige el día y la hora en que se abrirá.';
+    return;
+  }
+  if(!content){
+    capsuleEditorHint.textContent = 'Escribe al menos el contenido de la cápsula.';
+    return;
+  }
+  const unlockDate = new Date(`${dateVal}T${timeVal}:00`);
+  if(isNaN(unlockDate.getTime())){
+    capsuleEditorHint.textContent = 'Esa fecha/hora no es válida.';
+    return;
+  }
+  if(unlockDate.getTime() <= Date.now()){
+    capsuleEditorHint.textContent = 'Elige un momento en el futuro, para que sea sorpresa 💜';
+    return;
+  }
+  if(!currentUserLabel){
+    capsuleEditorHint.textContent = 'No se detectó tu sesión, vuelve a iniciar sesión.';
+    return;
+  }
+
+  const myKey = myKeyNow();
+  const unlockISO = unlockDate.toISOString();
+  const btn = this;
+  btn.disabled = true;
+  capsuleEditorHint.textContent = '';
+
+  db.collection('capsule').doc('current').set({
+    unlockDate: unlockISO,
+    title: title || 'Cápsula del Tiempo',
+    text: content,
+    author: myKey,
+    // se guarda ya "notificado" para esta fecha porque la notificación la
+    // mandamos aquí mismo abajo; así el listener de loadCapsule() no duplica
+    // el aviso al recibir este mismo cambio en tiempo real.
+    notifiedFor: unlockISO,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    createNotification('capsule_new');
+    closeCapsuleEditor();
+  }).catch(() => {
+    capsuleEditorHint.textContent = 'No se pudo publicar, revisa tu conexión.';
+  }).finally(() => {
+    btn.disabled = false;
+  });
+});
+
 
 document.getElementById('continueBtn').addEventListener('click', function(){
   goTo('final');
