@@ -645,6 +645,18 @@
   }
   .recuerdos-top-row{display:flex;align-items:center;gap:6px;margin:0 0 14px;}
   .recuerdos-top-spacer{width:40px;flex-shrink:0;}
+  .capsule-new-btn{
+    position:relative;
+    width:40px;height:40px;padding:0;border:none;background:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .capsule-new-btn svg{
+    width:26px;height:26px;
+    fill:none;stroke:var(--accent-violet);stroke-width:1.8;
+    stroke-linecap:round;stroke-linejoin:round;
+    transition:stroke .3s ease, transform .2s ease;
+  }
+  .capsule-new-btn:hover svg{transform:scale(1.08);}
   .dash-placeholder-card{
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
@@ -2014,7 +2026,7 @@
 <div class="update-overlay" id="updateOverlay">
   <div class="update-box">
     <div class="update-spinner"></div>
-    <p>✨ ahora tenemos un chat privado aun me faltan algunas implementaciones pero funciona jsjs  </p>
+    <p>✨ audio en el chat - gifts - ya puedes crear capsulas de tiempo   </p>
   </div>
 </div>
 
@@ -2212,7 +2224,7 @@
         <div class="recuerdos-top-row">
           <span class="recuerdos-top-spacer"></span>
           <p class="dash-section-title" style="margin:0;flex:1;">Recuerdos</p>
-          <button class="notif-heart-btn" id="capsuleNewBtn" title="Nueva cápsula">
+          <button class="capsule-new-btn" id="capsuleNewBtn" title="Nueva cápsula">
             <svg viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="8.5"/>
               <path d="M12 8v4l3 2"/>
@@ -2809,7 +2821,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-40";
+const APP_VERSION = "2026-07-25-41";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
