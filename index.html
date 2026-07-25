@@ -2767,7 +2767,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-36";
+const APP_VERSION = "2026-07-25-38";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4946,12 +4946,12 @@ document.getElementById('echoPokeBtn').addEventListener('click', function(){
 });
 
 /* ---------- GIFs ----------
-   Para el buscador se usa la API gratuita de Tenor (de Google, sin
-   necesidad de plan de pago ni tarjeta). Consigue tu key gratis en
-   https://developers.google.com/tenor/guides/quickstart y pégala abajo.
-   Si la dejas vacía, el buscador queda desactivado pero se puede seguir
-   enviando cualquier GIF pegando su link directo. */
-const TENOR_API_KEY = 'nx6k47LDMFOnXrYQFmokPSBCK5W2sU0v';
+   Para el buscador se usa la API gratuita de Giphy (sin necesidad de plan
+   de pago ni tarjeta). Consigue tu key gratis en
+   https://developers.giphy.com/dashboard/ (crea una app tipo "API", no
+   "SDK") y pégala abajo. Si la dejas vacía, el buscador queda desactivado
+   pero se puede seguir enviando cualquier GIF pegando su link directo. */
+const GIPHY_API_KEY = 'nx6k47LDMFOnXrYQFmokPSBCK5W2sU0v';
 
 const echoGifOverlay = document.getElementById('echoGifOverlay');
 const echoGifGrid = document.getElementById('echoGifGrid');
@@ -4961,7 +4961,7 @@ let echoGifSearchTimer = null;
 function echoResetGifPicker(){
   echoGifSearchInput.value = '';
   document.getElementById('echoGifUrlInput').value = '';
-  if(TENOR_API_KEY){
+  if(GIPHY_API_KEY){
     echoGifGrid.innerHTML = '<p class="echo-gif-empty">Escribe algo para buscar 🔎</p>';
     echoGifSearchInput.disabled = false;
     echoGifSearchInput.placeholder = 'Busca un GIF (ej. amor, buenos días)...';
@@ -4995,17 +4995,17 @@ echoGifSearchInput.addEventListener('input', function(){
 
 function echoSearchGifs(query){
   echoGifGrid.innerHTML = '<p class="echo-gif-empty">Buscando…</p>';
-  const url = `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&key=${TENOR_API_KEY}&client_key=echo_para_ti&limit=18&media_filter=tinygif&contentfilter=medium`;
+  const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=18&rating=pg-13&lang=es`;
   fetch(url).then(r => r.json()).then(data => {
-    const results = data.results || [];
+    const results = data.data || [];
     if(!results.length){
       echoGifGrid.innerHTML = '<p class="echo-gif-empty">No encontré nada — prueba otra palabra</p>';
       return;
     }
     echoGifGrid.innerHTML = results.map(g => {
-      const formats = g.media_formats || {};
-      const thumb = (formats.tinygif || formats.gif || {}).url;
-      const full = (formats.gif || formats.tinygif || {}).url;
+      const images = g.images || {};
+      const thumb = (images.fixed_width_small || images.fixed_width || {}).url;
+      const full = (images.original || images.fixed_width || {}).url;
       if(!thumb) return '';
       return `<img src="${thumb}" data-full="${full || thumb}" loading="lazy" alt="GIF">`;
     }).join('');
