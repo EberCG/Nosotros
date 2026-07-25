@@ -1635,6 +1635,288 @@
     font-size:.8rem;cursor:pointer;font-family:'Quicksand',sans-serif;
   }
 
+  /* ================================================================
+     ░ MÓDULO "ECHO" — CHAT PRIVADO (FASE 1: VISUAL / MAQUETA)
+     Fase 1: estructura, estilo y micro-interacciones locales (esta fase).
+     Fase 2 (pendiente): Firestore en tiempo real — mensajes, "en línea",
+       escribiendo…, vistos, zumbido cross-device.
+     Fase 3 (pendiente): MediaRecorder + Firebase Storage — notas de voz.
+     ================================================================ */
+
+  /* ---- 1. botonera del buzón: 3 cápsulas ---- */
+  .buzon-cap-btn{
+    display:flex;align-items:center;gap:7px;
+    padding:12px 18px;border-radius:999px;border:none;
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter:blur(12px) saturate(180%);
+    -webkit-backdrop-filter:blur(12px) saturate(180%);
+    color:#f3e6c8;font-family:'Quicksand',sans-serif;font-weight:600;
+    font-size:.78rem;white-space:nowrap;cursor:pointer;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.2), 0 6px 16px rgba(0,0,0,0.3);
+    transition:transform .2s ease, background .2s ease;
+  }
+  .buzon-cap-btn svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .buzon-cap-btn:hover{transform:translateY(-2px);}
+  .buzon-cap-btn:active{transform:translateY(0) scale(0.96);}
+  .buzon-cap-btn.echo-btn{
+    background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
+    color:#fff;border-color:transparent;
+    box-shadow:0 8px 20px rgba(255,122,176,0.4);
+  }
+
+  /* ---- 2. overlay + bottom sheet ---- */
+  .echo-sheet-overlay{
+    position:fixed;inset:0;z-index:70;
+    background:rgba(5,4,22,0.5);
+    opacity:0;pointer-events:none;
+    transition:opacity .35s ease;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  .echo-sheet-overlay.show{opacity:1;pointer-events:auto;}
+
+  .echo-sheet{
+    position:relative;width:100%;max-width:520px;
+    height:86vh;max-height:800px;
+    background:var(--glass-2);
+    backdrop-filter:blur(22px) saturate(190%);
+    -webkit-backdrop-filter:blur(22px) saturate(190%);
+    border:1px solid var(--glass-3);
+    border-bottom:none;
+    border-top-left-radius:28px;border-top-right-radius:28px;
+    box-shadow:0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+    display:flex;flex-direction:column;overflow:hidden;
+    transform:translateY(100%);
+    transition:transform .42s cubic-bezier(.22,.8,.32,1);
+  }
+  .echo-sheet-overlay.show .echo-sheet{transform:translateY(0);}
+
+  .echo-sheet-handle{
+    width:38px;height:5px;border-radius:3px;flex-shrink:0;
+    background:var(--glass-3);
+    margin:10px auto 2px;
+    cursor:grab;
+  }
+
+  /* ---- 3. header con indicador "en línea" mágico ---- */
+  .echo-header{
+    position:relative;flex-shrink:0;
+    display:flex;align-items:center;gap:10px;
+    padding:8px 14px 14px;
+    border-bottom:1px solid var(--glass-3);
+  }
+  .echo-close-btn{
+    width:36px;height:36px;border-radius:50%;flex-shrink:0;
+    border:1px solid var(--glass-3);background:var(--glass-1);
+    color:var(--txt-1);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+  }
+  .echo-close-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;}
+
+  .echo-avatar-wrap{
+    position:relative;width:44px;height:44px;border-radius:50%;
+    padding:3px;background:var(--page-bg);flex-shrink:0;
+  }
+  .echo-avatar-wrap::before{
+    content:'';position:absolute;inset:-3px;border-radius:50%;z-index:0;
+    background:conic-gradient(from 0deg, transparent 0%, var(--pink-glow) 18%, var(--accent-violet) 40%, transparent 58%, transparent 100%);
+    opacity:0;
+    animation:echo-online-spin 2.2s linear infinite;
+    transition:opacity .4s ease;
+  }
+  .echo-avatar-wrap.online::before{opacity:1;}
+  @keyframes echo-online-spin{ to{ transform:rotate(360deg); } }
+  .echo-avatar{
+    position:relative;z-index:1;display:block;
+    width:100%;height:100%;border-radius:50%;object-fit:cover;
+    background:var(--glass-3);
+  }
+  .echo-avatar-placeholder{
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.2rem;color:var(--txt-2);
+  }
+
+  .echo-header-info{display:flex;flex-direction:column;min-width:0;}
+  .echo-header-name{
+    margin:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--txt-1);font-size:1.08rem;
+  }
+  .echo-header-status{
+    margin:0;font-size:.68rem;font-family:'Quicksand',sans-serif;
+    color:var(--txt-3);transition:color .3s ease;
+  }
+  .echo-header-status.online{color:var(--pink-glow);}
+
+  /* ---- 4. área de mensajes: burbujas efecto agua ---- */
+  .echo-messages{
+    flex:1;overflow-y:auto;
+    padding:16px 14px 6px;
+    display:flex;flex-direction:column;gap:9px;
+  }
+  .echo-bubble-row{display:flex;}
+  .echo-bubble-row.sent{justify-content:flex-end;}
+  .echo-bubble-row.received{justify-content:flex-start;}
+  .echo-empty-msg{
+    text-align:center;color:var(--txt-3);font-size:.8rem;
+    font-family:'Quicksand',sans-serif;margin-top:30px;
+  }
+
+  .echo-bubble{
+    max-width:76%;padding:10px 14px;
+    color:var(--txt-1);font-family:'Quicksand',sans-serif;font-size:.86rem;line-height:1.42;
+    border:1px solid rgba(255,255,255,0.16);
+    backdrop-filter:blur(14px) saturate(160%);
+    -webkit-backdrop-filter:blur(14px) saturate(160%);
+    animation:echo-blob-r 10s ease-in-out infinite;
+  }
+  .echo-bubble-row.sent .echo-bubble{animation-name:echo-blob-s;}
+  @keyframes echo-blob-r{
+    0%,100%{border-radius:22px 22px 22px 6px;}
+    25%{border-radius:26px 18px 24px 10px;}
+    50%{border-radius:18px 24px 16px 22px;}
+    75%{border-radius:24px 20px 22px 14px;}
+  }
+  @keyframes echo-blob-s{
+    0%,100%{border-radius:22px 22px 6px 22px;}
+    25%{border-radius:18px 26px 10px 24px;}
+    50%{border-radius:24px 18px 22px 16px;}
+    75%{border-radius:20px 24px 14px 22px;}
+  }
+  .echo-bubble.echo-c-blue{background:rgba(70,140,255,0.26);border-color:rgba(130,175,255,0.4);}
+  .echo-bubble.echo-c-violet{background:rgba(178,133,255,0.26);border-color:rgba(200,165,255,0.4);}
+
+  .echo-bubble-text{margin:0;word-break:break-word;}
+  .echo-bubble-meta{
+    display:flex;align-items:center;justify-content:flex-end;gap:5px;
+    margin-top:4px;
+  }
+  .echo-bubble-time{font-size:.62rem;color:var(--txt-3);}
+  .echo-bubble-heart{font-size:.72rem;filter:grayscale(0.15);transition:transform .2s ease;}
+  .echo-bubble-heart.read{animation:echo-heart-pop .4s ease;}
+  @keyframes echo-heart-pop{ 0%{transform:scale(0.6);} 60%{transform:scale(1.25);} 100%{transform:scale(1);} }
+
+  /* burbuja de audio (maqueta visual — Fase 3 conectará la grabación real) */
+  .echo-audio-bubble{display:flex;align-items:center;gap:8px;padding:9px 14px;}
+  .echo-audio-play{
+    width:28px;height:28px;border-radius:50%;flex-shrink:0;border:none;
+    background:rgba(255,255,255,0.25);color:var(--txt-1);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .echo-audio-play svg{width:12px;height:12px;fill:currentColor;}
+  .echo-audio-wave{display:flex;align-items:center;gap:2px;height:18px;flex:1;}
+  .echo-audio-wave span{
+    width:2.5px;border-radius:2px;background:var(--txt-1);opacity:.55;
+    animation:echo-wave-bar 1.6s ease-in-out infinite;
+  }
+  .echo-audio-wave span:nth-child(1){height:40%;animation-delay:-1.4s;}
+  .echo-audio-wave span:nth-child(2){height:70%;animation-delay:-1.2s;}
+  .echo-audio-wave span:nth-child(3){height:100%;animation-delay:-1.0s;}
+  .echo-audio-wave span:nth-child(4){height:55%;animation-delay:-0.8s;}
+  .echo-audio-wave span:nth-child(5){height:85%;animation-delay:-0.6s;}
+  .echo-audio-wave span:nth-child(6){height:45%;animation-delay:-0.4s;}
+  .echo-audio-wave span:nth-child(7){height:65%;animation-delay:-0.2s;}
+  @keyframes echo-wave-bar{ 0%,100%{transform:scaleY(0.5);} 50%{transform:scaleY(1);} }
+  .echo-audio-duration{font-size:.66rem;color:var(--txt-3);flex-shrink:0;}
+
+  /* ---- indicador "escribiendo…" ---- */
+  .echo-typing-row{
+    display:flex;justify-content:flex-start;
+    opacity:0;max-height:0;overflow:hidden;
+    transition:opacity .3s ease, max-height .3s ease;
+  }
+  .echo-typing-row.show{opacity:1;max-height:40px;}
+  .echo-typing-bubble{
+    display:flex;align-items:center;gap:7px;
+    padding:8px 14px;border-radius:18px 18px 18px 6px;
+    background:var(--glass-2);border:1px solid var(--glass-3);
+    color:var(--txt-3);font-size:.72rem;font-family:'Quicksand',sans-serif;font-style:italic;
+  }
+  .echo-typing-dots{display:inline-flex;gap:3px;}
+  .echo-typing-dots i{
+    width:5px;height:5px;border-radius:50%;background:var(--pink-glow);
+    display:block;animation:echo-typing-bounce 1.1s ease-in-out infinite;
+  }
+  .echo-typing-dots i:nth-child(2){animation-delay:.15s;}
+  .echo-typing-dots i:nth-child(3){animation-delay:.3s;}
+  @keyframes echo-typing-bounce{
+    0%,60%,100%{transform:translateY(0);opacity:.5;}
+    30%{transform:translateY(-4px);opacity:1;}
+  }
+
+  /* ---- indicador de grabación (maqueta — Fase 3) ---- */
+  .echo-recording-indicator{
+    display:none;align-items:center;gap:8px;justify-content:center;
+    padding:8px;margin:0 14px;border-radius:14px;
+    background:rgba(230,53,95,0.14);border:1px solid rgba(230,53,95,0.35);
+    color:#ff8a9a;font-family:'Quicksand',sans-serif;font-size:.78rem;font-weight:600;
+    flex-shrink:0;
+  }
+  .echo-recording-indicator.show{display:flex;}
+  .echo-rec-dot{
+    width:9px;height:9px;border-radius:50%;background:#ff3b5c;
+    animation:echo-rec-blink 1s ease-in-out infinite;
+  }
+  @keyframes echo-rec-blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+  /* ---- 5. barra de envío ---- */
+  .echo-input-bar{
+    display:flex;align-items:center;gap:8px;flex-shrink:0;
+    padding:10px 12px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--glass-3);
+  }
+  .echo-poke-btn{
+    width:42px;height:42px;border-radius:50%;flex-shrink:0;
+    border:1px solid var(--glass-3);background:var(--glass-1);
+    color:var(--pink-glow);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:transform .15s ease;
+  }
+  .echo-poke-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .echo-poke-btn:active{transform:scale(0.9);}
+  .echo-poke-btn.buzz{animation:echo-shake .5s ease;}
+  @keyframes echo-shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-4px) rotate(-6deg);}
+    40%{transform:translateX(4px) rotate(6deg);}
+    60%{transform:translateX(-3px) rotate(-4deg);}
+    80%{transform:translateX(3px) rotate(4deg);}
+  }
+  .echo-sheet.echo-shake-screen{animation:echo-shake-screen .5s ease;}
+  @keyframes echo-shake-screen{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);}
+    40%{transform:translateX(6px);}
+    60%{transform:translateX(-4px);}
+    80%{transform:translateX(4px);}
+  }
+
+  .echo-input-pill{
+    flex:1;display:flex;align-items:center;min-width:0;
+    background:var(--glass-2);border:1px solid var(--glass-3);
+    border-radius:25px;padding:2px 4px;
+  }
+  .echo-input-pill input{
+    flex:1;min-width:0;border:none;background:transparent;outline:none;
+    padding:10px 14px;color:var(--txt-1);font-family:'Quicksand',sans-serif;font-size:.9rem;
+  }
+  .echo-input-pill input::placeholder{color:var(--txt-3);}
+
+  .echo-send-btn{
+    position:relative;width:42px;height:42px;border-radius:50%;flex-shrink:0;
+    border:none;background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:transform .15s ease;
+  }
+  .echo-send-btn:active{transform:scale(0.9);}
+  .echo-send-btn svg{
+    position:absolute;width:19px;height:19px;fill:none;stroke:#fff;
+    stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .echo-send-btn .echo-icon-send{opacity:0;transform:scale(0.5) rotate(-20deg);}
+  .echo-send-btn .echo-icon-mic{opacity:1;transform:scale(1);}
+  .echo-send-btn.has-text .echo-icon-send{opacity:1;transform:scale(1) rotate(0deg);}
+  .echo-send-btn.has-text .echo-icon-mic{opacity:0;transform:scale(0.5);}
+
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:0.001s !important; animation-iteration-count:1 !important;}
   }
@@ -1661,7 +1943,7 @@
 <div class="update-overlay" id="updateOverlay">
   <div class="update-box">
     <div class="update-spinner"></div>
-    <p>✨ Actualizacion V.30 Barra de navegacion y notificaciones mor  </p>
+    <p>✨ ahora tenemos un chat privado aun me faltan algunas implementaciones pero funciona jsjs  </p>
   </div>
 </div>
 
@@ -1958,8 +2240,18 @@
       </div>
     </div>
     <div class="buzon-actions-row">
-      <button class="add-note-btn" id="addNoteBtn">+ Añadir nota</button>
-      <button class="add-note-btn" id="newMailLetterBtn" style="background:linear-gradient(135deg,#8a5a34,#5c3a20);">✉️ Nueva carta</button>
+      <button class="buzon-cap-btn" id="addNoteBtn">
+        <svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.2L16.5 4.5a1.8 1.8 0 0 1 2.5 0l1 1a1.8 1.8 0 0 1 0 2.5L8.7 19.3z"/><path d="M14.5 6.5l3 3"/></svg>
+        Nueva nota
+      </button>
+      <button class="buzon-cap-btn" id="newMailLetterBtn">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
+        Nueva Carta
+      </button>
+      <button class="buzon-cap-btn echo-btn" id="echoOpenBtn">
+        <svg viewBox="0 0 24 24"><path d="M4 12.5C4 8 7.8 4.5 12.4 4.5S20.8 8 20.8 12.5c0 4.5-3.8 8-8.4 8-1 0-2-.15-2.9-.45L5 21.5l1.1-3.4A7.7 7.7 0 0 1 4 12.5z"/></svg>
+        Echo
+      </button>
     </div>
 
     <nav class="bottom-nav">
@@ -2209,6 +2501,57 @@
   </div>
 </div>
 
+<!-- ---------- MÓDULO ECHO: chat privado (bottom sheet) — Fase 1 visual ---------- -->
+<div class="echo-sheet-overlay" id="echoSheetOverlay">
+  <div class="echo-sheet" id="echoSheet">
+    <div class="echo-sheet-handle"></div>
+
+    <div class="echo-header">
+      <button class="echo-close-btn" id="echoCloseBtn" title="Cerrar">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="echo-avatar-wrap" id="echoAvatarWrap">
+        <div class="echo-avatar echo-avatar-placeholder" id="echoAvatarPlaceholder">🤍</div>
+        <img class="echo-avatar" id="echoAvatarImg" alt="" style="display:none;">
+      </div>
+      <div class="echo-header-info">
+        <p class="echo-header-name" id="echoHeaderName">—</p>
+        <p class="echo-header-status" id="echoHeaderStatus">conectando…</p>
+      </div>
+    </div>
+
+    <div class="echo-messages" id="echoMessages">
+      <div id="echoMessagesList">
+        <p class="echo-empty-msg" id="echoEmptyMsg">Aún no hay mensajes — escribe el primero 💬</p>
+      </div>
+
+      <div class="echo-typing-row" id="echoTypingRow">
+        <div class="echo-typing-bubble">
+          <span id="echoTypingLabel">escribiendo</span>
+          <span class="echo-typing-dots"><i></i><i></i><i></i></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="echo-recording-indicator" id="echoRecordingIndicator">
+      <span class="echo-rec-dot"></span> Grabando… (Fase 3 — aún no se sube el audio)
+    </div>
+
+    <div class="echo-input-bar">
+      <button class="echo-poke-btn" id="echoPokeBtn" title="Zumbido: Te extraño">
+        <svg viewBox="0 0 24 24"><path d="M12 20.2s-7.2-4.4-9.6-8.8C.8 7.9 2.9 4.3 6.5 4.3c2 0 3.6 1.1 4.5 2.6.9-1.5 2.5-2.6 4.5-2.6 3.6 0 5.7 3.6 4.1 7.1-2.4 4.4-9.6 8.8-9.6 8.8z"/></svg>
+      </button>
+      <div class="echo-input-pill">
+        <input type="text" id="echoTextInput" placeholder="Escribe algo bonito..." autocomplete="off">
+      </div>
+      <button class="echo-send-btn" id="echoSendBtn" title="Mantén presionado para grabar audio (Fase 3)">
+        <svg class="echo-icon-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v3.5"/><path d="M9 20.5h6"/></svg>
+        <svg class="echo-icon-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ================================================================
     JAVASCRIPT 
@@ -2343,7 +2686,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-23-34";
+const APP_VERSION = "2026-07-25-35";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -2499,6 +2842,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       checkLetter(); // la carta sorpresa original solo se revisa/aparece para ella, nunca con la cuenta admin
     }
     startMailLetterListener(); // el buzón de cartas mutuas sí aplica para ambas cuentas
+    initEchoModule(); // módulo Echo: presencia, avatar, mensajes, escribiendo… y zumbido
     document.getElementById('bgMusic').play().catch(() => {});
   } else {
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
@@ -2816,6 +3160,8 @@ function notifIconFor(type){
     case 'mood': return '💭';
     case 'capsule_new': return '⏳';
     case 'letter_new': return '📜';
+    case 'echo_poke': return '🥺';
+    case 'echo_message': return '💬';
     default: return '🔔';
   }
 }
@@ -2829,6 +3175,8 @@ function notifTextFor(item){
     case 'mood': return `${actor} se siente hoy: ${meta.emoji || ''} ${meta.label || ''}`.trim();
     case 'capsule_new': return `${actor} agregó una nueva cápsula de tiempo`;
     case 'letter_new': return `${actor} te mandó una carta 💌`;
+    case 'echo_poke': return `${actor} te mandó un zumbido, te extraña 🥺`;
+    case 'echo_message': return `${actor} en Echo: "${meta.preview || ''}"`;
     default: return `${actor} hizo algo nuevo`;
   }
 }
@@ -3982,7 +4330,349 @@ document.getElementById('installBtn').addEventListener('click', async () => {
 window.addEventListener('appinstalled', () => {
   document.getElementById('installBtn').classList.remove('show');
 });
+
+/* ================================================================
+   MÓDULO "ECHO" — FASE 2 (tiempo real con Firestore)
+   Colecciones usadas:
+   - echoMessages: {sender:'admin'|'mor', type:'text'|'audio', text,
+       audioURL, read, readAt, createdAt}
+   - presence/{key}: {online, lastSeen}
+   - typing/{key}: {typing, updatedAt}
+   - echoPokes/{recipientKey}: {from, ts}  (el "zumbido")
+   - users/{key}.photoURL ya existe (foto que cada quien sube en Perfil)
+   Fase 3 (pendiente): grabar audio real con MediaRecorder + Storage,
+   y que los mensajes type:'audio' usen audioURL en vez de text.
+   ================================================================ */
+const echoSheetOverlay = document.getElementById('echoSheetOverlay');
+const echoSheet = document.getElementById('echoSheet');
+const echoMessagesScroll = document.getElementById('echoMessages');
+const echoMessagesList = document.getElementById('echoMessagesList');
+const echoTypingRow = document.getElementById('echoTypingRow');
+const echoTypingLabel = document.getElementById('echoTypingLabel');
+const echoTextInput = document.getElementById('echoTextInput');
+const echoSendBtn = document.getElementById('echoSendBtn');
+const echoRecordingIndicator = document.getElementById('echoRecordingIndicator');
+
+let echoModuleStarted = false;
+let echoAvatarListenerStarted = false;
+let echoPresenceListenerStarted = false;
+let echoMessagesListenerStarted = false;
+let echoTypingListenerStarted = false;
+let echoPokeListenerStarted = false;
+let echoLastMessagesSnapshotAt = 0;
+
+function echoFormatTime(date){
+  return date.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'});
+}
+
+/* ---- foto de perfil real (misma que se sube en la sección Perfil) ---- */
+function startEchoAvatarListener(otherKey){
+  if(echoAvatarListenerStarted) return;
+  echoAvatarListenerStarted = true;
+  db.collection('users').doc(otherKey).onSnapshot(doc => {
+    const img = document.getElementById('echoAvatarImg');
+    const placeholder = document.getElementById('echoAvatarPlaceholder');
+    const data = doc.exists ? doc.data() : null;
+    if(data && data.photoURL){
+      img.src = data.photoURL;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      placeholder.style.display = 'flex';
+    }
+  }, err => {
+    console.error('No se pudo cargar la foto de perfil en Echo (revisa las reglas de Firestore para "users"):', err);
+  });
+}
+
+/* ---- presencia "en línea" ---- */
+function startEchoPresenceListener(otherKey){
+  if(echoPresenceListenerStarted) return;
+  echoPresenceListenerStarted = true;
+  db.collection('presence').doc(otherKey).onSnapshot(doc => {
+    const wrap = document.getElementById('echoAvatarWrap');
+    const status = document.getElementById('echoHeaderStatus');
+    const data = doc.exists ? doc.data() : null;
+    const lastSeenMs = (data && data.lastSeen && data.lastSeen.toMillis) ? data.lastSeen.toMillis() : 0;
+    const isFresh = (Date.now() - lastSeenMs) < 45000; // considerar "en línea" solo si tiene señal reciente
+    const online = !!(data && data.online && isFresh);
+    wrap.classList.toggle('online', online);
+    status.classList.toggle('online', online);
+    if(online){
+      status.textContent = 'en línea';
+    } else if(lastSeenMs){
+      status.textContent = 'últ. vez ' + echoFormatTime(new Date(lastSeenMs));
+    } else {
+      status.textContent = 'sin conexión';
+    }
+  }, err => {
+    console.error('No se pudo leer la presencia (revisa las reglas de Firestore para "presence"):', err);
+  });
+}
+
+let echoPresenceHeartbeatInterval = null;
+function echoSetPresence(online){
+  const myKey = myKeyNow();
+  if(!myKey) return;
+  db.collection('presence').doc(myKey).set({
+    online: online,
+    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+  }, {merge:true}).catch(() => {});
+}
+function startEchoPresenceHeartbeat(){
+  echoSetPresence(true);
+  if(echoPresenceHeartbeatInterval) clearInterval(echoPresenceHeartbeatInterval);
+  echoPresenceHeartbeatInterval = setInterval(() => {
+    if(document.visibilityState === 'visible') echoSetPresence(true);
+  }, 20000);
+  document.addEventListener('visibilitychange', () => {
+    echoSetPresence(document.visibilityState === 'visible');
+  });
+  window.addEventListener('pagehide', () => echoSetPresence(false));
+  window.addEventListener('beforeunload', () => echoSetPresence(false));
+}
+
+/* ---- mensajes en vivo ---- */
+function echoRenderBubble(msg, myKey){
+  const mine = msg.sender === myKey;
+  const colorClass = (msg.sender === 'admin') ? 'echo-c-blue' : 'echo-c-violet';
+  const date = msg.createdAt && msg.createdAt.toDate ? msg.createdAt.toDate() : new Date();
+  const timeStr = echoFormatTime(date);
+
+  if(msg.type === 'audio' && msg.audioURL){
+    return `
+      <div class="echo-bubble-row ${mine ? 'sent' : 'received'}">
+        <div class="echo-bubble echo-audio-bubble ${colorClass}" data-audio-url="${msg.audioURL}">
+          <button class="echo-audio-play" data-play-audio="${msg.id}"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8V4z"/></svg></button>
+          <div class="echo-audio-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <span class="echo-audio-duration">${timeStr}</span>
+        </div>
+      </div>`;
+  }
+
+  const heart = mine ? `<span class="echo-bubble-heart ${msg.read ? 'read' : ''}">${msg.read ? '💖' : '🤍'}</span>` : '';
+  const text = (msg.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `
+    <div class="echo-bubble-row ${mine ? 'sent' : 'received'}">
+      <div class="echo-bubble ${colorClass}">
+        <p class="echo-bubble-text">${text}</p>
+        <div class="echo-bubble-meta"><span class="echo-bubble-time">${timeStr}</span>${heart}</div>
+      </div>
+    </div>`;
+}
+
+function startEchoMessagesListener(){
+  if(echoMessagesListenerStarted) return;
+  echoMessagesListenerStarted = true;
+  db.collection('echoMessages').orderBy('createdAt', 'asc').limitToLast(150).onSnapshot(snap => {
+    const myKey = myKeyNow();
+    if(!myKey) return;
+
+    if(snap.empty){
+      echoMessagesList.innerHTML = '<p class="echo-empty-msg" id="echoEmptyMsg">Aún no hay mensajes — escribe el primero 💬</p>';
+    } else {
+      let html = '';
+      const toMarkRead = [];
+      snap.forEach(doc => {
+        const msg = Object.assign({ id: doc.id }, doc.data());
+        html += echoRenderBubble(msg, myKey);
+        if(msg.sender !== myKey && !msg.read && echoSheetOverlay.classList.contains('show')){
+          toMarkRead.push(doc.id);
+        }
+      });
+      echoMessagesList.innerHTML = html;
+
+      if(toMarkRead.length){
+        const batch = db.batch();
+        toMarkRead.forEach(id => {
+          batch.update(db.collection('echoMessages').doc(id), {
+            read: true,
+            readAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+        batch.commit().catch(() => {});
+      }
+    }
+
+    if(echoSheetOverlay.classList.contains('show')){
+      requestAnimationFrame(() => { echoMessagesScroll.scrollTop = echoMessagesScroll.scrollHeight; });
+    }
+  }, err => {
+    console.error('No se pudieron leer los mensajes de Echo (revisa las reglas de Firestore para "echoMessages"):', err);
+  });
+}
+
+function echoSendMessage(text){
+  const myKey = myKeyNow();
+  if(!myKey || !text.trim()) return;
+  db.collection('echoMessages').add({
+    sender: myKey,
+    type: 'text',
+    text: text.trim(),
+    read: false,
+    readAt: null,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    createNotification('echo_message', { preview: text.trim().slice(0, 60) });
+  }).catch(() => {
+    alert('No se pudo enviar el mensaje, revisa tu conexión.');
+  });
+  echoSetTyping(false);
+}
+
+/* ---- "escribiendo…" ---- */
+let echoTypingTimeout = null;
+function echoSetTyping(isTyping){
+  const myKey = myKeyNow();
+  if(!myKey) return;
+  db.collection('typing').doc(myKey).set({
+    typing: isTyping,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, {merge:true}).catch(() => {});
+}
+function startEchoTypingListener(otherKey){
+  if(echoTypingListenerStarted) return;
+  echoTypingListenerStarted = true;
+  db.collection('typing').doc(otherKey).onSnapshot(doc => {
+    const data = doc.exists ? doc.data() : null;
+    const updatedMs = (data && data.updatedAt && data.updatedAt.toMillis) ? data.updatedAt.toMillis() : 0;
+    const isFresh = (Date.now() - updatedMs) < 6000;
+    const typing = !!(data && data.typing && isFresh);
+    echoTypingLabel.textContent = `${displayNameFor(otherKey)} está escribiendo`;
+    echoTypingRow.classList.toggle('show', typing);
+    if(typing && echoSheetOverlay.classList.contains('show')){
+      requestAnimationFrame(() => { echoMessagesScroll.scrollTop = echoMessagesScroll.scrollHeight; });
+    }
+  }, () => {});
+}
+
+/* ---- zumbido "Te extraño" ---- */
+let echoPokeFirstSnapshot = true;
+function startEchoPokeListener(myKey){
+  if(echoPokeListenerStarted) return;
+  echoPokeListenerStarted = true;
+  db.collection('echoPokes').doc(myKey).onSnapshot(doc => {
+    if(echoPokeFirstSnapshot){ echoPokeFirstSnapshot = false; return; } // ignora el estado inicial al cargar
+    if(!doc.exists) return;
+    if(navigator.vibrate) navigator.vibrate([50, 40, 50, 40, 80]);
+    if(echoSheetOverlay.classList.contains('show')){
+      echoSheet.classList.remove('echo-shake-screen'); void echoSheet.offsetWidth; echoSheet.classList.add('echo-shake-screen');
+    }
+  }, () => {});
+}
+function echoSendPoke(){
+  const myKey = myKeyNow();
+  if(!myKey) return;
+  const otherKey = otherKeyOf(myKey);
+  db.collection('echoPokes').doc(otherKey).set({
+    from: myKey,
+    ts: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    createNotification('echo_poke');
+  }).catch(() => {});
+}
+
+/* ---- arranque general del módulo (una vez, al iniciar sesión) ---- */
+function initEchoModule(){
+  if(echoModuleStarted || !currentUserLabel) return;
+  echoModuleStarted = true;
+  const myKey = myKeyNow();
+  const otherKey = otherKeyOf(myKey);
+
+  document.getElementById('echoHeaderName').textContent = displayNameFor(otherKey);
+
+  startEchoPresenceHeartbeat();
+  startEchoAvatarListener(otherKey);
+  startEchoPresenceListener(otherKey);
+  startEchoMessagesListener();
+  startEchoTypingListener(otherKey);
+  startEchoPokeListener(myKey);
+}
+
+/* ---- abrir / cerrar el bottom sheet ---- */
+function echoOpenSheet(){
+  echoSheetOverlay.classList.add('show');
+  requestAnimationFrame(() => { echoMessagesScroll.scrollTop = echoMessagesScroll.scrollHeight; });
+  // al abrir, si había mensajes sin leer del otro, se marcan (el listener de
+  // mensajes ya revisa "echoSheetOverlay tiene .show" en cada snapshot, así
+  // que forzamos una relectura marcando los ya visibles)
+  const myKey = myKeyNow();
+  if(myKey){
+    db.collection('echoMessages').where('sender', '==', otherKeyOf(myKey)).where('read', '==', false).get().then(snap => {
+      if(snap.empty) return;
+      const batch = db.batch();
+      snap.forEach(doc => batch.update(doc.ref, { read:true, readAt: firebase.firestore.FieldValue.serverTimestamp() }));
+      batch.commit().catch(() => {});
+    }).catch(() => {});
+  }
+}
+function echoCloseSheet(){
+  echoSheetOverlay.classList.remove('show');
+  echoSetTyping(false);
+  if(echoTypingTimeout) clearTimeout(echoTypingTimeout);
+}
+
+document.getElementById('echoOpenBtn').addEventListener('click', echoOpenSheet);
+document.getElementById('echoCloseBtn').addEventListener('click', echoCloseSheet);
+echoSheetOverlay.addEventListener('click', function(e){
+  if(e.target === this) echoCloseSheet();
+});
+
+/* input: alterna el botón entre 🎙️ micrófono y ➔ enviar, y avisa "escribiendo…" */
+echoTextInput.addEventListener('input', function(){
+  const hasText = this.value.trim().length > 0;
+  echoSendBtn.classList.toggle('has-text', hasText);
+  if(hasText){
+    echoSetTyping(true);
+    if(echoTypingTimeout) clearTimeout(echoTypingTimeout);
+    echoTypingTimeout = setTimeout(() => echoSetTyping(false), 2500);
+  } else {
+    echoSetTyping(false);
+    if(echoTypingTimeout) clearTimeout(echoTypingTimeout);
+  }
+});
+echoTextInput.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && this.value.trim()){
+    e.preventDefault();
+    echoSendMessage(this.value);
+    this.value = '';
+    echoSendBtn.classList.remove('has-text');
+  }
+});
+echoSendBtn.addEventListener('click', function(){
+  if(echoTextInput.value.trim().length > 0){
+    echoSendMessage(echoTextInput.value);
+    echoTextInput.value = '';
+    echoSendBtn.classList.remove('has-text');
+  }
+  // si no hay texto, este botón es el micrófono — la grabación real llega en la Fase 3
+});
+
+/* mic: mantener presionado muestra la maqueta de "grabando" (sin grabar audio real todavía — Fase 3) */
+function echoStartRecordingMock(){
+  if(echoSendBtn.classList.contains('has-text')) return;
+  echoRecordingIndicator.classList.add('show');
+}
+function echoStopRecordingMock(){
+  echoRecordingIndicator.classList.remove('show');
+}
+echoSendBtn.addEventListener('mousedown', echoStartRecordingMock);
+echoSendBtn.addEventListener('touchstart', echoStartRecordingMock, {passive:true});
+echoSendBtn.addEventListener('mouseup', echoStopRecordingMock);
+echoSendBtn.addEventListener('mouseleave', echoStopRecordingMock);
+echoSendBtn.addEventListener('touchend', echoStopRecordingMock);
+
+/* zumbido "Te extraño": vibra y sacude localmente, y ahora sí llega en vivo
+   al celular de la otra persona (vía Firestore) más una notificación en la campanita */
+document.getElementById('echoPokeBtn').addEventListener('click', function(){
+  if(navigator.vibrate) navigator.vibrate([40, 30, 40, 30, 60]);
+  this.classList.remove('buzz'); void this.offsetWidth; this.classList.add('buzz');
+  echoSheet.classList.remove('echo-shake-screen'); void echoSheet.offsetWidth; echoSheet.classList.add('echo-shake-screen');
+  echoSendPoke();
+});
 </script>
+
 
 </body>
 </html>
