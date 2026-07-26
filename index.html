@@ -2906,7 +2906,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-50";
+const APP_VERSION = "2026-07-25-52";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3754,18 +3754,21 @@ function startProfileLikedListener(){
     renderProfileLikedGrid();
   }, () => {});
 
-  // ---- fotos del carrusel likeadas (de cualquiera de los dos) ----
-  db.collection('fotos_carrusel').where('liked', '==', true).onSnapshot(snap => {
-    let items = [];
-    snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
-    items.sort((a, b) => {
-      const at = a.uploadedAt ? a.uploadedAt.toMillis() : 0;
-      const bt = b.uploadedAt ? b.uploadedAt.toMillis() : 0;
-      return bt - at;
-    });
-    profileLikedPhotos = items;
-    renderProfileLikedGrid();
-  }, () => {});
+  // ---- fotos del carrusel que YO likeé (sin importar quién las subió) ----
+  const myKeyForPhotos = myKeyNow();
+  if(myKeyForPhotos){
+    db.collection('fotos_carrusel').where('likedBy.' + myKeyForPhotos, '==', true).onSnapshot(snap => {
+      let items = [];
+      snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
+      items.sort((a, b) => {
+        const at = a.uploadedAt ? a.uploadedAt.toMillis() : 0;
+        const bt = b.uploadedAt ? b.uploadedAt.toMillis() : 0;
+        return bt - at;
+      });
+      profileLikedPhotos = items;
+      renderProfileLikedGrid();
+    }, () => {});
+  }
 }
 
 function renderProfileLikedGrid(){
@@ -4291,7 +4294,10 @@ function renderGallery(photos){
     const uploaderKey = (p.uploadedBy || '').toLowerCase();
     const uploaderName = (uploaderKey === 'admin' || uploaderKey === 'mor') ? displayNameFor(uploaderKey) : p.uploadedBy;
     const meta = [uploaderName, dateStr].filter(Boolean).join(' · ');
-    return `<div class="gallery-photo-card${p.liked ? ' liked' : ''}" data-id="${p.id}">
+    // el like es POR USUARIO: cada quien ve marcado el corazón solo si ELLA/ÉL le dio like
+    const myKey = myKeyNow();
+    const iLikedIt = !!(p.likedBy && myKey && p.likedBy[myKey]);
+    return `<div class="gallery-photo-card${iLikedIt ? ' liked' : ''}" data-id="${p.id}">
       <span class="gallery-photo-heart">❤️</span>
       <img src="${p.url}" alt="Recuerdo" loading="lazy">
       ${meta ? `<div class="gallery-photo-meta">${meta}</div>` : ''}
@@ -4312,10 +4318,14 @@ function renderGallery(photos){
         e.preventDefault();
         const id = card.dataset.id;
         const photo = photos.find(p => p.id === id);
+        const myKey = myKeyNow();
+        if(!myKey) return;
         const isLiked = !card.classList.contains('liked');
         card.classList.toggle('liked', isLiked);
 
-        db.collection('fotos_carrusel').doc(id).update({ liked: isLiked }).catch(() => {
+        // se guarda el like dentro de "likedBy" solo para MI clave (admin/mor),
+        // así el corazón de cada quien es independiente del otro
+        db.collection('fotos_carrusel').doc(id).update({ ['likedBy.' + myKey]: isLiked }).catch(() => {
           console.error('No se pudo guardar el like de la foto');
         });
 
