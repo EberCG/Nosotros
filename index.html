@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
 <title>Para ti</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1504,7 +1504,8 @@
 
   .buzon-actions-row{
     position:absolute;bottom:calc(78px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
-    display:flex;gap:10px;z-index:3;flex-wrap:wrap;justify-content:center;
+    display:flex;gap:10px;z-index:3;flex-wrap:nowrap;justify-content:center;
+    width:96vw;max-width:440px;
   }
   .add-note-btn{
     background:linear-gradient(135deg,var(--pink-glow),var(--accent-violet));
@@ -1512,6 +1513,14 @@
     font-family:'Quicksand',sans-serif;font-weight:600;font-size:.85rem;
     cursor:pointer;box-shadow:0 8px 22px rgba(255,122,176,0.4);
     white-space:nowrap;
+  }
+  @media (max-width:480px){
+    .buzon-actions-row{gap:6px;}
+    .buzon-cap-btn{padding:10px 12px;font-size:.68rem;gap:4px;flex:1 1 0;justify-content:center;}
+    .buzon-cap-btn svg{width:14px;height:14px;}
+  }
+  @media (max-width:360px){
+    .buzon-cap-btn{padding:9px 8px;font-size:.6rem;}
   }
 
   .note-modal-overlay{
@@ -1711,6 +1720,9 @@
     transform:translateY(100%);
     transition:transform .42s cubic-bezier(.22,.8,.32,1);
   }
+  @supports (height: 100dvh){
+    .echo-sheet{ height:86dvh; }
+  }
   .echo-sheet-overlay.show .echo-sheet{transform:translateY(0);}
 
   .echo-sheet-handle{
@@ -1722,11 +1734,30 @@
 
   /* ---- 3. header con indicador "en línea" mágico ---- */
   .echo-header{
-    position:relative;flex-shrink:0;
+    position:sticky;top:0;z-index:5;flex-shrink:0;
     display:flex;align-items:center;gap:10px;
-    padding:8px 14px 14px;
-    border-bottom:1px solid var(--glass-3);
+    margin:8px 10px 12px;padding:10px 14px;
+    border-radius:20px;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
+    backdrop-filter:blur(18px) saturate(180%);
+    -webkit-backdrop-filter:blur(18px) saturate(180%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 20px rgba(0,0,0,0.25);
   }
+  .echo-header::before{
+    content:'';position:absolute;inset:0;border-radius:inherit;
+    padding:1.6px;
+    background:conic-gradient(from 0deg, transparent 0%, var(--pink-glow) 16%, var(--accent-violet) 38%, transparent 56%, transparent 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    opacity:0;
+    animation:echo-online-spin 2.6s linear infinite;
+    transition:opacity .4s ease;
+    pointer-events:none;
+  }
+  .echo-header.online::before{opacity:1;}
+  @keyframes echo-online-spin{ to{ transform:rotate(360deg); } }
   .echo-close-btn{
     width:36px;height:36px;border-radius:50%;flex-shrink:0;
     border:1px solid var(--glass-3);background:var(--glass-1);
@@ -1739,15 +1770,6 @@
     position:relative;width:44px;height:44px;border-radius:50%;
     padding:3px;background:var(--page-bg);flex-shrink:0;
   }
-  .echo-avatar-wrap::before{
-    content:'';position:absolute;inset:-3px;border-radius:50%;z-index:0;
-    background:conic-gradient(from 0deg, transparent 0%, var(--pink-glow) 18%, var(--accent-violet) 40%, transparent 58%, transparent 100%);
-    opacity:0;
-    animation:echo-online-spin 2.2s linear infinite;
-    transition:opacity .4s ease;
-  }
-  .echo-avatar-wrap.online::before{opacity:1;}
-  @keyframes echo-online-spin{ to{ transform:rotate(360deg); } }
   .echo-avatar{
     position:relative;z-index:1;display:block;
     width:100%;height:100%;border-radius:50%;object-fit:cover;
@@ -1771,7 +1793,7 @@
 
   /* ---- 4. área de mensajes: burbujas efecto agua ---- */
   .echo-messages{
-    flex:1;overflow-y:auto;
+    flex:1;min-height:0;overflow-y:auto;
     padding:16px 14px 6px;
     display:flex;flex-direction:column;gap:9px;
   }
@@ -2338,13 +2360,13 @@
         <svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.2L16.5 4.5a1.8 1.8 0 0 1 2.5 0l1 1a1.8 1.8 0 0 1 0 2.5L8.7 19.3z"/><path d="M14.5 6.5l3 3"/></svg>
         Nueva nota
       </button>
-      <button class="buzon-cap-btn" id="newMailLetterBtn">
-        <svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
-        Nueva Carta
-      </button>
       <button class="buzon-cap-btn echo-btn" id="echoOpenBtn">
         <svg viewBox="0 0 24 24"><path d="M4 12.5C4 8 7.8 4.5 12.4 4.5S20.8 8 20.8 12.5c0 4.5-3.8 8-8.4 8-1 0-2-.15-2.9-.45L5 21.5l1.1-3.4A7.7 7.7 0 0 1 4 12.5z"/></svg>
         Echo
+      </button>
+      <button class="buzon-cap-btn" id="newMailLetterBtn">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
+        Nueva Carta
       </button>
     </div>
 
@@ -2621,7 +2643,7 @@
   <div class="echo-sheet" id="echoSheet">
     <div class="echo-sheet-handle"></div>
 
-    <div class="echo-header">
+    <div class="echo-header" id="echoHeader">
       <button class="echo-close-btn" id="echoCloseBtn" title="Cerrar">
         <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
@@ -2821,7 +2843,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-41";
+const APP_VERSION = "2026-07-25-44";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4622,12 +4644,14 @@ function startEchoPresenceListener(otherKey){
   echoPresenceListenerStarted = true;
   db.collection('presence').doc(otherKey).onSnapshot(doc => {
     const wrap = document.getElementById('echoAvatarWrap');
+    const header = document.getElementById('echoHeader');
     const status = document.getElementById('echoHeaderStatus');
     const data = doc.exists ? doc.data() : null;
     const lastSeenMs = (data && data.lastSeen && data.lastSeen.toMillis) ? data.lastSeen.toMillis() : 0;
     const isFresh = (Date.now() - lastSeenMs) < 45000; // considerar "en línea" solo si tiene señal reciente
     const online = !!(data && data.online && isFresh);
     wrap.classList.toggle('online', online);
+    if(header) header.classList.toggle('online', online);
     status.classList.toggle('online', online);
     if(online){
       status.textContent = 'en línea';
