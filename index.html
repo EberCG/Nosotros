@@ -1299,6 +1299,20 @@
     background:linear-gradient(0deg, rgba(0,0,0,0.55), transparent);
     color:#fff;font-size:.68rem;font-family:'Quicksand',sans-serif;
   }
+  /* ---- corazón de doble-tap en las fotos (igual que en las notas del buzón) ---- */
+  .gallery-photo-heart{
+    position:absolute;top:10px;right:12px;
+    font-size:2.1rem;
+    filter:drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+    transform:scale(0);
+    transition:transform .3s cubic-bezier(.175,.885,.32,1.275);
+    pointer-events:none;z-index:5;
+  }
+  .gallery-photo-card.liked .gallery-photo-heart{
+    transform:scale(1) rotate(15deg);
+    animation:pop-heart .4s ease-out;
+  }
+  .gallery-photo-card{cursor:pointer;-webkit-tap-highlight-color:transparent;}
   .gallery-upload-btn{
     display:block;width:100%;text-align:center;margin-top:12px;
     padding:12px;border-radius:14px;border:none;
@@ -2892,7 +2906,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-45";
+const APP_VERSION = "2026-07-25-49";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3362,6 +3376,7 @@ function notifIconFor(type){
   switch(type){
     case 'note_new': return '💌';
     case 'note_like': return '❤️';
+    case 'photo_like': return '❤️';
     case 'plant_love': return '🌱';
     case 'mood': return '💭';
     case 'capsule_new': return '⏳';
@@ -3377,6 +3392,7 @@ function notifTextFor(item){
   switch(item.type){
     case 'note_new': return `${actor} te dejó una nueva nota`;
     case 'note_like': return `${actor} le dio like a tu nota`;
+    case 'photo_like': return `${actor} le dio like a tu foto`;
     case 'plant_love': return `${actor} le dio amor a la plantita`;
     case 'mood': return `${actor} se siente hoy: ${meta.emoji || ''} ${meta.label || ''}`.trim();
     case 'capsule_new': return `${actor} agregó una nueva cápsula de tiempo`;
@@ -3615,6 +3631,7 @@ let profileLettersCountListenerStarted = false;
 let profileCapsuleCountListenerStarted = false;
 let profileLikedListenerStarted = false;
 let profileLikedNotes = [];
+let profileLikedPhotos = [];
 
 function initProfilePage(){
   if(!currentUserLabel) return;
@@ -3736,15 +3753,30 @@ function startProfileLikedListener(){
     profileLikedNotes = items;
     renderProfileLikedGrid();
   }, () => {});
+
+  // ---- fotos del carrusel likeadas por mí, subidas por la otra persona ----
+  db.collection('fotos_carrusel').where('liked', '==', true).onSnapshot(snap => {
+    let items = [];
+    snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
+    items = items.filter(p => p.uploadedBy !== currentUserLabel);
+    items.sort((a, b) => {
+      const at = a.uploadedAt ? a.uploadedAt.toMillis() : 0;
+      const bt = b.uploadedAt ? b.uploadedAt.toMillis() : 0;
+      return bt - at;
+    });
+    profileLikedPhotos = items;
+    renderProfileLikedGrid();
+  }, () => {});
 }
 
 function renderProfileLikedGrid(){
   const grid = document.getElementById('profileGrid');
   if(!grid) return;
 
-  // aquí se combinan notas likeadas con fotos likeadas del carrusel de Google
-  // Fotos cuando ese carrusel exista; por ahora solo hay notas.
-  const items = profileLikedNotes.map(n => ({ type:'note', data:n }));
+  // se combinan notas likeadas con fotos likeadas del carrusel, ordenadas por fecha
+  const noteItems = profileLikedNotes.map(n => ({ type:'note', data:n, _ts: n.timestamp ? n.timestamp.toMillis() : 0 }));
+  const photoItems = profileLikedPhotos.map(p => ({ type:'photo', data:p, _ts: p.uploadedAt ? p.uploadedAt.toMillis() : 0 }));
+  const items = noteItems.concat(photoItems).sort((a, b) => b._ts - a._ts);
 
   if(!items.length){
     grid.innerHTML = '<p class="perfil-grid-empty">Aún no tienes notas ni fotos con like 💜</p>';
@@ -4255,8 +4287,13 @@ function renderGallery(photos){
     const dateStr = (p.uploadedAt && p.uploadedAt.toDate)
       ? p.uploadedAt.toDate().toLocaleDateString('es-MX', {day:'numeric', month:'short'})
       : '';
-    const meta = [p.uploadedBy, dateStr].filter(Boolean).join(' · ');
-    return `<div class="gallery-photo-card">
+    // el uploadedBy se guarda como 'Admin'/'Mor' (igual que en notas), pero aquí
+    // se muestra siempre con el nombre bonito: Oliver / Love
+    const uploaderKey = (p.uploadedBy || '').toLowerCase();
+    const uploaderName = (uploaderKey === 'admin' || uploaderKey === 'mor') ? displayNameFor(uploaderKey) : p.uploadedBy;
+    const meta = [uploaderName, dateStr].filter(Boolean).join(' · ');
+    return `<div class="gallery-photo-card${p.liked ? ' liked' : ''}" data-id="${p.id}">
+      <span class="gallery-photo-heart">❤️</span>
       <img src="${p.url}" alt="Recuerdo" loading="lazy">
       ${meta ? `<div class="gallery-photo-meta">${meta}</div>` : ''}
     </div>`;
@@ -4265,6 +4302,33 @@ function renderGallery(photos){
 
   carousel.removeEventListener('scroll', onGalleryScroll);
   carousel.addEventListener('scroll', onGalleryScroll, { passive:true });
+
+  /* ---- NUEVO: doble tap para dar like a la foto (mismo patrón que en las notas) ---- */
+  carousel.querySelectorAll('.gallery-photo-card').forEach(card => {
+    let lastTap = 0;
+    card.addEventListener('click', function(e){
+      const currentTime = new Date().getTime();
+      const tapLength = currentTime - lastTap;
+      if(tapLength < 400 && tapLength > 0){
+        e.preventDefault();
+        const id = card.dataset.id;
+        const photo = photos.find(p => p.id === id);
+        const isLiked = !card.classList.contains('liked');
+        card.classList.toggle('liked', isLiked);
+
+        db.collection('fotos_carrusel').doc(id).update({ liked: isLiked }).catch(() => {
+          console.error('No se pudo guardar el like de la foto');
+        });
+
+        // avisamos a quien subió la foto solo cuando se DA like y no es uno mismo
+        if(isLiked && photo && photo.uploadedBy && currentUserLabel && photo.uploadedBy.toLowerCase() !== currentUserLabel.toLowerCase()){
+          createNotification('photo_like');
+        }
+        if(navigator.vibrate && isLiked) navigator.vibrate(50);
+      }
+      lastTap = currentTime;
+    });
+  });
 }
 
 function onGalleryScroll(){
