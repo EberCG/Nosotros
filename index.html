@@ -2906,7 +2906,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-52";
+const APP_VERSION = "2026-07-25-54";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4294,10 +4294,10 @@ function renderGallery(photos){
     const uploaderKey = (p.uploadedBy || '').toLowerCase();
     const uploaderName = (uploaderKey === 'admin' || uploaderKey === 'mor') ? displayNameFor(uploaderKey) : p.uploadedBy;
     const meta = [uploaderName, dateStr].filter(Boolean).join(' · ');
-    // el like es POR USUARIO: cada quien ve marcado el corazón solo si ELLA/ÉL le dio like
-    const myKey = myKeyNow();
-    const iLikedIt = !!(p.likedBy && myKey && p.likedBy[myKey]);
-    return `<div class="gallery-photo-card${iLikedIt ? ' liked' : ''}" data-id="${p.id}">
+    // el corazón que se VE en Recuerdos es compartido: se enciende si CUALQUIERA
+    // de los dos le dio like (aunque por dentro se guarda el like de cada quien por separado)
+    const anyLiked = !!(p.likedBy && (p.likedBy.admin || p.likedBy.mor));
+    return `<div class="gallery-photo-card${anyLiked ? ' liked' : ''}" data-id="${p.id}">
       <span class="gallery-photo-heart">❤️</span>
       <img src="${p.url}" alt="Recuerdo" loading="lazy">
       ${meta ? `<div class="gallery-photo-meta">${meta}</div>` : ''}
@@ -4320,11 +4320,18 @@ function renderGallery(photos){
         const photo = photos.find(p => p.id === id);
         const myKey = myKeyNow();
         if(!myKey) return;
-        const isLiked = !card.classList.contains('liked');
-        card.classList.toggle('liked', isLiked);
 
-        // se guarda el like dentro de "likedBy" solo para MI clave (admin/mor),
-        // así el corazón de cada quien es independiente del otro
+        // se guarda mi like de forma independiente al de la otra persona
+        const likedByNow = Object.assign({}, (photo && photo.likedBy) || {});
+        const isLiked = !likedByNow[myKey];
+        likedByNow[myKey] = isLiked;
+        if(photo) photo.likedBy = likedByNow; // mantiene el estado local al día
+
+        // el corazón que se VE en Recuerdos es compartido: se enciende si
+        // CUALQUIERA de los dos lo tiene likeado
+        const anyLiked = !!(likedByNow.admin || likedByNow.mor);
+        card.classList.toggle('liked', anyLiked);
+
         db.collection('fotos_carrusel').doc(id).update({ ['likedBy.' + myKey]: isLiked }).catch(() => {
           console.error('No se pudo guardar el like de la foto');
         });
