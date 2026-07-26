@@ -2906,7 +2906,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-49";
+const APP_VERSION = "2026-07-25-50";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3754,11 +3754,10 @@ function startProfileLikedListener(){
     renderProfileLikedGrid();
   }, () => {});
 
-  // ---- fotos del carrusel likeadas por mí, subidas por la otra persona ----
+  // ---- fotos del carrusel likeadas (de cualquiera de los dos) ----
   db.collection('fotos_carrusel').where('liked', '==', true).onSnapshot(snap => {
     let items = [];
     snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
-    items = items.filter(p => p.uploadedBy !== currentUserLabel);
     items.sort((a, b) => {
       const at = a.uploadedAt ? a.uploadedAt.toMillis() : 0;
       const bt = b.uploadedAt ? b.uploadedAt.toMillis() : 0;
