@@ -3037,7 +3037,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-27-61";
+const APP_VERSION = "2026-07-27-62";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3623,15 +3623,19 @@ function startNotificationsListener(){
   const myKey = myKeyNow();
   if(!myKey || notificationsListenerStarted) return;
   notificationsListenerStarted = true;
-  // nota: a propósito NO se usa .orderBy() aquí junto al .where() — combinar
-  // ambos en Firestore exige crear un índice compuesto manualmente. En su
-  // lugar, pedimos todas las notificaciones del usuario y las ordenamos
-  // aquí mismo por fecha, así no depende de configurar nada en Firebase.
+
   db.collection('notifications')
     .where('recipientKey', '==', myKey)
     .onSnapshot(snap => {
       let items = [];
-      snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
+      snap.forEach(doc => {
+        const data = doc.data();
+        // Filtramos: Solo agregamos a la lista si NO es un mensaje de Echo
+        if (data.type !== 'echo_message') {
+          items.push(Object.assign({ id: doc.id }, data));
+        }
+      });
+      
       items.sort((a, b) => {
         const at = a.timestamp ? a.timestamp.toMillis() : 0;
         const bt = b.timestamp ? b.timestamp.toMillis() : 0;
@@ -3640,7 +3644,7 @@ function startNotificationsListener(){
       notifItems = items.slice(0, 50);
       renderNotifications();
     }, err => {
-      console.error('No se pudieron leer las notificaciones (revisa las reglas de Firestore para la colección "notifications"):', err);
+      console.error('No se pudieron leer las notificaciones', err);
     });
 }
 
@@ -5256,7 +5260,7 @@ function echoSendMessage(text){
     readAt: null,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
-    createNotification('echo_message', { preview: text.trim().slice(0, 60) });
+    //createNotification('echo_message', { preview: text.trim().slice(0, 60) });
   }).catch(() => {
     alert('No se pudo enviar el mensaje, revisa tu conexión.');
   });
@@ -5554,7 +5558,7 @@ function echoSaveAudioMessage(blob, durationSec){
       readAt: null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
-      createNotification('echo_message', { preview: '🎙️ Nota de voz' });
+      //createNotification('echo_message', { preview: '🎙️ Nota de voz' });
     }).catch(function(err){
       console.error('No se pudo guardar la nota de voz:', err);
       alert('No se pudo enviar la nota de voz, revisa tu conexión.');
@@ -5679,7 +5683,7 @@ function echoSendGif(url){
     readAt: null,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(function(){
-    createNotification('echo_message', { preview: '🎞️ GIF' });
+    //createNotification('echo_message', { preview: '🎞️ GIF' });
     echoGifOverlay.classList.remove('show');
   }).catch(function(err){
     console.error('No se pudo enviar el GIF:', err);
