@@ -129,6 +129,35 @@
   }
   .hamburger-btn:hover{transform:scale(1.06);}
 
+  /*puntito rojo  */
+.btn-relative {
+  position: relative;
+  display: inline-flex; 
+}
+
+.red-dot-glow {
+  position: absolute;
+  top: -2px; /* Mueve el puntito hacia arriba */
+  right: -2px; /* Mueve el puntito hacia la derecha */
+  width: 10px;
+  height: 10px;
+  background-color: var(--coupon-red, #e6355f); /* Nuestro rojo base */
+  border-radius: 50%; /* Lo hace un círculo perfecto */
+  /* Aquí está la magia del brillo (glow) usando los colores de la PWA */
+  box-shadow: 0 0 6px var(--coupon-red), 0 0 10px var(--pink-glow);
+  z-index: 10;
+  pointer-events: none; /* Para que no interfiera si hacen clic justo encima */
+  
+  /* Animación opcional de latido */
+  animation: pulse-dot 1.5s infinite alternate ease-in-out;
+}
+
+/* Animación para que palpite como un corazoncito/estrella */
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 4px var(--coupon-red); }
+  100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px var(--coupon-red), 0 0 15px var(--pink-glow); }
+}
+
   /* ---------- CORAZÓN DE NOTIFICACIONES (reemplaza la campana de la barra) ---------- */
   .notif-heart-btn{
     position:relative;
@@ -2542,9 +2571,10 @@
         <svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.2L16.5 4.5a1.8 1.8 0 0 1 2.5 0l1 1a1.8 1.8 0 0 1 0 2.5L8.7 19.3z"/><path d="M14.5 6.5l3 3"/></svg>
         Nueva nota
       </button>
-      <button class="buzon-cap-btn echo-btn" id="echoOpenBtn">
+     <button class="buzon-cap-btn echo-btn btn-relative" id="echoOpenBtn">
         <svg viewBox="0 0 24 24"><path d="M4 12.5C4 8 7.8 4.5 12.4 4.5S20.8 8 20.8 12.5c0 4.5-3.8 8-8.4 8-1 0-2-.15-2.9-.45L5 21.5l1.1-3.4A7.7 7.7 0 0 1 4 12.5z"/></svg>
         Echo
+        <span class="red-dot-glow" id="echoPuntito"></span>
       </button>
       <button class="buzon-cap-btn" id="newMailLetterBtn">
         <svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
@@ -2662,12 +2692,13 @@
             <path d="M4 16.5l4.5-4.5 3.5 3.5 3-3 4.5 4.5"/>
           </svg>
         </button>
-           <button class="bottom-nav-btn" data-goto="buzon" title="Buzón">
-          <svg class="nav-icon" viewBox="0 0 24 24">
-            <path d="M21.5 2.5 10.8 13.2"/>
-            <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
-          </svg>
-        </button>
+          <button class="bottom-nav-btn btn-relative" data-goto="buzon" title="Buzón">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M21.5 2.5 10.8 13.2"/>
+          <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
+        </svg>
+        <span class="red-dot-glow" id="buzonPuntito"></span>
+      </button>
         <button class="bottom-nav-btn" data-dashtab="regalos" title="Regalos">
           <svg class="nav-icon" viewBox="0 0 24 24">
             <rect x="3.5" y="9" width="17" height="11" rx="1.5"/>
@@ -3037,7 +3068,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-27-62";
+const APP_VERSION = "2026-07-27-63";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -5690,6 +5721,11 @@ function echoSendGif(url){
     alert('No se pudo enviar el GIF, revisa tu conexión.');
   });
 }
+  // Para ocultarlo:
+document.getElementById('echoPuntito').style.display = 'none';
+
+// Para mostrarlo cuando haya algo nuevo:
+document.getElementById('echoPuntito').style.display = 'block';
 </script>
 
 
