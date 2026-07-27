@@ -1809,9 +1809,9 @@
   .perfil-status-bubble{
     position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
     display:none;align-items:center;gap:4px;
-    max-width:190px;padding:7px 13px;border-radius:16px;
+    width:max-content;padding:7px 13px;border-radius:16px;
     font-family:'Quicksand',sans-serif;font-weight:600;font-size:.74rem;
-    color:#fff;white-space:normal;text-align:center;line-height:1.3;
+    color:#fff;white-space:nowrap;text-align:center;line-height:1.3;
     box-shadow:0 6px 16px rgba(0,0,0,0.3);
     animation:status-bubble-float 2.6s ease-in-out infinite;
   }
@@ -2461,7 +2461,7 @@
   <!-- ESCENA 3: TE AMO -->
   <section id="scene-final" class="scene">
     <div class="starfield" id="starfieldFinal"></div>
-    <p class="final-text"> Te voy a robar 😉💓 </p>
+    <p class="final-text"> Me encantas </p>
   </section>
 
   <!-- ESCENA 4: DASHBOARD -->
@@ -3224,7 +3224,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-27-72";
+const APP_VERSION = "2026-07-27-74";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -5946,7 +5946,7 @@ function echoResetGifPicker(){
   echoGifSearchInput.value = '';
   document.getElementById('echoGifUrlInput').value = '';
   if(GIPHY_API_KEY){
-    echoGifGrid.innerHTML = '<p class="echo-gif-empty">Escribe algo para buscar 🔎</p>';
+    echoGifGrid.innerHTML = '<p class="echo-gif-empty">Powered by GIPHY</p>';
     echoGifSearchInput.disabled = false;
     echoGifSearchInput.placeholder = 'Busca un GIF (ej. amor, buenos días)...';
   } else {
@@ -5971,7 +5971,7 @@ echoGifSearchInput.addEventListener('input', function(){
   clearTimeout(echoGifSearchTimer);
   const q = this.value.trim();
   if(!q){
-    echoGifGrid.innerHTML = '<p class="echo-gif-empty">Escribe algo para buscar 🔎</p>';
+    echoGifGrid.innerHTML = '<p class="echo-gif-empty">Powered by GIPHY</p>';
     return;
   }
   echoGifSearchTimer = setTimeout(() => echoSearchGifs(q), 450);
