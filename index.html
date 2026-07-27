@@ -1477,6 +1477,7 @@
   body.theme-light .coupon-status-text.fail{color:#d43d3d;}
 
   /* ---------- CÁPSULA DEL TIEMPO ---------- */
+  .capsule-list{display:flex;flex-direction:column;gap:14px;}
   .capsule-card{
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
@@ -2560,7 +2561,13 @@
       <!-- pestaña: recuerdos -->
       <div class="dash-tab-panel" id="dash-tab-recuerdos">
         <div class="recuerdos-top-row">
-          <span class="recuerdos-top-spacer"></span>
+          <button class="capsule-new-btn" id="capsuleArchiveBtn" title="Cápsulas abiertas">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 8l9-5 9 5-9 5-9-5z"/>
+              <path d="M3 8v8l9 5 9-5V8"/>
+            </svg>
+            <span class="notif-badge" id="capsuleArchiveBadge">0</span>
+          </button>
           <p class="dash-section-title" style="margin:0;flex:1;">Recuerdos</p>
           <button class="capsule-new-btn" id="capsuleNewBtn" title="Nueva cápsula">
             <svg viewBox="0 0 24 24">
@@ -2571,14 +2578,11 @@
           </button>
         </div>
 
-        <div class="capsule-card" id="capsuleCard">
-          <div class="capsule-lock-icon" id="capsuleLockIcon">🔒</div>
-          <p class="capsule-title" id="capsuleTitle">Cápsula del Tiempo</p>
-          <p class="capsule-author-line" id="capsuleAuthorLine" style="display:none;"></p>
-          <p class="capsule-countdown" id="capsuleCountdown">Cargando…</p>
-          <div class="capsule-reveal" id="capsuleReveal" style="display:none;">
-            <img class="capsule-image" id="capsuleImage" style="display:none;">
-            <div class="capsule-text" id="capsuleText"></div>
+        <div class="capsule-list" id="capsuleList">
+          <div class="capsule-card">
+            <div class="capsule-lock-icon">🔒</div>
+            <p class="capsule-title">Cápsula del Tiempo</p>
+            <p class="capsule-countdown">Cargando…</p>
           </div>
         </div>
 
@@ -2901,6 +2905,18 @@
   </div>
 </div>
 
+<div class="notif-overlay" id="capsulesArchiveOverlay">
+  <div class="notif-panel">
+    <div class="notif-panel-header">
+      <p class="notif-panel-title">Cápsulas abiertas</p>
+      <button class="notif-close-btn" id="capsulesArchiveCloseBtn">✕</button>
+    </div>
+    <div class="notif-list" id="capsulesArchiveList">
+      <p class="notif-empty">Aún no se ha abierto ninguna cápsula 💭</p>
+    </div>
+  </div>
+</div>
+
 <!-- ---------- MODAL: poner un estado (con duración) ---------- -->
 <div class="status-modal-overlay" id="statusModalOverlay">
   <div class="status-modal">
@@ -3208,7 +3224,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-27-70";
+const APP_VERSION = "2026-07-27-72";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4549,8 +4565,9 @@ document.getElementById('couponConfirmYes').addEventListener('click', function()
 });
 
 /* ---------- CÁPSULA DEL TIEMPO ---------- */
-let capsuleInterval = null;
+let capsuleIntervals = [];
 let capsuleListenerStarted = false;
+let latestCapsuleItems = [];
 
 function formatCountdown(ms){
   const totalSeconds = Math.floor(ms / 1000);
@@ -4563,99 +4580,154 @@ function formatCountdown(ms){
   return `Se abre en ${minutes}m ${seconds}s`;
 }
 
-function renderCapsule(data){
-  const lockIcon = document.getElementById('capsuleLockIcon');
-  const title = document.getElementById('capsuleTitle');
-  const authorLine = document.getElementById('capsuleAuthorLine');
-  const countdown = document.getElementById('capsuleCountdown');
-  const reveal = document.getElementById('capsuleReveal');
-  const image = document.getElementById('capsuleImage');
-  const text = document.getElementById('capsuleText');
+/* separa las cápsulas pendientes (siguen cerradas) de las ya abiertas cada
+   vez que cambian los datos O cada vez que un contador llega a cero */
+function refreshCapsuleViews(){
+  const now = Date.now();
+  const pending = latestCapsuleItems
+    .filter(c => new Date(c.unlockDate).getTime() > now)
+    .sort((a, b) => new Date(a.unlockDate).getTime() - new Date(b.unlockDate).getTime());
+  const opened = latestCapsuleItems
+    .filter(c => new Date(c.unlockDate).getTime() <= now)
+    .sort((a, b) => new Date(b.unlockDate).getTime() - new Date(a.unlockDate).getTime());
 
-  if(capsuleInterval){ clearInterval(capsuleInterval); capsuleInterval = null; }
+  renderCapsuleList(pending);
+  renderCapsulesArchive(opened);
+  updateCapsuleArchiveBadge(opened.length);
+}
 
-  if(!data || !data.unlockDate){
-    lockIcon.textContent = '🔒';
-    title.textContent = 'Cápsula del Tiempo';
-    authorLine.style.display = 'none';
-    countdown.textContent = 'Aún no hay ninguna cápsula guardada.';
-    reveal.style.display = 'none';
+/* la ventana de Recuerdos solo muestra las cápsulas que AÚN están cerradas
+   (la grandota, con su cuenta regresiva). En cuanto una se abre, deja de
+   vivir aquí — se archiva sola en el panel de "Cápsulas abiertas" para no
+   ir empujando la galería hacia abajo. */
+function renderCapsuleList(items){
+  const list = document.getElementById('capsuleList');
+  if(!list) return;
+
+  capsuleIntervals.forEach(id => clearInterval(id));
+  capsuleIntervals = [];
+
+  if(!items.length){
+    list.innerHTML = `
+      <div class="capsule-card">
+        <div class="capsule-lock-icon">🔒</div>
+        <p class="capsule-title">Cápsula del Tiempo</p>
+        <p class="capsule-countdown">No tienes cápsulas por abrir.</p>
+      </div>`;
     return;
   }
 
-  // el nombre de quien la publicó se muestra tal cual la cuenta (Admin/Mor),
-  // no el apodo cariñoso, para que quede claro quién dejó la sorpresa
-  if(data.author){
-    const authorLabel = data.author.toLowerCase() === 'admin' ? 'Admin' : 'Mor';
-    authorLine.textContent = `Dejada por ${authorLabel} 💌`;
-    authorLine.style.display = 'block';
-  } else {
-    authorLine.style.display = 'none';
-  }
+  list.innerHTML = items.map(() => `
+    <div class="capsule-card">
+      <div class="capsule-lock-icon">🔒</div>
+      <p class="capsule-title">Cápsula del Tiempo</p>
+      <p class="capsule-author-line" style="display:none;"></p>
+      <p class="capsule-countdown">Cargando…</p>
+    </div>`).join('');
 
-  const unlockTime = new Date(data.unlockDate).getTime();
+  const cards = list.querySelectorAll('.capsule-card');
 
-  function tick(){
-    const remaining = unlockTime - Date.now();
-    if(remaining <= 0){
-      if(capsuleInterval){ clearInterval(capsuleInterval); capsuleInterval = null; }
-      lockIcon.textContent = '💌';
-      title.textContent = data.title || 'Cápsula del Tiempo';
-      countdown.textContent = '¡Se abrió! 🎉';
-      reveal.style.display = 'block';
-      if(data.imageUrl){
-        image.src = data.imageUrl;
-        image.style.display = 'block';
-      } else {
-        image.style.display = 'none';
-      }
-      const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
-      text.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+  items.forEach((data, i) => {
+    const card = cards[i];
+    const title = card.querySelector('.capsule-title');
+    const authorLine = card.querySelector('.capsule-author-line');
+    const countdown = card.querySelector('.capsule-countdown');
+
+    // el nombre de quien la publicó se muestra con su apodo cariñoso (Oliver/Love)
+    if(data.author){
+      authorLine.textContent = `Dejada por ${displayNameFor(data.author.toLowerCase())} 💌`;
+      authorLine.style.display = 'block';
     } else {
-      lockIcon.textContent = '🔒';
-      title.textContent = data.title || 'Cápsula del Tiempo';
-      countdown.textContent = formatCountdown(remaining);
-      reveal.style.display = 'none';
+      authorLine.style.display = 'none';
     }
+
+    const unlockTime = new Date(data.unlockDate).getTime();
+
+    function tick(){
+      const remaining = unlockTime - Date.now();
+      if(remaining <= 0){
+        const idx = capsuleIntervals.indexOf(intervalId);
+        if(idx !== -1){ clearInterval(capsuleIntervals[idx]); capsuleIntervals.splice(idx, 1); }
+        // se acaba de abrir sola: recalculamos para que pase al archivo
+        refreshCapsuleViews();
+      } else {
+        title.textContent = data.title || 'Cápsula del Tiempo';
+        countdown.textContent = formatCountdown(remaining);
+      }
+    }
+
+    tick();
+    const intervalId = setInterval(tick, 1000);
+    capsuleIntervals.push(intervalId);
+  });
+}
+
+/* panel flotante de cápsulas ya abiertas (mismo patrón visual que notificaciones) */
+function renderCapsulesArchive(items){
+  const list = document.getElementById('capsulesArchiveList');
+  if(!list) return;
+
+  if(!items.length){
+    list.innerHTML = '<p class="notif-empty">Aún no se ha abierto ninguna cápsula 💭</p>';
+    return;
   }
 
-  tick();
-  capsuleInterval = setInterval(tick, 1000);
+  list.innerHTML = items.map(data => {
+    const authorText = data.author ? `Dejada por ${displayNameFor(data.author.toLowerCase())} 💌` : '';
+    const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
+    const imageHtml = data.imageUrl ? `<img class="capsule-image" src="${data.imageUrl}">` : '';
+    const openedDate = new Date(data.unlockDate).toLocaleString('es-MX', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+    return `<div class="capsule-card" style="margin-bottom:14px;">
+        <div class="capsule-lock-icon">💌</div>
+        <p class="capsule-title">${data.title || 'Cápsula del Tiempo'}</p>
+        ${authorText ? `<p class="capsule-author-line">${authorText}</p>` : ''}
+        <p class="capsule-countdown">Se abrió el ${openedDate}</p>
+        <div class="capsule-reveal">
+          ${imageHtml}
+          <div class="capsule-text">${paragraphs.map(p => `<p>${p}</p>`).join('')}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateCapsuleArchiveBadge(count){
+  const badge = document.getElementById('capsuleArchiveBadge');
+  if(!badge) return;
+  if(count > 0){
+    badge.textContent = count > 9 ? '9+' : String(count);
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
 }
 
 function loadCapsule(){
-  if(capsuleListenerStarted) return;
+  if(capsuleListenerStarted || !currentUserLabel) return;
   capsuleListenerStarted = true;
-  db.collection('capsule').doc('current').onSnapshot(doc => {
-    const data = doc.exists ? doc.data() : null;
-    renderCapsule(data);
+  const myKey = myKeyNow();
 
-    // La cápsula puede llegar por dos vías: publicada desde el editor de la
-    // app (que ya guarda notifiedFor junto con el resto, ver publishCapsule),
-    // o editada a mano en la consola de Firestore — para ese segundo caso
-    // seguimos detectando cambios de "unlockDate" para avisar una sola vez.
-    if(data && data.unlockDate){
-      if(data.notifiedFor === undefined){
-        db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
-      } else if(data.notifiedFor !== data.unlockDate){
-        db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
-        const actorKey = (data.author || 'admin').toLowerCase();
-        db.collection('notifications').add({
-          type: 'capsule_new',
-          actorKey: actorKey,
-          recipientKey: otherKeyOf(actorKey),
-          meta: {},
-          read: false,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(err => {
-          console.error('No se pudo crear la notificación de cápsula nueva:', err);
-        });
-      }
-    }
-  }, () => {
-    document.getElementById('capsuleCountdown').textContent = 'No se pudo cargar.';
+  // sin .orderBy() junto al .where() para no depender de crear un índice
+  // compuesto en Firebase; se ordena aquí mismo por fecha de desbloqueo.
+  db.collection('capsules').where('recipient', '==', myKey).onSnapshot(snap => {
+    latestCapsuleItems = [];
+    snap.forEach(doc => latestCapsuleItems.push(Object.assign({ id: doc.id }, doc.data())));
+    refreshCapsuleViews();
+  }, err => {
+    console.error('No se pudieron cargar las cápsulas (revisa las reglas de Firestore para la colección "capsules"):', err);
+    const list = document.getElementById('capsuleList');
+    if(list) list.innerHTML = '<div class="capsule-card"><p class="capsule-countdown">No se pudo cargar.</p></div>';
   });
 }
+
+document.getElementById('capsuleArchiveBtn').addEventListener('click', function(){
+  document.getElementById('capsulesArchiveOverlay').classList.add('show');
+});
+document.getElementById('capsulesArchiveCloseBtn').addEventListener('click', function(){
+  document.getElementById('capsulesArchiveOverlay').classList.remove('show');
+});
+document.getElementById('capsulesArchiveOverlay').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('show');
+});
 
 /* ---------- EDITOR DE CÁPSULA NUEVA (disponible para Admin y Mor) ---------- */
 const capsuleEditorOverlay = document.getElementById('capsuleEditorOverlay');
@@ -4667,6 +4739,7 @@ function openCapsuleEditor(){
   document.getElementById('capsuleTitleInput').value = '';
   document.getElementById('capsuleContentInput').value = '';
   capsuleEditorHint.textContent = '';
+  capsuleEditorHint.style.color = '';
   capsuleEditorOverlay.classList.add('show');
 }
 function closeCapsuleEditor(){
@@ -4710,27 +4783,30 @@ document.getElementById('publishCapsuleBtn').addEventListener('click', function(
   btn.disabled = true;
   capsuleEditorHint.textContent = '';
 
-  db.collection('capsule').doc('current').set({
+  // .add() crea un documento nuevo e independiente cada vez — así, si ya
+  // existe una cápsula suya sin abrir para la otra persona, esta no la
+  // reemplaza ni la borra: ambas quedan esperando su turno.
+  db.collection('capsules').add({
+    recipient: otherKeyOf(myKey),
     unlockDate: unlockISO,
     title: title || 'Cápsula del Tiempo',
     text: content,
     author: myKey,
-    // se guarda ya "notificado" para esta fecha porque la notificación la
-    // mandamos aquí mismo abajo; así el listener de loadCapsule() no duplica
-    // el aviso al recibir este mismo cambio en tiempo real.
-    notifiedFor: unlockISO,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
     createNotification('capsule_new');
-    closeCapsuleEditor();
-  }).catch(() => {
-    capsuleEditorHint.textContent = 'No se pudo publicar, revisa tu conexión.';
+    capsuleEditorHint.style.color = '#7be3a3';
+    capsuleEditorHint.textContent = '✅ ¡Cápsula creada!';
+    setTimeout(closeCapsuleEditor, 850);
+  }).catch((err) => {
+    console.error('No se pudo publicar la cápsula (revisa las reglas de Firestore para la colección "capsules"):', err);
+    capsuleEditorHint.textContent = err && err.code === 'permission-denied'
+      ? 'No tienes permiso para publicar (revisa las reglas de Firestore).'
+      : 'No se pudo publicar, revisa tu conexión.';
   }).finally(() => {
     btn.disabled = false;
   });
 });
-
-
 /* ---------- GALERÍA: carrusel de fotos (subida a ImgBB + Firestore en tiempo real) ---------- */
 const IMGBB_API_KEY = 'fae9d926834eab6082a79499bfa8af4c'; // gratis en https://api.imgbb.com/
 
