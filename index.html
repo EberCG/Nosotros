@@ -2417,7 +2417,13 @@
       <!-- pestaña: recuerdos -->
       <div class="dash-tab-panel" id="dash-tab-recuerdos">
         <div class="recuerdos-top-row">
-          <span class="recuerdos-top-spacer"></span>
+          <button class="capsule-new-btn" id="capsuleArchiveBtn" title="Cápsulas abiertas">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 8l9-5 9 5-9 5-9-5z"/>
+              <path d="M3 8v8l9 5 9-5V8"/>
+            </svg>
+            <span class="notif-badge" id="capsuleArchiveBadge">0</span>
+          </button>
           <p class="dash-section-title" style="margin:0;flex:1;">Recuerdos</p>
           <button class="capsule-new-btn" id="capsuleNewBtn" title="Nueva cápsula">
             <svg viewBox="0 0 24 24">
@@ -2734,6 +2740,18 @@
   </div>
 </div>
 
+<div class="notif-overlay" id="capsulesArchiveOverlay">
+  <div class="notif-panel">
+    <div class="notif-panel-header">
+      <p class="notif-panel-title">Cápsulas abiertas</p>
+      <button class="notif-close-btn" id="capsulesArchiveCloseBtn">✕</button>
+    </div>
+    <div class="notif-list" id="capsulesArchiveList">
+      <p class="notif-empty">Aún no se ha abierto ninguna cápsula 💭</p>
+    </div>
+  </div>
+</div>
+
 <!-- ---------- OVERLAY: expandir nota/foto likeada del perfil ---------- -->
 <div class="perfil-expand-overlay" id="perfilExpandOverlay">
   <div class="perfil-expand-box">
@@ -3019,7 +3037,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-27-60";
+const APP_VERSION = "2026-07-27-61";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4232,6 +4250,7 @@ document.getElementById('couponConfirmYes').addEventListener('click', function()
 /* ---------- CÁPSULA DEL TIEMPO ---------- */
 let capsuleIntervals = [];
 let capsuleListenerStarted = false;
+let latestCapsuleItems = [];
 
 function formatCountdown(ms){
   const totalSeconds = Math.floor(ms / 1000);
@@ -4244,8 +4263,26 @@ function formatCountdown(ms){
   return `Se abre en ${minutes}m ${seconds}s`;
 }
 
-/* cada cápsula recibida es su propia tarjeta independiente: crear una nueva
-   nunca borra ni reemplaza las demás que sigan sin abrir. */
+/* separa las cápsulas pendientes (siguen cerradas) de las ya abiertas cada
+   vez que cambian los datos O cada vez que un contador llega a cero */
+function refreshCapsuleViews(){
+  const now = Date.now();
+  const pending = latestCapsuleItems
+    .filter(c => new Date(c.unlockDate).getTime() > now)
+    .sort((a, b) => new Date(a.unlockDate).getTime() - new Date(b.unlockDate).getTime());
+  const opened = latestCapsuleItems
+    .filter(c => new Date(c.unlockDate).getTime() <= now)
+    .sort((a, b) => new Date(b.unlockDate).getTime() - new Date(a.unlockDate).getTime());
+
+  renderCapsuleList(pending);
+  renderCapsulesArchive(opened);
+  updateCapsuleArchiveBadge(opened.length);
+}
+
+/* la ventana de Recuerdos solo muestra las cápsulas que AÚN están cerradas
+   (la grandota, con su cuenta regresiva). En cuanto una se abre, deja de
+   vivir aquí — se archiva sola en el panel de "Cápsulas abiertas" para no
+   ir empujando la galería hacia abajo. */
 function renderCapsuleList(items){
   const list = document.getElementById('capsuleList');
   if(!list) return;
@@ -4258,7 +4295,7 @@ function renderCapsuleList(items){
       <div class="capsule-card">
         <div class="capsule-lock-icon">🔒</div>
         <p class="capsule-title">Cápsula del Tiempo</p>
-        <p class="capsule-countdown">Aún no hay ninguna cápsula guardada.</p>
+        <p class="capsule-countdown">Aun nada por aqui.</p>
       </div>`;
     return;
   }
@@ -4269,29 +4306,19 @@ function renderCapsuleList(items){
       <p class="capsule-title">Cápsula del Tiempo</p>
       <p class="capsule-author-line" style="display:none;"></p>
       <p class="capsule-countdown">Cargando…</p>
-      <div class="capsule-reveal" style="display:none;">
-        <img class="capsule-image" style="display:none;">
-        <div class="capsule-text"></div>
-      </div>
     </div>`).join('');
 
   const cards = list.querySelectorAll('.capsule-card');
 
   items.forEach((data, i) => {
     const card = cards[i];
-    const lockIcon = card.querySelector('.capsule-lock-icon');
     const title = card.querySelector('.capsule-title');
     const authorLine = card.querySelector('.capsule-author-line');
     const countdown = card.querySelector('.capsule-countdown');
-    const reveal = card.querySelector('.capsule-reveal');
-    const image = card.querySelector('.capsule-image');
-    const text = card.querySelector('.capsule-text');
 
-    // el nombre de quien la publicó se muestra tal cual la cuenta (Admin/Mor),
-    // no el apodo cariñoso, para que quede claro quién dejó la sorpresa
+    // el nombre de quien la publicó se muestra con su apodo cariñoso (Oliver/Love)
     if(data.author){
-      const authorLabel = data.author.toLowerCase() === 'admin' ? 'Admin' : 'Mor';
-      authorLine.textContent = `Dejada por ${authorLabel} 💌`;
+      authorLine.textContent = `Dejada por ${displayNameFor(data.author.toLowerCase())} 💌`;
       authorLine.style.display = 'block';
     } else {
       authorLine.style.display = 'none';
@@ -4304,23 +4331,11 @@ function renderCapsuleList(items){
       if(remaining <= 0){
         const idx = capsuleIntervals.indexOf(intervalId);
         if(idx !== -1){ clearInterval(capsuleIntervals[idx]); capsuleIntervals.splice(idx, 1); }
-        lockIcon.textContent = '💌';
-        title.textContent = data.title || 'Cápsula del Tiempo';
-        countdown.textContent = '¡Se abrió! 🎉';
-        reveal.style.display = 'block';
-        if(data.imageUrl){
-          image.src = data.imageUrl;
-          image.style.display = 'block';
-        } else {
-          image.style.display = 'none';
-        }
-        const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
-        text.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+        // se acaba de abrir sola: recalculamos para que pase al archivo
+        refreshCapsuleViews();
       } else {
-        lockIcon.textContent = '🔒';
         title.textContent = data.title || 'Cápsula del Tiempo';
         countdown.textContent = formatCountdown(remaining);
-        reveal.style.display = 'none';
       }
     }
 
@@ -4328,6 +4343,45 @@ function renderCapsuleList(items){
     const intervalId = setInterval(tick, 1000);
     capsuleIntervals.push(intervalId);
   });
+}
+
+/* panel flotante de cápsulas ya abiertas (mismo patrón visual que notificaciones) */
+function renderCapsulesArchive(items){
+  const list = document.getElementById('capsulesArchiveList');
+  if(!list) return;
+
+  if(!items.length){
+    list.innerHTML = '<p class="notif-empty">Aún no se ha abierto ninguna cápsula 💭</p>';
+    return;
+  }
+
+  list.innerHTML = items.map(data => {
+    const authorText = data.author ? `Dejada por ${displayNameFor(data.author.toLowerCase())} 💌` : '';
+    const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
+    const imageHtml = data.imageUrl ? `<img class="capsule-image" src="${data.imageUrl}">` : '';
+    const openedDate = new Date(data.unlockDate).toLocaleString('es-MX', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+    return `<div class="capsule-card" style="margin-bottom:14px;">
+        <div class="capsule-lock-icon">💌</div>
+        <p class="capsule-title">${data.title || 'Cápsula del Tiempo'}</p>
+        ${authorText ? `<p class="capsule-author-line">${authorText}</p>` : ''}
+        <p class="capsule-countdown">Se abrió el ${openedDate}</p>
+        <div class="capsule-reveal">
+          ${imageHtml}
+          <div class="capsule-text">${paragraphs.map(p => `<p>${p}</p>`).join('')}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateCapsuleArchiveBadge(count){
+  const badge = document.getElementById('capsuleArchiveBadge');
+  if(!badge) return;
+  if(count > 0){
+    badge.textContent = count > 9 ? '9+' : String(count);
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
 }
 
 function loadCapsule(){
@@ -4338,16 +4392,25 @@ function loadCapsule(){
   // sin .orderBy() junto al .where() para no depender de crear un índice
   // compuesto en Firebase; se ordena aquí mismo por fecha de desbloqueo.
   db.collection('capsules').where('recipient', '==', myKey).onSnapshot(snap => {
-    let items = [];
-    snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
-    items.sort((a, b) => new Date(a.unlockDate).getTime() - new Date(b.unlockDate).getTime());
-    renderCapsuleList(items);
+    latestCapsuleItems = [];
+    snap.forEach(doc => latestCapsuleItems.push(Object.assign({ id: doc.id }, doc.data())));
+    refreshCapsuleViews();
   }, err => {
     console.error('No se pudieron cargar las cápsulas (revisa las reglas de Firestore para la colección "capsules"):', err);
     const list = document.getElementById('capsuleList');
     if(list) list.innerHTML = '<div class="capsule-card"><p class="capsule-countdown">No se pudo cargar.</p></div>';
   });
 }
+
+document.getElementById('capsuleArchiveBtn').addEventListener('click', function(){
+  document.getElementById('capsulesArchiveOverlay').classList.add('show');
+});
+document.getElementById('capsulesArchiveCloseBtn').addEventListener('click', function(){
+  document.getElementById('capsulesArchiveOverlay').classList.remove('show');
+});
+document.getElementById('capsulesArchiveOverlay').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('show');
+});
 
 /* ---------- EDITOR DE CÁPSULA NUEVA (disponible para Admin y Mor) ---------- */
 const capsuleEditorOverlay = document.getElementById('capsuleEditorOverlay');
@@ -4359,6 +4422,7 @@ function openCapsuleEditor(){
   document.getElementById('capsuleTitleInput').value = '';
   document.getElementById('capsuleContentInput').value = '';
   capsuleEditorHint.textContent = '';
+  capsuleEditorHint.style.color = '';
   capsuleEditorOverlay.classList.add('show');
 }
 function closeCapsuleEditor(){
@@ -4414,7 +4478,9 @@ document.getElementById('publishCapsuleBtn').addEventListener('click', function(
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
     createNotification('capsule_new');
-    closeCapsuleEditor();
+    capsuleEditorHint.style.color = '#7be3a3';
+    capsuleEditorHint.textContent = '✅ ¡Cápsula creada!';
+    setTimeout(closeCapsuleEditor, 850);
   }).catch((err) => {
     console.error('No se pudo publicar la cápsula (revisa las reglas de Firestore para la colección "capsules"):', err);
     capsuleEditorHint.textContent = err && err.code === 'permission-denied'
