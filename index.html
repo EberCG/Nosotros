@@ -36,9 +36,9 @@
     --txt-2:rgba(255,255,255,0.65);
     --txt-3:rgba(255,255,255,0.45);
     --glass-1:rgba(255,255,255,0.03);
-    --glass-2:rgba(255,255,255,0.14);
-    --glass-3:rgba(255,255,255,0.22);
-    --glass-4:rgba(255,255,255,0.08);
+    --glass-2:rgba(255,255,255,0.03);
+    --glass-3:rgba(255,255,255,0.15);
+    --glass-4:rgba(255,255,255,0.04);
   }
 
   body.theme-light{
@@ -122,41 +122,12 @@
     border:1px solid var(--glass-3);
     color:var(--txt-1);font-size:1.15rem;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
-    backdrop-filter:blur(10px) saturate(180%);
-    -webkit-backdrop-filter:blur(10px) saturate(180%);
+    backdrop-filter:blur(10px) saturate(150%);
+    -webkit-backdrop-filter:blur(10px) saturate(150%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 14px rgba(0,0,0,0.25);
     transition:transform .2s ease;
   }
   .hamburger-btn:hover{transform:scale(1.06);}
-
-  /*puntito rojo  */
-.btn-relative {
-  position: relative;
-  display: inline-flex; 
-}
-
-.red-dot-glow {
-  position: absolute;
-  top: -2px; /* Mueve el puntito hacia arriba */
-  right: -2px; /* Mueve el puntito hacia la derecha */
-  width: 10px;
-  height: 10px;
-  background-color: var(--coupon-red, #e6355f); /* Nuestro rojo base */
-  border-radius: 50%; /* Lo hace un círculo perfecto */
-  /* Aquí está la magia del brillo (glow) usando los colores de la PWA */
-  box-shadow: 0 0 6px var(--coupon-red), 0 0 10px var(--pink-glow);
-  z-index: 10;
-  pointer-events: none; /* Para que no interfiera si hacen clic justo encima */
-  
-  /* Animación opcional de latido */
-  animation: pulse-dot 1.5s infinite alternate ease-in-out;
-}
-
-/* Animación para que palpite como un corazoncito/estrella */
-@keyframes pulse-dot {
-  0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 4px var(--coupon-red); }
-  100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px var(--coupon-red), 0 0 15px var(--pink-glow); }
-}
 
   /* ---------- CORAZÓN DE NOTIFICACIONES (reemplaza la campana de la barra) ---------- */
   .notif-heart-btn{
@@ -655,8 +626,8 @@
     flex:1;aspect-ratio:1/0.9;
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid var(--glass-3);
-    backdrop-filter:blur(16px) saturate(180%);
-    -webkit-backdrop-filter:blur(08px) saturate(180%);
+    backdrop-filter:blur(08px) saturate(150%);
+    -webkit-backdrop-filter:blur(08px) saturate(150%);
     border-radius:18px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     color:var(--txt-1);text-align:center;
@@ -691,8 +662,8 @@
     border:1px solid rgba(255,255,255,0.2);
     border-radius:18px;padding:26px 22px;text-align:center;
     color:var(--txt-2);font-size:.85rem;line-height:1.5;
-    backdrop-filter:blur(12px) saturate(160%);
-    -webkit-backdrop-filter:blur(px) saturate(160%);
+    backdrop-filter:blur(08px) saturate(150%);
+    -webkit-backdrop-filter:blur(08px) saturate(150%);
   }
   .dash-placeholder-flower{margin:0 auto 12px;width:38px;} /* ya no se usa aquí, pero no estorba si algo la referencia luego */
 
@@ -879,8 +850,8 @@
     padding:9px 6px calc(9px + env(safe-area-inset-bottom));
     background:var(--glass-2);
     border-top:1px solid var(--glass-3);
-    backdrop-filter:blur(08px) saturate(150%);
-    -webkit-backdrop-filter:blur(08px) saturate(150%);
+    backdrop-filter:blur(8px) saturate(150%);
+    -webkit-backdrop-filter:blur(8px) saturate(150%);
     box-shadow:0 -4px 20px rgba(0,0,0,0.15);
   }
   .bottom-nav-btn{
@@ -892,6 +863,14 @@
     -webkit-tap-highlight-color:transparent;
   }
   .bottom-nav-btn.active{color:var(--pink-glow);}
+
+  .nav-unread-dot{
+    display:none;position:absolute;top:2px;right:calc(50% - 17px);
+    width:9px;height:9px;border-radius:50%;
+    background:#ff3b30;border:2px solid var(--page-bg);
+    box-shadow:0 0 6px rgba(255,59,48,0.7);
+  }
+  .nav-unread-dot.show{display:block;animation:echo-dot-pulse 1.6s ease-in-out infinite;}
   .bottom-nav-btn:active .nav-icon{transform:scale(0.88);}
 
   .nav-icon{
@@ -990,8 +969,8 @@
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
     border-radius:20px;padding:18px 18px 22px;text-align:center;
-    backdrop-filter:blur(10px) saturate(200%);
-    -webkit-backdrop-filter:blur(10px) saturate(200%);
+    backdrop-filter:blur(08px) saturate(150%);
+    -webkit-backdrop-filter:blur(08px) saturate(150%);
   }
   /* Manda la racha a la esquina superior DERECHA */
   .plant-card {
@@ -1030,8 +1009,8 @@
   .milestone-overlay.show{display:flex;opacity:1;}
 
   .milestone-overlay.tier-10{ --flame-a:#ffd54f; --flame-b:#ff3d00; --flame-glow:#ff6f00; }
-  .milestone-overlay.tier-15{ --flame-a:#00e5ff; --flame-b:#ff1744; --flame-glow:#2979ff; }
-  .milestone-overlay.tier-21{ --flame-a:#e040fb; --flame-b:#6a00ff; --flame-glow:#aa00ff; }
+  .milestone-overlay.tier-50{ --flame-a:#00e5ff; --flame-b:#ff1744; --flame-glow:#2979ff; }
+  .milestone-overlay.tier-100{ --flame-a:#e040fb; --flame-b:#6a00ff; --flame-glow:#aa00ff; }
 
   .milestone-flame-glow{
     position:absolute;width:360px;height:360px;border-radius:50%;
@@ -1175,8 +1154,8 @@
     padding:10px 26px;border:1px solid rgba(255,255,255,0.5);
     border-radius:999px;
     background:linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08) 55%, rgba(255,255,255,0.22));
-    backdrop-filter:blur(10px) saturate(180%);
-    -webkit-backdrop-filter:blur(10px) saturate(180%);
+    backdrop-filter:blur(16px) saturate(180%);
+    -webkit-backdrop-filter:blur(16px) saturate(180%);
     color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;
     font-size:.85rem;cursor:pointer;
     box-shadow:
@@ -1196,8 +1175,8 @@
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
     border-radius:20px;padding:20px 18px;text-align:center;
-    backdrop-filter:blur(08px) saturate(200%);
-    -webkit-backdrop-filter:blur(08px) saturate(200%);
+    backdrop-filter:blur(08px) saturate(150%);
+    -webkit-backdrop-filter:blur(08px) saturate(150%);
   }
   .mood-prompt{color:var(--txt-1);font-size:.85rem;margin:0 0 12px;}
 
@@ -1498,13 +1477,12 @@
   body.theme-light .coupon-status-text.fail{color:#d43d3d;}
 
   /* ---------- CÁPSULA DEL TIEMPO ---------- */
-  .capsule-list{display:flex;flex-direction:column;gap:14px;}
   .capsule-card{
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
     border-radius:20px;padding:28px 20px;text-align:center;
-    backdrop-filter:blur(12px) saturate(200%);
-    -webkit-backdrop-filter:blur(12px) saturate(200%);
+    backdrop-filter:blur(08px) saturate(150%);
+    -webkit-backdrop-filter:blur(08px) saturate(150%);
   }
   .capsule-lock-icon{
     font-size:2.2rem;margin-bottom:10px;
@@ -1788,13 +1766,134 @@
     color:var(--txt-1);font-size:1.3rem;text-align:center;
   }
 
+  /* ---------- PORTADA DE PERFIL (estilo Facebook) ---------- */
+  .perfil-cover-wrap{
+    position:relative;width:100%;height:140px;border-radius:18px;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);
+    overflow:hidden;margin-top:2px;
+  }
+  .perfil-cover-img{
+    position:absolute;inset:0;background-size:cover;background-position:center;
+    transition:opacity .3s ease;
+  }
+  .perfil-cover-wrap:not(.has-cover) .perfil-cover-img::after{
+    content:'📷 Agrega una portada';
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--txt-3);font-family:'Quicksand',sans-serif;font-size:.78rem;
+  }
+  .perfil-cover-edit{
+    position:absolute;top:10px;right:10px;z-index:2;
+    width:32px;height:32px;border-radius:50%;
+    background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;border:1px solid rgba(255,255,255,0.25);
+  }
+  .perfil-cover-edit svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* el bloque del avatar ahora se monta sobre la portada, como Facebook */
+  .perfil-avatar-block{margin-top:-46px;}
+  .perfil-avatar-stage{position:relative;display:flex;justify-content:center;}
+  .perfil-avatar-wrap{border:3px solid var(--page-bg);border-radius:50%;}
+
+  /* ---------- BURBUJA DE ESTADO (arriba de la foto) ---------- */
+  .perfil-status-trigger{
+    position:absolute;top:0;right:calc(50% - 78px);z-index:3;
+    width:28px;height:28px;border-radius:50%;
+    background:linear-gradient(135deg, var(--pink-glow), var(--accent-violet));
+    color:#fff;border:2px solid var(--page-bg);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.85rem;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  }
+  .perfil-status-bubble{
+    position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+    display:none;align-items:center;gap:4px;
+    max-width:190px;padding:7px 13px;border-radius:16px;
+    font-family:'Quicksand',sans-serif;font-weight:600;font-size:.74rem;
+    color:#fff;white-space:normal;text-align:center;line-height:1.3;
+    box-shadow:0 6px 16px rgba(0,0,0,0.3);
+    animation:status-bubble-float 2.6s ease-in-out infinite;
+  }
+  .perfil-status-bubble::after{
+    content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:6px solid transparent;
+  }
+  .profile-status-blue, .echo-status-blue{background:linear-gradient(135deg, #468CFF, #2f6fe0);}
+  .profile-status-blue::after, .echo-status-blue::after{border-top-color:#2f6fe0;}
+  .profile-status-violet, .echo-status-violet{background:linear-gradient(135deg, #B285FF, #9457f0);}
+  .profile-status-violet::after, .echo-status-violet::after{border-top-color:#9457f0;}
+  @keyframes status-bubble-float{
+    0%,100%{ transform:translateX(-50%) translateY(0); }
+    50%{ transform:translateX(-50%) translateY(-5px); }
+  }
+
+  /* ---------- MODAL: poner estado ---------- */
+  .status-modal-overlay{
+    display:none;position:fixed;inset:0;z-index:80;
+    background:rgba(5,4,22,0.6);align-items:center;justify-content:center;padding:20px;
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  }
+  .status-modal-overlay.show{display:flex;}
+  .status-modal{
+    width:min(360px,92vw);
+    background:linear-gradient(150deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);border-radius:22px;padding:22px 20px;
+    backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+    box-shadow:0 20px 50px rgba(0,0,0,0.4);
+  }
+  .status-modal-title{
+    margin:0 0 14px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    color:var(--txt-1);font-size:1.1rem;text-align:center;
+  }
+  #statusTextInput{
+    width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--glass-3);
+    background:var(--glass-1);color:var(--txt-1);font-family:'Quicksand',sans-serif;font-size:.9rem;
+    outline:none;box-sizing:border-box;
+  }
+  #statusTextInput:focus{border-color:var(--accent-violet);}
+  .status-modal-label{
+    margin:16px 0 8px;font-size:.72rem;color:var(--txt-2);
+    text-transform:uppercase;letter-spacing:.5px;font-family:'Quicksand',sans-serif;
+  }
+  .status-duration-row{display:flex;gap:8px;}
+  .status-duration-chip{
+    flex:1;padding:9px 0;border-radius:14px;border:1px solid var(--glass-3);
+    background:var(--glass-1);color:var(--txt-2);font-family:'Quicksand',sans-serif;
+    font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s ease;
+  }
+  .status-duration-chip.selected{
+    background:linear-gradient(135deg, var(--pink-glow), var(--accent-violet));
+    border-color:transparent;color:#fff;
+  }
+  .status-modal-actions{display:flex;gap:10px;margin-top:20px;}
+  .status-modal-actions .action-btn{flex:1;margin:0;}
+  .status-clear-btn{
+    display:block;width:100%;text-align:center;margin-top:12px;
+    background:none;border:none;color:var(--txt-3);font-size:.72rem;
+    font-family:'Quicksand',sans-serif;cursor:pointer;text-decoration:underline;
+  }
+
+  /* ---------- puntito rojo de mensajes nuevos en el botón Echo ---------- */
+  .echo-btn{position:relative;}
+  .echo-unread-dot{
+    display:none;position:absolute;top:6px;right:10px;
+    width:10px;height:10px;border-radius:50%;
+    background:#ff3b30;border:2px solid var(--page-bg);
+    box-shadow:0 0 6px rgba(255,59,48,0.7);
+  }
+  .echo-unread-dot.show{display:block;animation:echo-dot-pulse 1.6s ease-in-out infinite;}
+  @keyframes echo-dot-pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.25); }
+  }
+
   .perfil-counters-row{
     display:flex;justify-content:space-around;align-items:center;
     margin:0 0 22px;padding:16px 6px;
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid var(--glass-3);border-radius:18px;
-    backdrop-filter:blur(10px) saturate(200%);
-    -webkit-backdrop-filter:blur(10px) saturate(200%);
+    backdrop-filter:blur(08px) saturate(150%);
+    -webkit-backdrop-filter:blur(08px) saturate(150%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 18px rgba(0,0,0,0.25);
   }
   .perfil-counter{display:flex;flex-direction:column;align-items:center;gap:2px;}
@@ -1967,6 +2066,21 @@
     display:flex;align-items:center;justify-content:center;
     font-size:1.2rem;color:var(--txt-2);
   }
+  .echo-status-bubble{
+    position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);
+    display:none;align-items:center;
+    max-width:120px;padding:4px 9px;border-radius:12px;
+    font-family:'Quicksand',sans-serif;font-weight:600;font-size:.62rem;
+    color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    box-shadow:0 4px 10px rgba(0,0,0,0.3);z-index:2;
+    animation:status-bubble-float 2.6s ease-in-out infinite;
+  }
+  .echo-status-bubble::after{
+    content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:4px solid transparent;
+  }
+  .echo-status-blue::after{border-top-color:#2f6fe0;}
+  .echo-status-violet::after{border-top-color:#9457f0;}
 
   .echo-header-info{display:flex;flex-direction:column;min-width:0;}
   .echo-header-name{
@@ -2446,13 +2560,7 @@
       <!-- pestaña: recuerdos -->
       <div class="dash-tab-panel" id="dash-tab-recuerdos">
         <div class="recuerdos-top-row">
-          <button class="capsule-new-btn" id="capsuleArchiveBtn" title="Cápsulas abiertas">
-            <svg viewBox="0 0 24 24">
-              <path d="M3 8l9-5 9 5-9 5-9-5z"/>
-              <path d="M3 8v8l9 5 9-5V8"/>
-            </svg>
-            <span class="notif-badge" id="capsuleArchiveBadge">0</span>
-          </button>
+          <span class="recuerdos-top-spacer"></span>
           <p class="dash-section-title" style="margin:0;flex:1;">Recuerdos</p>
           <button class="capsule-new-btn" id="capsuleNewBtn" title="Nueva cápsula">
             <svg viewBox="0 0 24 24">
@@ -2463,11 +2571,14 @@
           </button>
         </div>
 
-        <div class="capsule-list" id="capsuleList">
-          <div class="capsule-card">
-            <div class="capsule-lock-icon">🔒</div>
-            <p class="capsule-title">Cápsula del Tiempo</p>
-            <p class="capsule-countdown">Cargando…</p>
+        <div class="capsule-card" id="capsuleCard">
+          <div class="capsule-lock-icon" id="capsuleLockIcon">🔒</div>
+          <p class="capsule-title" id="capsuleTitle">Cápsula del Tiempo</p>
+          <p class="capsule-author-line" id="capsuleAuthorLine" style="display:none;"></p>
+          <p class="capsule-countdown" id="capsuleCountdown">Cargando…</p>
+          <div class="capsule-reveal" id="capsuleReveal" style="display:none;">
+            <img class="capsule-image" id="capsuleImage" style="display:none;">
+            <div class="capsule-text" id="capsuleText"></div>
           </div>
         </div>
 
@@ -2519,6 +2630,7 @@
             <path d="M21.5 2.5 10.8 13.2"/>
             <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
           </svg>
+          <span class="nav-unread-dot echo-nav-dot"></span>
         </button>
         <button class="bottom-nav-btn" data-dashtab="regalos" title="Regalos">
           <svg class="nav-icon" viewBox="0 0 24 24">
@@ -2571,10 +2683,10 @@
         <svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.2L16.5 4.5a1.8 1.8 0 0 1 2.5 0l1 1a1.8 1.8 0 0 1 0 2.5L8.7 19.3z"/><path d="M14.5 6.5l3 3"/></svg>
         Nueva nota
       </button>
-     <button class="buzon-cap-btn echo-btn btn-relative" id="echoOpenBtn">
+      <button class="buzon-cap-btn echo-btn" id="echoOpenBtn">
         <svg viewBox="0 0 24 24"><path d="M4 12.5C4 8 7.8 4.5 12.4 4.5S20.8 8 20.8 12.5c0 4.5-3.8 8-8.4 8-1 0-2-.15-2.9-.45L5 21.5l1.1-3.4A7.7 7.7 0 0 1 4 12.5z"/></svg>
         Echo
-        <span class="red-dot-glow" id="echoPuntito"></span>
+        <span class="echo-unread-dot" id="echoUnreadDot"></span>
       </button>
       <button class="buzon-cap-btn" id="newMailLetterBtn">
         <svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
@@ -2601,6 +2713,7 @@
           <path d="M21.5 2.5 10.8 13.2"/>
           <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
         </svg>
+        <span class="nav-unread-dot echo-nav-dot"></span>
       </button>
       <button class="bottom-nav-btn" data-dashtab="regalos" title="Regalos">
         <svg class="nav-icon" viewBox="0 0 24 24">
@@ -2642,17 +2755,34 @@
       </div>
 
       <div class="perfil-scroll">
-        <div class="perfil-avatar-block">
-          <label class="perfil-avatar-wrap" for="profileAvatarInput" title="Cambiar foto de perfil">
-            <div class="perfil-avatar" id="profileAvatarImgWrap">🤍</div>
-            <span class="perfil-avatar-edit">
-              <svg viewBox="0 0 24 24">
-                <path d="M4 16.5V19h2.5L17.8 7.7l-2.5-2.5L4 16.5z"/>
-                <path d="M16.3 4.4l2.5 2.5"/>
-              </svg>
-            </span>
-            <input type="file" id="profileAvatarInput" accept="image/*">
+        <div class="perfil-cover-wrap" id="perfilCoverWrap">
+          <div class="perfil-cover-img" id="profileCoverImgWrap"></div>
+          <label class="perfil-cover-edit" for="profileCoverInput" title="Cambiar portada">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 16.5V19h2.5L17.8 7.7l-2.5-2.5L4 16.5z"/>
+              <path d="M16.3 4.4l2.5 2.5"/>
+            </svg>
           </label>
+          <input type="file" id="profileCoverInput" accept="image/*" style="display:none;">
+        </div>
+
+        <div class="perfil-avatar-block">
+          <div class="perfil-avatar-stage">
+            <div class="perfil-status-bubble" id="profileStatusBubble">
+              <span id="profileStatusText"></span>
+            </div>
+            <label class="perfil-avatar-wrap" for="profileAvatarInput" title="Cambiar foto de perfil">
+              <div class="perfil-avatar" id="profileAvatarImgWrap">🤍</div>
+              <span class="perfil-avatar-edit">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 16.5V19h2.5L17.8 7.7l-2.5-2.5L4 16.5z"/>
+                  <path d="M16.3 4.4l2.5 2.5"/>
+                </svg>
+              </span>
+              <input type="file" id="profileAvatarInput" accept="image/*">
+            </label>
+            <button class="perfil-status-trigger" id="profileStatusTriggerBtn" title="Poner un estado">💬</button>
+          </div>
           <p class="perfil-username" id="profileUsername">–</p>
         </div>
 
@@ -2692,13 +2822,13 @@
             <path d="M4 16.5l4.5-4.5 3.5 3.5 3-3 4.5 4.5"/>
           </svg>
         </button>
-          <button class="bottom-nav-btn btn-relative" data-goto="buzon" title="Buzón">
-        <svg class="nav-icon" viewBox="0 0 24 24">
-          <path d="M21.5 2.5 10.8 13.2"/>
-          <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
-        </svg>
-        <span class="red-dot-glow" id="buzonPuntito"></span>
-      </button>
+           <button class="bottom-nav-btn" data-goto="buzon" title="Buzón">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M21.5 2.5 10.8 13.2"/>
+            <path d="M21.5 2.5 14.7 21.5l-3.9-8.3-8.3-3.9 19-6.8z"/>
+          </svg>
+          <span class="nav-unread-dot echo-nav-dot"></span>
+        </button>
         <button class="bottom-nav-btn" data-dashtab="regalos" title="Regalos">
           <svg class="nav-icon" viewBox="0 0 24 24">
             <rect x="3.5" y="9" width="17" height="11" rx="1.5"/>
@@ -2771,15 +2901,22 @@
   </div>
 </div>
 
-<div class="notif-overlay" id="capsulesArchiveOverlay">
-  <div class="notif-panel">
-    <div class="notif-panel-header">
-      <p class="notif-panel-title">Cápsulas abiertas</p>
-      <button class="notif-close-btn" id="capsulesArchiveCloseBtn">✕</button>
+<!-- ---------- MODAL: poner un estado (con duración) ---------- -->
+<div class="status-modal-overlay" id="statusModalOverlay">
+  <div class="status-modal">
+    <p class="status-modal-title">¿Qué quieres contar?</p>
+    <input type="text" id="statusTextInput" maxlength="40" placeholder="ej. extrañándote 🥺">
+    <p class="status-modal-label">¿Cuánto dura?</p>
+    <div class="status-duration-row">
+      <button class="status-duration-chip" data-hours="12">12 hrs</button>
+      <button class="status-duration-chip selected" data-hours="24">24 hrs</button>
+      <button class="status-duration-chip" data-hours="48">48 hrs</button>
     </div>
-    <div class="notif-list" id="capsulesArchiveList">
-      <p class="notif-empty">Aún no se ha abierto ninguna cápsula 💭</p>
+    <div class="status-modal-actions">
+      <button class="action-btn secondary" id="statusCancelBtn">Cancelar</button>
+      <button class="action-btn" id="statusSaveBtn">Guardar</button>
     </div>
+    <button class="status-clear-btn" id="statusClearBtn">Quitar estado actual</button>
   </div>
 </div>
 
@@ -2873,6 +3010,9 @@
         <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
       <div class="echo-avatar-wrap" id="echoAvatarWrap">
+        <div class="echo-status-bubble" id="echoStatusBubble">
+          <span id="echoStatusText"></span>
+        </div>
         <div class="echo-avatar echo-avatar-placeholder" id="echoAvatarPlaceholder">🤍</div>
         <img class="echo-avatar" id="echoAvatarImg" alt="" style="display:none;">
       </div>
@@ -3068,7 +3208,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-27-63";
+const APP_VERSION = "2026-07-27-70";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3437,11 +3577,11 @@ function renderPlant(state){
    No usa Firebase para nada — el "ya lo vi" se guarda solo en este
    navegador (localStorage) para que no se repita en cada visita.
    ============================================================ */
-const PLANT_STREAK_MILESTONES = [10, 15, 21];
+const PLANT_STREAK_MILESTONES = [10, 50, 100];
 const PLANT_STREAK_TAGLINES = {
   10: 'Su amor sigue creciendo 🌱',
-  15: 'Una llama que no se apaga 💙',
-  21: 'Días de amor infinito 💜'
+  50: 'Una llama que no se apaga 💙',
+  100: 'Cien días de amor infinito 💜'
 };
 
 function checkStreakMilestone(streak){
@@ -3454,7 +3594,7 @@ function checkStreakMilestone(streak){
 
 function showStreakMilestone(streak){
   const overlay = document.getElementById('milestoneOverlay');
-  overlay.classList.remove('tier-10', 'tier-15', 'tier-21');
+  overlay.classList.remove('tier-10', 'tier-50', 'tier-100');
   overlay.classList.add('tier-' + streak);
   document.getElementById('milestoneDaysNum').textContent = streak;
   overlay.querySelector('.milestone-tagline').textContent = PLANT_STREAK_TAGLINES[streak] || '¡Felicidades! 🔥';
@@ -3853,7 +3993,8 @@ function initProfilePage(){
   startProfileLikedListener();
 }
 
-/* ---- foto de perfil (se guarda como imagen reducida en Firestore, así se ve en cualquier dispositivo) ---- */
+/* ---- foto de perfil, portada y estado (todo vive en el mismo documento users/{key}) ---- */
+let myLastStatus = null;
 function startProfileAvatarListener(){
   if(profileAvatarListenerStarted || !currentUserLabel) return;
   profileAvatarListenerStarted = true;
@@ -3867,10 +4008,138 @@ function startProfileAvatarListener(){
     } else {
       wrap.textContent = '🤍';
     }
+
+    const coverWrap = document.getElementById('profileCoverImgWrap');
+    const coverBox = document.getElementById('perfilCoverWrap');
+    if(coverWrap && coverBox){
+      if(data && data.coverURL){
+        coverWrap.style.backgroundImage = `url("${data.coverURL}")`;
+        coverBox.classList.add('has-cover');
+      } else {
+        coverWrap.style.backgroundImage = '';
+        coverBox.classList.remove('has-cover');
+      }
+    }
+
+    myLastStatus = (data && data.status) || null;
+    renderStatusBubble('profile', myKey, myLastStatus);
   }, err => {
-    console.error('No se pudo cargar la foto de perfil (revisa las reglas de Firestore para la colección "users"):', err);
+    console.error('No se pudo cargar tu perfil (revisa las reglas de Firestore para la colección "users"):', err);
   });
 }
+
+document.getElementById('profileCoverInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file || !currentUserLabel) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      // recorte tipo "portada de Facebook" (proporción ancha), reducido
+      // para que quepa cómodo dentro de un documento de Firestore
+      const targetW = 640, targetH = 240;
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW; canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      const srcRatio = img.width / img.height;
+      const targetRatio = targetW / targetH;
+      let sx, sy, sw, sh;
+      if(srcRatio > targetRatio){
+        sh = img.height; sw = sh * targetRatio;
+        sx = (img.width - sw) / 2; sy = 0;
+      } else {
+        sw = img.width; sh = sw / targetRatio;
+        sx = 0; sy = (img.height - sh) / 2;
+      }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.72);
+      db.collection('users').doc(myKeyNow()).set({
+        coverURL: dataUrl,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true}).catch(() => {
+        alert('No se pudo guardar tu portada, revisa tu conexión.');
+      });
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ---- estado temporal (burbuja arriba de la foto, con duración) ----
+   se guarda como users/{key}.status = {text, expiresAt, updatedAt}.
+   expiresAt es un número (ms desde epoch) calculado en el momento de
+   guardar, así cualquier dispositivo sabe cuándo debe dejar de mostrarla
+   sin depender de una función en la nube. */
+let statusSelectedHours = 24;
+
+function renderStatusBubble(context, ownerKey, status){
+  const prefix = context === 'echo' ? 'echoStatus' : 'profileStatus';
+  const bubble = document.getElementById(prefix + 'Bubble');
+  const textEl = document.getElementById(prefix + 'Text');
+  if(!bubble || !textEl) return;
+  bubble.classList.remove('profile-status-blue', 'profile-status-violet', 'echo-status-blue', 'echo-status-violet');
+  const isValid = !!(status && status.text && status.expiresAt && status.expiresAt > Date.now());
+  if(!isValid){
+    bubble.style.display = 'none';
+    return;
+  }
+  textEl.textContent = status.text;
+  const colorWord = ownerKey === 'admin' ? 'blue' : 'violet';
+  bubble.classList.add((context === 'echo' ? 'echo-status-' : 'profile-status-') + colorWord);
+  bubble.style.display = 'flex';
+}
+
+// revisa cada minuto si algún estado (el mío o el de mi pareja en Echo) ya
+// venció, para ocultar la burbuja sola sin necesidad de recargar la página
+setInterval(function(){
+  const myKey = myKeyNow();
+  if(myKey && myLastStatus) renderStatusBubble('profile', myKey, myLastStatus);
+  if(typeof echoOtherLastStatus !== 'undefined' && echoOtherLastStatus && typeof echoOtherKeyGlobal !== 'undefined'){
+    renderStatusBubble('echo', echoOtherKeyGlobal, echoOtherLastStatus);
+  }
+}, 60000);
+
+document.getElementById('profileStatusTriggerBtn').addEventListener('click', function(){
+  document.getElementById('statusTextInput').value = (myLastStatus && myLastStatus.expiresAt > Date.now()) ? myLastStatus.text : '';
+  statusSelectedHours = 24;
+  document.querySelectorAll('.status-duration-chip').forEach(chip => {
+    chip.classList.toggle('selected', Number(chip.dataset.hours) === 24);
+  });
+  document.getElementById('statusModalOverlay').classList.add('show');
+});
+document.getElementById('statusCancelBtn').addEventListener('click', function(){
+  document.getElementById('statusModalOverlay').classList.remove('show');
+});
+document.getElementById('statusModalOverlay').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('show');
+});
+document.querySelectorAll('.status-duration-chip').forEach(chip => {
+  chip.addEventListener('click', function(){
+    document.querySelectorAll('.status-duration-chip').forEach(c => c.classList.remove('selected'));
+    this.classList.add('selected');
+    statusSelectedHours = Number(this.dataset.hours);
+  });
+});
+document.getElementById('statusSaveBtn').addEventListener('click', function(){
+  const text = document.getElementById('statusTextInput').value.trim();
+  const myKey = myKeyNow();
+  if(!text || !myKey) return;
+  const expiresAt = Date.now() + statusSelectedHours * 3600000;
+  db.collection('users').doc(myKey).set({
+    status: { text: text, expiresAt: expiresAt, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }
+  }, {merge:true}).then(() => {
+    document.getElementById('statusModalOverlay').classList.remove('show');
+  }).catch(() => {
+    alert('No se pudo guardar tu estado, revisa tu conexión.');
+  });
+});
+document.getElementById('statusClearBtn').addEventListener('click', function(){
+  const myKey = myKeyNow();
+  if(!myKey) return;
+  db.collection('users').doc(myKey).set({ status: null }, {merge:true}).then(() => {
+    document.getElementById('statusModalOverlay').classList.remove('show');
+  }).catch(() => {});
+});
 
 document.getElementById('profileAvatarInput').addEventListener('change', function(e){
   const file = e.target.files[0];
@@ -3926,17 +4195,14 @@ function startProfileLettersCountListener(){
 function startProfileCapsuleCountListener(){
   if(profileCapsuleCountListenerStarted || !currentUserLabel) return;
   profileCapsuleCountListenerStarted = true;
-  const myKey = myKeyNow();
-  db.collection('capsules').where('recipient', '==', myKey).onSnapshot(snap => {
+  db.collection('capsule').doc('current').onSnapshot(doc => {
     const el = document.getElementById('profileCapsulesCount');
     if(!el) return;
-    let unlockedCount = 0;
-    snap.forEach(doc => {
-      const data = doc.data();
-      const isUnlocked = data && data.unlockDate && (new Date(data.unlockDate).getTime() - Date.now()) <= 0;
-      if(isUnlocked) unlockedCount++;
-    });
-    el.textContent = unlockedCount;
+    const data = doc.exists ? doc.data() : null;
+    const myKey = myKeyNow();
+    const isMine = data && data.author && data.author.toLowerCase() === myKey;
+    const isUnlocked = data && data.unlockDate && (new Date(data.unlockDate).getTime() - Date.now()) <= 0;
+    el.textContent = (data && isUnlocked && !isMine) ? 1 : 0;
   }, () => {});
 }
 
@@ -4283,9 +4549,8 @@ document.getElementById('couponConfirmYes').addEventListener('click', function()
 });
 
 /* ---------- CÁPSULA DEL TIEMPO ---------- */
-let capsuleIntervals = [];
+let capsuleInterval = null;
 let capsuleListenerStarted = false;
-let latestCapsuleItems = [];
 
 function formatCountdown(ms){
   const totalSeconds = Math.floor(ms / 1000);
@@ -4298,154 +4563,99 @@ function formatCountdown(ms){
   return `Se abre en ${minutes}m ${seconds}s`;
 }
 
-/* separa las cápsulas pendientes (siguen cerradas) de las ya abiertas cada
-   vez que cambian los datos O cada vez que un contador llega a cero */
-function refreshCapsuleViews(){
-  const now = Date.now();
-  const pending = latestCapsuleItems
-    .filter(c => new Date(c.unlockDate).getTime() > now)
-    .sort((a, b) => new Date(a.unlockDate).getTime() - new Date(b.unlockDate).getTime());
-  const opened = latestCapsuleItems
-    .filter(c => new Date(c.unlockDate).getTime() <= now)
-    .sort((a, b) => new Date(b.unlockDate).getTime() - new Date(a.unlockDate).getTime());
+function renderCapsule(data){
+  const lockIcon = document.getElementById('capsuleLockIcon');
+  const title = document.getElementById('capsuleTitle');
+  const authorLine = document.getElementById('capsuleAuthorLine');
+  const countdown = document.getElementById('capsuleCountdown');
+  const reveal = document.getElementById('capsuleReveal');
+  const image = document.getElementById('capsuleImage');
+  const text = document.getElementById('capsuleText');
 
-  renderCapsuleList(pending);
-  renderCapsulesArchive(opened);
-  updateCapsuleArchiveBadge(opened.length);
-}
+  if(capsuleInterval){ clearInterval(capsuleInterval); capsuleInterval = null; }
 
-/* la ventana de Recuerdos solo muestra las cápsulas que AÚN están cerradas
-   (la grandota, con su cuenta regresiva). En cuanto una se abre, deja de
-   vivir aquí — se archiva sola en el panel de "Cápsulas abiertas" para no
-   ir empujando la galería hacia abajo. */
-function renderCapsuleList(items){
-  const list = document.getElementById('capsuleList');
-  if(!list) return;
-
-  capsuleIntervals.forEach(id => clearInterval(id));
-  capsuleIntervals = [];
-
-  if(!items.length){
-    list.innerHTML = `
-      <div class="capsule-card">
-        <div class="capsule-lock-icon">🔒</div>
-        <p class="capsule-title">Cápsula del Tiempo</p>
-        <p class="capsule-countdown">Aun nada por aqui.</p>
-      </div>`;
+  if(!data || !data.unlockDate){
+    lockIcon.textContent = '🔒';
+    title.textContent = 'Cápsula del Tiempo';
+    authorLine.style.display = 'none';
+    countdown.textContent = 'Aún no hay ninguna cápsula guardada.';
+    reveal.style.display = 'none';
     return;
   }
 
-  list.innerHTML = items.map(() => `
-    <div class="capsule-card">
-      <div class="capsule-lock-icon">🔒</div>
-      <p class="capsule-title">Cápsula del Tiempo</p>
-      <p class="capsule-author-line" style="display:none;"></p>
-      <p class="capsule-countdown">Cargando…</p>
-    </div>`).join('');
-
-  const cards = list.querySelectorAll('.capsule-card');
-
-  items.forEach((data, i) => {
-    const card = cards[i];
-    const title = card.querySelector('.capsule-title');
-    const authorLine = card.querySelector('.capsule-author-line');
-    const countdown = card.querySelector('.capsule-countdown');
-
-    // el nombre de quien la publicó se muestra con su apodo cariñoso (Oliver/Love)
-    if(data.author){
-      authorLine.textContent = `Dejada por ${displayNameFor(data.author.toLowerCase())} 💌`;
-      authorLine.style.display = 'block';
-    } else {
-      authorLine.style.display = 'none';
-    }
-
-    const unlockTime = new Date(data.unlockDate).getTime();
-
-    function tick(){
-      const remaining = unlockTime - Date.now();
-      if(remaining <= 0){
-        const idx = capsuleIntervals.indexOf(intervalId);
-        if(idx !== -1){ clearInterval(capsuleIntervals[idx]); capsuleIntervals.splice(idx, 1); }
-        // se acaba de abrir sola: recalculamos para que pase al archivo
-        refreshCapsuleViews();
-      } else {
-        title.textContent = data.title || 'Cápsula del Tiempo';
-        countdown.textContent = formatCountdown(remaining);
-      }
-    }
-
-    tick();
-    const intervalId = setInterval(tick, 1000);
-    capsuleIntervals.push(intervalId);
-  });
-}
-
-/* panel flotante de cápsulas ya abiertas (mismo patrón visual que notificaciones) */
-function renderCapsulesArchive(items){
-  const list = document.getElementById('capsulesArchiveList');
-  if(!list) return;
-
-  if(!items.length){
-    list.innerHTML = '<p class="notif-empty">Aún no se ha abierto ninguna cápsula 💭</p>';
-    return;
-  }
-
-  list.innerHTML = items.map(data => {
-    const authorText = data.author ? `Dejada por ${displayNameFor(data.author.toLowerCase())} 💌` : '';
-    const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
-    const imageHtml = data.imageUrl ? `<img class="capsule-image" src="${data.imageUrl}">` : '';
-    const openedDate = new Date(data.unlockDate).toLocaleString('es-MX', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
-    return `<div class="capsule-card" style="margin-bottom:14px;">
-        <div class="capsule-lock-icon">💌</div>
-        <p class="capsule-title">${data.title || 'Cápsula del Tiempo'}</p>
-        ${authorText ? `<p class="capsule-author-line">${authorText}</p>` : ''}
-        <p class="capsule-countdown">Se abrió el ${openedDate}</p>
-        <div class="capsule-reveal">
-          ${imageHtml}
-          <div class="capsule-text">${paragraphs.map(p => `<p>${p}</p>`).join('')}</div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function updateCapsuleArchiveBadge(count){
-  const badge = document.getElementById('capsuleArchiveBadge');
-  if(!badge) return;
-  if(count > 0){
-    badge.textContent = count > 9 ? '9+' : String(count);
-    badge.classList.add('show');
+  // el nombre de quien la publicó se muestra tal cual la cuenta (Admin/Mor),
+  // no el apodo cariñoso, para que quede claro quién dejó la sorpresa
+  if(data.author){
+    const authorLabel = data.author.toLowerCase() === 'admin' ? 'Admin' : 'Mor';
+    authorLine.textContent = `Dejada por ${authorLabel} 💌`;
+    authorLine.style.display = 'block';
   } else {
-    badge.classList.remove('show');
+    authorLine.style.display = 'none';
   }
+
+  const unlockTime = new Date(data.unlockDate).getTime();
+
+  function tick(){
+    const remaining = unlockTime - Date.now();
+    if(remaining <= 0){
+      if(capsuleInterval){ clearInterval(capsuleInterval); capsuleInterval = null; }
+      lockIcon.textContent = '💌';
+      title.textContent = data.title || 'Cápsula del Tiempo';
+      countdown.textContent = '¡Se abrió! 🎉';
+      reveal.style.display = 'block';
+      if(data.imageUrl){
+        image.src = data.imageUrl;
+        image.style.display = 'block';
+      } else {
+        image.style.display = 'none';
+      }
+      const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
+      text.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+    } else {
+      lockIcon.textContent = '🔒';
+      title.textContent = data.title || 'Cápsula del Tiempo';
+      countdown.textContent = formatCountdown(remaining);
+      reveal.style.display = 'none';
+    }
+  }
+
+  tick();
+  capsuleInterval = setInterval(tick, 1000);
 }
 
 function loadCapsule(){
-  if(capsuleListenerStarted || !currentUserLabel) return;
+  if(capsuleListenerStarted) return;
   capsuleListenerStarted = true;
-  const myKey = myKeyNow();
+  db.collection('capsule').doc('current').onSnapshot(doc => {
+    const data = doc.exists ? doc.data() : null;
+    renderCapsule(data);
 
-  // sin .orderBy() junto al .where() para no depender de crear un índice
-  // compuesto en Firebase; se ordena aquí mismo por fecha de desbloqueo.
-  db.collection('capsules').where('recipient', '==', myKey).onSnapshot(snap => {
-    latestCapsuleItems = [];
-    snap.forEach(doc => latestCapsuleItems.push(Object.assign({ id: doc.id }, doc.data())));
-    refreshCapsuleViews();
-  }, err => {
-    console.error('No se pudieron cargar las cápsulas (revisa las reglas de Firestore para la colección "capsules"):', err);
-    const list = document.getElementById('capsuleList');
-    if(list) list.innerHTML = '<div class="capsule-card"><p class="capsule-countdown">No se pudo cargar.</p></div>';
+    // La cápsula puede llegar por dos vías: publicada desde el editor de la
+    // app (que ya guarda notifiedFor junto con el resto, ver publishCapsule),
+    // o editada a mano en la consola de Firestore — para ese segundo caso
+    // seguimos detectando cambios de "unlockDate" para avisar una sola vez.
+    if(data && data.unlockDate){
+      if(data.notifiedFor === undefined){
+        db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
+      } else if(data.notifiedFor !== data.unlockDate){
+        db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
+        const actorKey = (data.author || 'admin').toLowerCase();
+        db.collection('notifications').add({
+          type: 'capsule_new',
+          actorKey: actorKey,
+          recipientKey: otherKeyOf(actorKey),
+          meta: {},
+          read: false,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err => {
+          console.error('No se pudo crear la notificación de cápsula nueva:', err);
+        });
+      }
+    }
+  }, () => {
+    document.getElementById('capsuleCountdown').textContent = 'No se pudo cargar.';
   });
 }
-
-document.getElementById('capsuleArchiveBtn').addEventListener('click', function(){
-  document.getElementById('capsulesArchiveOverlay').classList.add('show');
-});
-document.getElementById('capsulesArchiveCloseBtn').addEventListener('click', function(){
-  document.getElementById('capsulesArchiveOverlay').classList.remove('show');
-});
-document.getElementById('capsulesArchiveOverlay').addEventListener('click', function(e){
-  if(e.target === this) this.classList.remove('show');
-});
 
 /* ---------- EDITOR DE CÁPSULA NUEVA (disponible para Admin y Mor) ---------- */
 const capsuleEditorOverlay = document.getElementById('capsuleEditorOverlay');
@@ -4457,7 +4667,6 @@ function openCapsuleEditor(){
   document.getElementById('capsuleTitleInput').value = '';
   document.getElementById('capsuleContentInput').value = '';
   capsuleEditorHint.textContent = '';
-  capsuleEditorHint.style.color = '';
   capsuleEditorOverlay.classList.add('show');
 }
 function closeCapsuleEditor(){
@@ -4501,26 +4710,21 @@ document.getElementById('publishCapsuleBtn').addEventListener('click', function(
   btn.disabled = true;
   capsuleEditorHint.textContent = '';
 
-  // .add() crea un documento nuevo e independiente cada vez — así, si ya
-  // existe una cápsula suya sin abrir para la otra persona, esta no la
-  // reemplaza ni la borra: ambas quedan esperando su turno.
-  db.collection('capsules').add({
-    recipient: otherKeyOf(myKey),
+  db.collection('capsule').doc('current').set({
     unlockDate: unlockISO,
     title: title || 'Cápsula del Tiempo',
     text: content,
     author: myKey,
+    // se guarda ya "notificado" para esta fecha porque la notificación la
+    // mandamos aquí mismo abajo; así el listener de loadCapsule() no duplica
+    // el aviso al recibir este mismo cambio en tiempo real.
+    notifiedFor: unlockISO,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
     createNotification('capsule_new');
-    capsuleEditorHint.style.color = '#7be3a3';
-    capsuleEditorHint.textContent = '✅ ¡Cápsula creada!';
-    setTimeout(closeCapsuleEditor, 850);
-  }).catch((err) => {
-    console.error('No se pudo publicar la cápsula (revisa las reglas de Firestore para la colección "capsules"):', err);
-    capsuleEditorHint.textContent = err && err.code === 'permission-denied'
-      ? 'No tienes permiso para publicar (revisa las reglas de Firestore).'
-      : 'No se pudo publicar, revisa tu conexión.';
+    closeCapsuleEditor();
+  }).catch(() => {
+    capsuleEditorHint.textContent = 'No se pudo publicar, revisa tu conexión.';
   }).finally(() => {
     btn.disabled = false;
   });
@@ -5127,10 +5331,13 @@ function echoFormatDuration(totalSeconds){
   return `${m}:${sec < 10 ? '0' : ''}${sec}`;
 }
 
-/* ---- foto de perfil real (misma que se sube en la sección Perfil) ---- */
+/* ---- foto de perfil real y burbuja de estado (misma sección Perfil) ---- */
+let echoOtherKeyGlobal = null;
+let echoOtherLastStatus = null;
 function startEchoAvatarListener(otherKey){
   if(echoAvatarListenerStarted) return;
   echoAvatarListenerStarted = true;
+  echoOtherKeyGlobal = otherKey;
   db.collection('users').doc(otherKey).onSnapshot(doc => {
     const img = document.getElementById('echoAvatarImg');
     const placeholder = document.getElementById('echoAvatarPlaceholder');
@@ -5143,6 +5350,8 @@ function startEchoAvatarListener(otherKey){
       img.style.display = 'none';
       placeholder.style.display = 'flex';
     }
+    echoOtherLastStatus = (data && data.status) || null;
+    renderStatusBubble('echo', otherKey, echoOtherLastStatus);
   }, err => {
     console.error('No se pudo cargar la foto de perfil en Echo (revisa las reglas de Firestore para "users"):', err);
   });
@@ -5365,6 +5574,30 @@ function initEchoModule(){
   startEchoMessagesListener();
   startEchoTypingListener(otherKey);
   startEchoPokeListener(myKey);
+  startEchoUnreadDotListener();
+}
+
+/* ---- puntito rojo en el botón "Echo" del Buzón cuando hay mensajes sin leer ---- */
+let echoUnreadDotListenerStarted = false;
+function startEchoUnreadDotListener(){
+  const myKey = myKeyNow();
+  if(!myKey || echoUnreadDotListenerStarted) return;
+  echoUnreadDotListenerStarted = true;
+  db.collection('echoMessages')
+    .where('sender', '==', otherKeyOf(myKey))
+    .where('read', '==', false)
+    .onSnapshot(snap => {
+      const hasUnread = !snap.empty;
+      const dot = document.getElementById('echoUnreadDot');
+      if(dot) dot.classList.toggle('show', hasUnread);
+      // mismo puntito, pero en el ícono del avioncito de la barra de
+      // navegación (hay una copia por cada escena, se prenden/apagan todas juntas)
+      document.querySelectorAll('.echo-nav-dot').forEach(navDot => {
+        navDot.classList.toggle('show', hasUnread);
+      });
+    }, err => {
+      console.error('No se pudo revisar mensajes nuevos de Echo:', err);
+    });
 }
 
 /* ---- abrir / cerrar el bottom sheet ---- */
@@ -5721,11 +5954,6 @@ function echoSendGif(url){
     alert('No se pudo enviar el GIF, revisa tu conexión.');
   });
 }
-  // Para ocultarlo:
-document.getElementById('echoPuntito').style.display = 'none';
-
-// Para mostrarlo cuando haya algo nuevo:
-document.getElementById('echoPuntito').style.display = 'block';
 </script>
 
 
