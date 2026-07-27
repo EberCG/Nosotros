@@ -1469,6 +1469,7 @@
   body.theme-light .coupon-status-text.fail{color:#d43d3d;}
 
   /* ---------- CÁPSULA DEL TIEMPO ---------- */
+  .capsule-list{display:flex;flex-direction:column;gap:14px;}
   .capsule-card{
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
     border:1px solid rgba(255,255,255,0.2);
@@ -2427,14 +2428,11 @@
           </button>
         </div>
 
-        <div class="capsule-card" id="capsuleCard">
-          <div class="capsule-lock-icon" id="capsuleLockIcon">🔒</div>
-          <p class="capsule-title" id="capsuleTitle">Cápsula del Tiempo</p>
-          <p class="capsule-author-line" id="capsuleAuthorLine" style="display:none;"></p>
-          <p class="capsule-countdown" id="capsuleCountdown">Cargando…</p>
-          <div class="capsule-reveal" id="capsuleReveal" style="display:none;">
-            <img class="capsule-image" id="capsuleImage" style="display:none;">
-            <div class="capsule-text" id="capsuleText"></div>
+        <div class="capsule-list" id="capsuleList">
+          <div class="capsule-card">
+            <div class="capsule-lock-icon">🔒</div>
+            <p class="capsule-title">Cápsula del Tiempo</p>
+            <p class="capsule-countdown">Cargando…</p>
           </div>
         </div>
 
@@ -3021,7 +3019,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-25-59";
+const APP_VERSION = "2026-07-27-60";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3875,14 +3873,17 @@ function startProfileLettersCountListener(){
 function startProfileCapsuleCountListener(){
   if(profileCapsuleCountListenerStarted || !currentUserLabel) return;
   profileCapsuleCountListenerStarted = true;
-  db.collection('capsule').doc('current').onSnapshot(doc => {
+  const myKey = myKeyNow();
+  db.collection('capsules').where('recipient', '==', myKey).onSnapshot(snap => {
     const el = document.getElementById('profileCapsulesCount');
     if(!el) return;
-    const data = doc.exists ? doc.data() : null;
-    const myKey = myKeyNow();
-    const isMine = data && data.author && data.author.toLowerCase() === myKey;
-    const isUnlocked = data && data.unlockDate && (new Date(data.unlockDate).getTime() - Date.now()) <= 0;
-    el.textContent = (data && isUnlocked && !isMine) ? 1 : 0;
+    let unlockedCount = 0;
+    snap.forEach(doc => {
+      const data = doc.data();
+      const isUnlocked = data && data.unlockDate && (new Date(data.unlockDate).getTime() - Date.now()) <= 0;
+      if(isUnlocked) unlockedCount++;
+    });
+    el.textContent = unlockedCount;
   }, () => {});
 }
 
@@ -4229,7 +4230,7 @@ document.getElementById('couponConfirmYes').addEventListener('click', function()
 });
 
 /* ---------- CÁPSULA DEL TIEMPO ---------- */
-let capsuleInterval = null;
+let capsuleIntervals = [];
 let capsuleListenerStarted = false;
 
 function formatCountdown(ms){
@@ -4243,97 +4244,108 @@ function formatCountdown(ms){
   return `Se abre en ${minutes}m ${seconds}s`;
 }
 
-function renderCapsule(data){
-  const lockIcon = document.getElementById('capsuleLockIcon');
-  const title = document.getElementById('capsuleTitle');
-  const authorLine = document.getElementById('capsuleAuthorLine');
-  const countdown = document.getElementById('capsuleCountdown');
-  const reveal = document.getElementById('capsuleReveal');
-  const image = document.getElementById('capsuleImage');
-  const text = document.getElementById('capsuleText');
+/* cada cápsula recibida es su propia tarjeta independiente: crear una nueva
+   nunca borra ni reemplaza las demás que sigan sin abrir. */
+function renderCapsuleList(items){
+  const list = document.getElementById('capsuleList');
+  if(!list) return;
 
-  if(capsuleInterval){ clearInterval(capsuleInterval); capsuleInterval = null; }
+  capsuleIntervals.forEach(id => clearInterval(id));
+  capsuleIntervals = [];
 
-  if(!data || !data.unlockDate){
-    lockIcon.textContent = '🔒';
-    title.textContent = 'Cápsula del Tiempo';
-    authorLine.style.display = 'none';
-    countdown.textContent = 'Aún no hay ninguna cápsula guardada.';
-    reveal.style.display = 'none';
+  if(!items.length){
+    list.innerHTML = `
+      <div class="capsule-card">
+        <div class="capsule-lock-icon">🔒</div>
+        <p class="capsule-title">Cápsula del Tiempo</p>
+        <p class="capsule-countdown">Aún no hay ninguna cápsula guardada.</p>
+      </div>`;
     return;
   }
 
-  // el nombre de quien la publicó se muestra tal cual la cuenta (Admin/Mor),
-  // no el apodo cariñoso, para que quede claro quién dejó la sorpresa
-  if(data.author){
-    const authorLabel = data.author.toLowerCase() === 'admin' ? 'Admin' : 'Mor';
-    authorLine.textContent = `Dejada por ${authorLabel} 💌`;
-    authorLine.style.display = 'block';
-  } else {
-    authorLine.style.display = 'none';
-  }
+  list.innerHTML = items.map(() => `
+    <div class="capsule-card">
+      <div class="capsule-lock-icon">🔒</div>
+      <p class="capsule-title">Cápsula del Tiempo</p>
+      <p class="capsule-author-line" style="display:none;"></p>
+      <p class="capsule-countdown">Cargando…</p>
+      <div class="capsule-reveal" style="display:none;">
+        <img class="capsule-image" style="display:none;">
+        <div class="capsule-text"></div>
+      </div>
+    </div>`).join('');
 
-  const unlockTime = new Date(data.unlockDate).getTime();
+  const cards = list.querySelectorAll('.capsule-card');
 
-  function tick(){
-    const remaining = unlockTime - Date.now();
-    if(remaining <= 0){
-      if(capsuleInterval){ clearInterval(capsuleInterval); capsuleInterval = null; }
-      lockIcon.textContent = '💌';
-      title.textContent = data.title || 'Cápsula del Tiempo';
-      countdown.textContent = '¡Se abrió! 🎉';
-      reveal.style.display = 'block';
-      if(data.imageUrl){
-        image.src = data.imageUrl;
-        image.style.display = 'block';
-      } else {
-        image.style.display = 'none';
-      }
-      const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
-      text.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+  items.forEach((data, i) => {
+    const card = cards[i];
+    const lockIcon = card.querySelector('.capsule-lock-icon');
+    const title = card.querySelector('.capsule-title');
+    const authorLine = card.querySelector('.capsule-author-line');
+    const countdown = card.querySelector('.capsule-countdown');
+    const reveal = card.querySelector('.capsule-reveal');
+    const image = card.querySelector('.capsule-image');
+    const text = card.querySelector('.capsule-text');
+
+    // el nombre de quien la publicó se muestra tal cual la cuenta (Admin/Mor),
+    // no el apodo cariñoso, para que quede claro quién dejó la sorpresa
+    if(data.author){
+      const authorLabel = data.author.toLowerCase() === 'admin' ? 'Admin' : 'Mor';
+      authorLine.textContent = `Dejada por ${authorLabel} 💌`;
+      authorLine.style.display = 'block';
     } else {
-      lockIcon.textContent = '🔒';
-      title.textContent = data.title || 'Cápsula del Tiempo';
-      countdown.textContent = formatCountdown(remaining);
-      reveal.style.display = 'none';
+      authorLine.style.display = 'none';
     }
-  }
 
-  tick();
-  capsuleInterval = setInterval(tick, 1000);
+    const unlockTime = new Date(data.unlockDate).getTime();
+
+    function tick(){
+      const remaining = unlockTime - Date.now();
+      if(remaining <= 0){
+        const idx = capsuleIntervals.indexOf(intervalId);
+        if(idx !== -1){ clearInterval(capsuleIntervals[idx]); capsuleIntervals.splice(idx, 1); }
+        lockIcon.textContent = '💌';
+        title.textContent = data.title || 'Cápsula del Tiempo';
+        countdown.textContent = '¡Se abrió! 🎉';
+        reveal.style.display = 'block';
+        if(data.imageUrl){
+          image.src = data.imageUrl;
+          image.style.display = 'block';
+        } else {
+          image.style.display = 'none';
+        }
+        const paragraphs = (data.text || '').split('\n\n').map(p => p.trim()).filter(Boolean);
+        text.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+      } else {
+        lockIcon.textContent = '🔒';
+        title.textContent = data.title || 'Cápsula del Tiempo';
+        countdown.textContent = formatCountdown(remaining);
+        reveal.style.display = 'none';
+      }
+    }
+
+    tick();
+    const intervalId = setInterval(tick, 1000);
+    capsuleIntervals.push(intervalId);
+  });
 }
 
 function loadCapsule(){
-  if(capsuleListenerStarted) return;
+  if(capsuleListenerStarted || !currentUserLabel) return;
   capsuleListenerStarted = true;
-  db.collection('capsule').doc('current').onSnapshot(doc => {
-    const data = doc.exists ? doc.data() : null;
-    renderCapsule(data);
+  const myKey = myKeyNow();
 
-    // La cápsula puede llegar por dos vías: publicada desde el editor de la
-    // app (que ya guarda notifiedFor junto con el resto, ver publishCapsule),
-    // o editada a mano en la consola de Firestore — para ese segundo caso
-    // seguimos detectando cambios de "unlockDate" para avisar una sola vez.
-    if(data && data.unlockDate){
-      if(data.notifiedFor === undefined){
-        db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
-      } else if(data.notifiedFor !== data.unlockDate){
-        db.collection('capsule').doc('current').set({ notifiedFor: data.unlockDate }, {merge:true}).catch(() => {});
-        const actorKey = (data.author || 'admin').toLowerCase();
-        db.collection('notifications').add({
-          type: 'capsule_new',
-          actorKey: actorKey,
-          recipientKey: otherKeyOf(actorKey),
-          meta: {},
-          read: false,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(err => {
-          console.error('No se pudo crear la notificación de cápsula nueva:', err);
-        });
-      }
-    }
-  }, () => {
-    document.getElementById('capsuleCountdown').textContent = 'No se pudo cargar.';
+  // sin .orderBy() junto al .where() para no depender de crear un índice
+  // compuesto en Firebase; se ordena aquí mismo por fecha de desbloqueo.
+  db.collection('capsules').where('recipient', '==', myKey).onSnapshot(snap => {
+    let items = [];
+    snap.forEach(doc => items.push(Object.assign({ id: doc.id }, doc.data())));
+    items.sort((a, b) => new Date(a.unlockDate).getTime() - new Date(b.unlockDate).getTime());
+    renderCapsuleList(items);
+  }, err => {
+    console.error('No se pudieron cargar las cápsulas (revisa las reglas de Firestore para la colección "capsules"):', err);
+    const list = document.getElementById('capsuleList');
+    if(list) list.innerHTML = '<div class="capsule-card"><p class="capsule-countdown">No se pudo cargar.</p></div>';
   });
 }
 
@@ -4390,21 +4402,24 @@ document.getElementById('publishCapsuleBtn').addEventListener('click', function(
   btn.disabled = true;
   capsuleEditorHint.textContent = '';
 
-  db.collection('capsule').doc('current').set({
+  // .add() crea un documento nuevo e independiente cada vez — así, si ya
+  // existe una cápsula suya sin abrir para la otra persona, esta no la
+  // reemplaza ni la borra: ambas quedan esperando su turno.
+  db.collection('capsules').add({
+    recipient: otherKeyOf(myKey),
     unlockDate: unlockISO,
     title: title || 'Cápsula del Tiempo',
     text: content,
     author: myKey,
-    // se guarda ya "notificado" para esta fecha porque la notificación la
-    // mandamos aquí mismo abajo; así el listener de loadCapsule() no duplica
-    // el aviso al recibir este mismo cambio en tiempo real.
-    notifiedFor: unlockISO,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
     createNotification('capsule_new');
     closeCapsuleEditor();
-  }).catch(() => {
-    capsuleEditorHint.textContent = 'No se pudo publicar, revisa tu conexión.';
+  }).catch((err) => {
+    console.error('No se pudo publicar la cápsula (revisa las reglas de Firestore para la colección "capsules"):', err);
+    capsuleEditorHint.textContent = err && err.code === 'permission-denied'
+      ? 'No tienes permiso para publicar (revisa las reglas de Firestore).'
+      : 'No se pudo publicar, revisa tu conexión.';
   }).finally(() => {
     btn.disabled = false;
   });
