@@ -1170,6 +1170,68 @@
   body.theme-light .water-btn{color:#000;}
   .plant-msg{color:var(--txt-2);font-size:.76rem;margin-top:10px;min-height:1.2em;}
 
+  /* ---------- botón: recuperar racha (ventana de 8 horas) ---------- */
+  .plant-recover-btn{
+    display:none;margin:10px auto 0;padding:9px 20px;
+    border:1px solid rgba(178,141,255,0.55);border-radius:999px;
+    background:linear-gradient(135deg, rgba(178,141,255,0.35), rgba(255,158,190,0.22));
+    backdrop-filter:blur(14px) saturate(180%);
+    -webkit-backdrop-filter:blur(14px) saturate(180%);
+    color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;font-size:.8rem;
+    cursor:pointer;box-shadow:0 6px 18px rgba(120,80,200,0.25);
+    animation:plant-recover-pulse 1.8s ease-in-out infinite;
+  }
+  .plant-recover-btn.show{display:inline-flex;align-items:center;gap:6px;}
+  body.theme-light .plant-recover-btn{color:#4a2c72;}
+  @keyframes plant-recover-pulse{
+    0%,100%{ box-shadow:0 6px 18px rgba(120,80,200,0.25); }
+    50%{ box-shadow:0 6px 26px rgba(178,141,255,0.55); }
+  }
+  #plantRecoverTimer{opacity:.75;font-weight:400;font-size:.75em;}
+
+  /* ---------- overlay: se rompió la racha (penalización de cheetos/helado) ---------- */
+  .streak-broken-overlay{
+    position:fixed;inset:0;z-index:9999;
+    display:none;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 42%, rgba(30,10,26,0.95), rgba(5,4,22,0.97));
+    opacity:0;transition:opacity .5s ease;padding:24px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .streak-broken-overlay.show{display:flex;opacity:1;}
+  .streak-broken-content{
+    position:relative;text-align:center;max-width:340px;
+    animation:milestone-pop-in .6s cubic-bezier(.2,1.4,.4,1);
+    cursor:default;
+  }
+  .streak-broken-icon{font-size:4.5rem;line-height:1;filter:drop-shadow(0 0 20px rgba(178,141,255,0.5));}
+  .streak-broken-title{
+    font-family:'Quicksand',sans-serif;font-weight:800;font-size:1.4rem;color:#fff;margin:10px 0 0;
+  }
+  .streak-broken-days{
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:1rem;
+    color:#c5aeff;margin:4px 0 0;letter-spacing:.5px;
+  }
+  .streak-broken-penalty{
+    font-family:'Cormorant Garamond',serif;font-style:italic;color:#fff;
+    font-size:1.05rem;margin:18px 0 0;opacity:.95;line-height:1.4;
+  }
+  .streak-recover-btn-big{
+    margin:22px auto 0;padding:11px 26px;border:1px solid rgba(178,141,255,0.6);
+    border-radius:999px;background:linear-gradient(135deg,#b28dff,#ff9ebe);
+    color:#fff;font-family:'Quicksand',sans-serif;font-weight:700;font-size:.9rem;
+    cursor:pointer;box-shadow:0 10px 26px rgba(150,100,220,0.4);
+    display:block;
+  }
+  .streak-broken-hint{
+    font-family:'Quicksand',sans-serif;font-size:.7rem;color:rgba(255,255,255,0.55);margin:14px 0 0;
+  }
+  .streak-broken-close-hint{
+    font-family:'Quicksand',sans-serif;font-size:.65rem;color:rgba(255,255,255,0.35);margin:6px 0 0;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .plant-recover-btn, .streak-broken-content{ animation-duration:.001s !important; }
+  }
+
   /* ---------- MOOD TRACKER ---------- */
   .mood-card{
     background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
@@ -2600,6 +2662,19 @@
           </div>
           <button class="water-btn" id="waterBtn">💧Dar amor</button>
           <p class="plant-msg" id="plantMsg"></p>
+          <button class="plant-recover-btn" id="plantRecoverBtn">🌱 Recuperar racha <span id="plantRecoverTimer"></span></button>
+        </div>
+
+        <div class="streak-broken-overlay" id="streakBrokenOverlay">
+          <div class="streak-broken-content">
+            <div class="streak-broken-icon">💔</div>
+            <p class="streak-broken-title">Se rompió la racha</p>
+            <p class="streak-broken-days" id="streakBrokenDays">0 días</p>
+            <p class="streak-broken-penalty" id="streakBrokenPenalty"></p>
+            <button class="streak-recover-btn-big" id="streakRecoverBtnBig">🌱 Recuperar racha</button>
+            <p class="streak-broken-hint" id="streakBrokenHint"></p>
+            <p class="streak-broken-close-hint">toca fuera de la tarjeta para cerrar</p>
+          </div>
         </div>
 
         <div class="milestone-overlay" id="milestoneOverlay">
@@ -3048,7 +3123,7 @@
   </button>
   <div class="cherry-tree-wrap">
     <canvas id="cherryTreeCanvas" width="1100" height="680"></canvas>
-    <p class="cherry-tree-hint" id="cherryTreeHint">🌸 Mi amor por ti florece como el cerezo</p>
+    <p class="cherry-tree-hint" id="cherryTreeHint">🌸 Su amor florece como el cerezo</p>
   </div>
 </div>
 
@@ -3340,7 +3415,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-31-76";
+const APP_VERSION = "2026-07-1-78";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4163,8 +4238,17 @@ function todayStr(){
 function daysBetweenStr(a, b){
   return Math.round((new Date(b) - new Date(a)) / 86400000);
 }
+function addDaysStr(dateStr, n){
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+let currentPlantState = null;
+const STREAK_RECOVERY_WINDOW_MS = 18 * 60 * 60 * 1000; // 8 horas para recuperar la racha
 
 function renderPlant(state){
+  currentPlantState = state;
   const stageIdx = Math.min(Math.max(state.growthStage || 0, 0), MAX_PLANT_STAGE);
   const cfg = PLANT_STAGES[stageIdx];
   
@@ -4188,6 +4272,7 @@ function renderPlant(state){
   const streak = state.streak || 0;
  document.getElementById('plantStreak').innerHTML = `🔥 ${streak}<br><span style="font-size: 0.65em; font-weight: normal; opacity: 0.8;">Días de racha</span>`;
   checkStreakMilestone(streak);
+  updateStreakRecoveryUI(state);
 }
 
 /* ============================================================
@@ -4226,19 +4311,169 @@ document.getElementById('milestoneOverlay').addEventListener('click', function()
   clearTimeout(window.__milestoneTimer);
 });
 
+/* ============================================================
+   RECUPERAR RACHA: si se rompe, hay 8 horas para recuperarla tal
+   cual estaba (racha + tamaño de la planta), y se avisa —en una
+   ventana flotante— quién no la regó: le debe unos Cheetos 🌶️
+   o un helado 🍦 al otro.
+   ============================================================ */
+function streakPenaltyMessage(recovery){
+  if(recovery && recovery.missedKey){
+    const forgetful = displayNameFor(recovery.missedKey);
+    const other = displayNameFor(otherKeyOf(recovery.missedKey));
+    return `${forgetful} olvidó regar la lavanda 🌿 — le debe unos Cheetos 🌶️ o un helado 🍦 a ${other}.`;
+  }
+  return 'Esta vez ninguno de los dos la regó a tiempo 🥀';
+}
+
+function formatRemaining(ms){
+  const totalMin = Math.max(0, Math.floor(ms / 60000));
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return h > 0 ? `(quedan ${h}h ${m}min)` : `(quedan ${m}min)`;
+}
+
+function updateStreakRecoveryUI(state){
+  const btn = document.getElementById('plantRecoverBtn');
+  const timerEl = document.getElementById('plantRecoverTimer');
+  const recovery = state.streakRecovery;
+
+  if(!recovery || recovery.recovered || !recovery.brokenAt){
+    if(btn) btn.classList.remove('show');
+    clearInterval(window.__plantRecoverInterval);
+    return;
+  }
+
+  const remaining = STREAK_RECOVERY_WINDOW_MS - (Date.now() - recovery.brokenAt);
+  if(remaining <= 0){
+    if(btn) btn.classList.remove('show');
+    clearInterval(window.__plantRecoverInterval);
+    return;
+  }
+
+  if(btn){
+    btn.classList.add('show');
+    if(timerEl) timerEl.textContent = formatRemaining(remaining);
+  }
+
+  // el aviso flotante de la penalización solo se muestra una vez por ruptura, por navegador
+  const notifKey = 'plantPenaltyShown_' + recovery.brokenAt;
+  if(!localStorage.getItem(notifKey)){
+    localStorage.setItem(notifKey, '1');
+    showStreakBrokenOverlay(recovery);
+  }
+
+  clearInterval(window.__plantRecoverInterval);
+  window.__plantRecoverInterval = setInterval(() => {
+    const r = currentPlantState && currentPlantState.streakRecovery;
+    if(!r || r.recovered){ clearInterval(window.__plantRecoverInterval); return; }
+    const left = STREAK_RECOVERY_WINDOW_MS - (Date.now() - r.brokenAt);
+    if(left <= 0){
+      const b = document.getElementById('plantRecoverBtn');
+      if(b) b.classList.remove('show');
+      clearInterval(window.__plantRecoverInterval);
+      return;
+    }
+    const t = document.getElementById('plantRecoverTimer');
+    if(t) t.textContent = formatRemaining(left);
+  }, 30000);
+}
+
+function showStreakBrokenOverlay(recovery){
+  const overlay = document.getElementById('streakBrokenOverlay');
+  if(!overlay) return;
+  const days = recovery.prevStreak || 0;
+  document.getElementById('streakBrokenDays').textContent = `${days} día${days === 1 ? '' : 's'} de racha perdidos`;
+  document.getElementById('streakBrokenPenalty').textContent = streakPenaltyMessage(recovery);
+  const remaining = STREAK_RECOVERY_WINDOW_MS - (Date.now() - recovery.brokenAt);
+  document.getElementById('streakBrokenHint').textContent = remaining > 0
+    ? `Tienen 8 horas para recuperar la racha ${formatRemaining(remaining)}`
+    : 'El tiempo para recuperarla ya se acabó 💔';
+  overlay.classList.add('show');
+}
+
+function recoverStreak(){
+  db.collection('plant').doc('state').get().then(doc => {
+    if(!doc.exists) return;
+    const state = doc.data();
+    state.lastWatered = state.lastWatered || {};
+    const recovery = state.streakRecovery;
+    if(!recovery || recovery.recovered) return;
+    const remaining = STREAK_RECOVERY_WINDOW_MS - (Date.now() - recovery.brokenAt);
+    if(remaining <= 0){
+      renderPlant(state);
+      return;
+    }
+    state.streak = recovery.prevStreak || 0;
+    state.growthStage = recovery.prevGrowthStage || 0;
+    state.lastStreakDate = todayStr();
+    state.streakRecovery = Object.assign({}, recovery, { recovered: true });
+
+    db.collection('plant').doc('state').set(state, {merge:true}).then(() => {
+      renderPlant(state);
+      document.getElementById('streakBrokenOverlay').classList.remove('show');
+      const msg = document.getElementById('plantMsg');
+      if(msg) msg.textContent = `¡Racha recuperada! 🌱 ${state.streak} día${state.streak === 1 ? '' : 's'}`;
+    }).catch(() => {});
+  }).catch(() => {});
+}
+
+document.getElementById('plantRecoverBtn').addEventListener('click', recoverStreak);
+document.getElementById('streakRecoverBtnBig').addEventListener('click', recoverStreak);
+document.getElementById('streakBrokenOverlay').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('show');
+});
+
+function setupStreakBreak(state, prevStreak, prevGrowthStage){
+  const targetDay = state.lastStreakDate ? addDaysStr(state.lastStreakDate, 1) : null;
+  const adminWatered = !!targetDay && state.lastWatered['admin'] === targetDay;
+  const morWatered = !!targetDay && state.lastWatered['mor'] === targetDay;
+  let missedKey = null;
+  if(adminWatered && !morWatered) missedKey = 'mor';
+  else if(morWatered && !adminWatered) missedKey = 'admin';
+
+  state.streakRecovery = {
+    prevStreak: prevStreak,
+    prevGrowthStage: prevGrowthStage,
+    brokenAt: Date.now(),
+    missedKey: missedKey,
+    recovered: false
+  };
+  state.streak = 0;
+  state.growthStage = 0;
+}
+
 function loadPlant(){
   db.collection('plant').doc('state').get().then(doc => {
     let state = doc.exists ? doc.data() : { growthStage:0, streak:0, lastWatered:{}, lastStreakDate:null };
     state.lastWatered = state.lastWatered || {};
+    let changed = false;
 
-    // si pasó más de un día desde el último riego doble, la racha se corta y la planta se marchita un poco
+    const hasActiveRecovery = state.streakRecovery && !state.streakRecovery.recovered
+      && (Date.now() - state.streakRecovery.brokenAt) < STREAK_RECOVERY_WINDOW_MS;
+
+    // si pasó más de un día desde el último riego doble, la racha se corta,
+    // la plantita vuelve a empezar desde cero (igual que la racha), y se
+    // abre una ventana de 8 horas para poder recuperar todo lo perdido
     if(state.lastStreakDate && (state.streak || 0) > 0){
       const gap = daysBetweenStr(state.lastStreakDate, todayStr());
       if(gap > 1){
-        state.streak = 0;
-        state.growthStage = Math.max(0, (state.growthStage || 0) - 1);
-        db.collection('plant').doc('state').set(state, {merge:true}).catch(() => {});
+        setupStreakBreak(state, state.streak, state.growthStage || 0);
+        changed = true;
       }
+    } else if(!hasActiveRecovery && (state.growthStage || 0) > 0 && (state.streak || 0) === 0){
+      // caso de "planta atorada": la racha ya se había reiniciado (con la
+      // versión vieja, antes de este arreglo), pero la plantita nunca bajó
+      // con ella. La reseteamos ahora también y abrimos la ventana de 8h
+      // para recuperar lo perdido, estimando los días con el tamaño que
+      // tenía la plantita antes de quedarse atorada.
+      const estimatedPrevStreak = (state.growthStage || 0) + 1;
+      setupStreakBreak(state, estimatedPrevStreak, state.growthStage || 0);
+      changed = true;
+    }
+
+    if(changed){
+      db.collection('plant').doc('state').set(state, {merge:true}).catch(() => {});
     }
     renderPlant(state);
   }).catch(() => {});
