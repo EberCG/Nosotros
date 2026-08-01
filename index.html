@@ -2049,29 +2049,34 @@
     display:none;align-items:center;justify-content:center;
     background:radial-gradient(circle at 50% 38%, rgba(255,244,248,0.98), rgba(255,214,231,0.98));
     opacity:0;transition:opacity .6s ease;
-    padding:24px;
+    padding:6px;
   }
   .cherry-tree-overlay.show{display:flex;opacity:1;}
   .cherry-tree-close{
-    position:absolute;top:20px;right:20px;z-index:3;
-    width:38px;height:38px;border-radius:50%;
+    position:absolute;top:16px;right:16px;z-index:3;
+    width:40px;height:40px;border-radius:50%;
     background:rgba(255,255,255,0.6);backdrop-filter:blur(6px);
     -webkit-backdrop-filter:blur(6px);
     display:flex;align-items:center;justify-content:center;
     border:1px solid rgba(183,28,28,0.15);cursor:pointer;
     box-shadow:0 4px 14px rgba(0,0,0,0.1);
   }
-  .cherry-tree-close svg{width:16px;height:16px;fill:none;stroke:#b0508a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .cherry-tree-close svg{width:17px;height:17px;fill:none;stroke:#b0508a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .cherry-tree-wrap{
-    position:relative;width:min(560px,92vw);aspect-ratio:1100/680;
+    position:relative;
+    width:min(100vw, calc(100vh * 1100 / 680));
+    height:min(100vh, calc(100vw * 680 / 1100));
   }
   .cherry-tree-wrap canvas{display:block;width:100%;height:100%;background:transparent;}
   .cherry-tree-hint{
-    position:absolute;bottom:-28px;left:0;right:0;text-align:center;
-    font-family:'Quicksand',sans-serif;font-size:.72rem;color:#a8578a;
+    position:absolute;bottom:18px;left:0;right:0;text-align:center;
+    font-family:'Quicksand',sans-serif;font-size:.85rem;color:#a8578a;
     opacity:0;transition:opacity .6s ease;letter-spacing:.3px;
+    background:rgba(255,255,255,0.55);backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    border-radius:999px;padding:8px 14px;width:fit-content;margin:0 auto;
   }
-  .cherry-tree-hint.show{opacity:.85;}
+  .cherry-tree-hint.show{opacity:.9;}
 
   .perfil-expand-box{
     width:min(360px,90vw);max-height:80vh;overflow-y:auto;
@@ -3123,7 +3128,7 @@
   </button>
   <div class="cherry-tree-wrap">
     <canvas id="cherryTreeCanvas" width="1100" height="680"></canvas>
-    <p class="cherry-tree-hint" id="cherryTreeHint">🌸 Mi amor por ti florece como un cerezo</p>
+    <p class="cherry-tree-hint" id="cherryTreeHint">🌸 Que siempre florezca nuestro amor, como un cerezo</p>
   </div>
 </div>
 
@@ -3415,7 +3420,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-1-80";
+const APP_VERSION = "2026-07-01-81";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3623,20 +3628,25 @@ document.getElementById('liquidPanelBackdrop').addEventListener('click', functio
       ctx.translate(point.x, point.y);
       ctx.scale(scale, scale);
       ctx.moveTo(0, 0);
-      ctx.lineTo(15, 15);
-      ctx.lineTo(60, 15);
+      ctx.lineTo(18, 18);
+      ctx.lineTo(85, 18);
+      ctx.lineWidth = 1.4;
       ctx.stroke();
       ctx.moveTo(0, 0);
-      ctx.scale(0.75, 0.75);
-      ctx.font = "12px 'Quicksand', Verdana";
-      ctx.fillText("🌸 Toca aquí", 23, 16);
+      ctx.font = "bold 26px 'Quicksand', Verdana";
+      ctx.textBaseline = 'alphabetic';
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+      ctx.strokeText("🌸 Toca aquí", 26, 24);
+      ctx.fillStyle = color;
+      ctx.fillText("🌸 Toca aquí", 26, 24);
       ctx.restore();
     },
     clear: function(){
       var ctx = this.tree.ctx, circle = this.circle;
-      var point = circle.point, scale = circle.scale, radius = 26;
-      var w = radius * scale, h = radius * scale;
-      ctx.clearRect(point.x - w, point.y - h, 4 * w, 4 * h);
+      var point = circle.point, scale = circle.scale;
+      var w = 90 * scale, h = 55 * scale;
+      ctx.clearRect(point.x - w, point.y - h, w + 280 * scale, 2 * h);
     },
     hover: function(x, y){
       var ctx = this.tree.ctx;
@@ -4245,7 +4255,7 @@ function addDaysStr(dateStr, n){
 }
 
 let currentPlantState = null;
-const STREAK_RECOVERY_WINDOW_MS = 18 * 60 * 60 * 1000; // 8 horas para recuperar la racha
+const STREAK_RECOVERY_WINDOW_MS = 8 * 60 * 60 * 1000; // 8 horas para recuperar la racha
 
 function renderPlant(state){
   currentPlantState = state;
