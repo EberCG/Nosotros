@@ -26,7 +26,7 @@
     --leaf:#4f6b45;
     --space-black:#050416;
     --space-navy:#0b0e2e;
-    --star-white:#fdfcf7;
+    --star-white:#ffe066;
     --accent-violet:#b199ff;
     --coupon-red:#e6355f;
 
@@ -464,6 +464,27 @@
     text-shadow:0 0 10px rgba(255,122,176,0.8);
   }
   .love-pop.show{opacity:1;transform:translate(-50%,-28px);}
+
+  /* ---------- estrellitas ambientales: se encienden solas mostrando TE AMO o una foto ---------- */
+  .ambient-bloom{
+    position:absolute;z-index:3;
+    transform:translate(-50%,-50%) scale(0.6);
+    opacity:0;pointer-events:none;
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .ambient-bloom.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .ambient-bloom-text{
+    color:var(--star-white);
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;
+    font-size:1.15rem;letter-spacing:.5px;white-space:nowrap;
+    text-shadow:0 0 14px var(--pink-glow), 0 0 30px var(--accent-violet);
+  }
+  .ambient-bloom-photo{width:min(120px,32vw);}
+  .ambient-bloom-photo img{
+    width:100%;border-radius:12px;display:block;
+    opacity:.78;
+    box-shadow:0 0 24px rgba(255,255,255,0.25);
+  }
 
   .universe-hint{
     position:absolute;bottom:9%;left:50%;transform:translateX(-50%);
@@ -3420,7 +3441,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-08-01-81";
+const APP_VERSION = "2026-08-01-86";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4123,7 +4144,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 })();
 
 
-function buildWarpField(container){
+function buildWarpField(container, multiplier){
+  multiplier = multiplier || 1;
   container.innerHTML = '';
   const configs = [
     {count:120, size:'1px', duration:7},
@@ -4134,7 +4156,8 @@ function buildWarpField(container){
     const layer = document.createElement('div');
     layer.className = 'warp-layer';
     let shadows = [];
-    for(let i=0;i<cfg.count;i++){
+    const total = Math.round(cfg.count * multiplier);
+    for(let i=0;i<total;i++){
       const angle = Math.random()*Math.PI*2;
       const dist = Math.random()*600 + 40;
       const x = Math.round(Math.cos(angle)*dist);
@@ -4151,14 +4174,73 @@ function buildWarpField(container){
 }
 buildWarpField(document.getElementById('starfieldFinal'));
 
+/* ---------- estrellitas ambientales: TE AMO y fotos del álbum, encendiéndose solas ---------- */
+let ambientAlbumPhotos = [];
+function preloadAmbientPhotos(){
+  db.collection('fotos_carrusel').orderBy('uploadedAt', 'desc').limit(20).get()
+    .then(snap => {
+      ambientAlbumPhotos = [];
+      snap.forEach(doc => {
+        const d = doc.data();
+        if(d.url) ambientAlbumPhotos.push(d.url);
+      });
+    })
+    .catch(() => {});
+}
+
+function spawnAmbientStars(container){
+  const count = 10;
+  for(let i=0;i<count;i++){
+    const delay = 1500 + Math.random()*11000;
+
+    setTimeout(() => {
+      const usePhoto = ambientAlbumPhotos.length && Math.random() < 0.35;
+      const top = 6 + Math.random()*82;
+      const left = 4 + Math.random()*90;
+
+      const bloom = document.createElement('div');
+      bloom.className = 'ambient-bloom';
+      bloom.style.top = top + '%';
+      bloom.style.left = left + '%';
+
+      if(usePhoto){
+        const url = ambientAlbumPhotos[Math.floor(Math.random()*ambientAlbumPhotos.length)];
+        bloom.classList.add('ambient-bloom-photo');
+        bloom.innerHTML = `<img src="${url}" alt="">`;
+      } else {
+        bloom.classList.add('ambient-bloom-text');
+        bloom.textContent = 'TE AMO';
+      }
+
+      container.appendChild(bloom);
+      requestAnimationFrame(() => bloom.classList.add('show'));
+      setTimeout(() => {
+        bloom.classList.remove('show');
+        setTimeout(() => bloom.remove(), 700);
+      }, 2600);
+    }, delay);
+  }
+
+  // después de que la última estrellita ambiental terminó de brillar, seguimos solos
+  setTimeout(() => {
+    const btn = document.getElementById('continueBtn');
+    if(btn && !btn.dataset.clicked){
+      btn.click();
+    }
+  }, 16000);
+}
+
 /* estrellas interactivas: hover -> TE AMO */
 let hoverStarsInitialized = false;
 function initUniverseStars(){
   const container = document.getElementById('starfieldUniverse');
-  buildWarpField(container);
+  buildWarpField(container, 10); // miles de estrellas de fondo, mucho más denso que las otras pantallas
 
   if(hoverStarsInitialized) return;
   hoverStarsInitialized = true;
+
+  preloadAmbientPhotos();
+  spawnAmbientStars(container);
 
   const starCount = 32;
   let hoveredCount = 0;
@@ -5919,6 +6001,8 @@ document.getElementById('photoFileInput').addEventListener('change', function(e)
 });
 
 document.getElementById('continueBtn').addEventListener('click', function(){
+  if(this.dataset.clicked) return;
+  this.dataset.clicked = '1';
   goTo('final');
   setTimeout(() => {
     buildStaticStars(document.getElementById('starfieldDashboard'), 90);
