@@ -3294,7 +3294,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-27-76";
+const APP_VERSION = "2026-07-31-75";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4277,18 +4277,24 @@ function startProfileLettersCountListener(){
   }, () => {});
 }
 
-/* ---- contador: cápsulas de tiempo recibidas y ya abiertas ---- */
+/* ---- contador: cápsulas de tiempo recibidas y ya abiertas ----
+   cuenta los documentos reales de la colección "capsules" cuyo
+   destinatario soy yo y cuya fecha de desbloqueo ya pasó (mismo
+   criterio que separa "pending" de "opened" en refreshCapsuleViews) */
 function startProfileCapsuleCountListener(){
   if(profileCapsuleCountListenerStarted || !currentUserLabel) return;
   profileCapsuleCountListenerStarted = true;
-  db.collection('capsule').doc('current').onSnapshot(doc => {
+  const myKey = myKeyNow();
+  db.collection('capsules').where('recipient', '==', myKey).onSnapshot(snap => {
     const el = document.getElementById('profileCapsulesCount');
     if(!el) return;
-    const data = doc.exists ? doc.data() : null;
-    const myKey = myKeyNow();
-    const isMine = data && data.author && data.author.toLowerCase() === myKey;
-    const isUnlocked = data && data.unlockDate && (new Date(data.unlockDate).getTime() - Date.now()) <= 0;
-    el.textContent = (data && isUnlocked && !isMine) ? 1 : 0;
+    const now = Date.now();
+    let openedCount = 0;
+    snap.forEach(doc => {
+      const data = doc.data();
+      if(data.unlockDate && new Date(data.unlockDate).getTime() <= now) openedCount++;
+    });
+    el.textContent = openedCount;
   }, () => {});
 }
 
