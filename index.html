@@ -3415,7 +3415,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-07-1-78";
+const APP_VERSION = "2026-07-1-79";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4387,7 +4387,7 @@ function showStreakBrokenOverlay(recovery){
   document.getElementById('streakBrokenPenalty').textContent = streakPenaltyMessage(recovery);
   const remaining = STREAK_RECOVERY_WINDOW_MS - (Date.now() - recovery.brokenAt);
   document.getElementById('streakBrokenHint').textContent = remaining > 0
-    ? `Tienen 8 horas para recuperar la racha ${formatRemaining(remaining)}`
+    ? `Tienen poco tiempo para recuperar la racha ${formatRemaining(remaining)}`
     : 'El tiempo para recuperarla ya se acabó 💔';
   overlay.classList.add('show');
 }
