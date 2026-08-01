@@ -2064,8 +2064,8 @@
   .cherry-tree-close svg{width:17px;height:17px;fill:none;stroke:#b0508a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .cherry-tree-wrap{
     position:relative;
-    width:min(100vw, calc(100vh * 9 / 16));
-    height:min(100vh, calc(100vw * 16 / 9));
+    width:min(100vw, calc(100vh * 1100 / 680));
+    height:min(100vh, calc(100vw * 680 / 1100));
   }
   .cherry-tree-wrap canvas{display:block;width:100%;height:100%;background:transparent;}
   .cherry-tree-hint{
@@ -3128,7 +3128,7 @@
   </button>
   <div class="cherry-tree-wrap">
     <canvas id="cherryTreeCanvas" width="1100" height="680"></canvas>
-    <p class="cherry-tree-hint" id="cherryTreeHint">🌸 Que nuestro amor florezaca siempre como un cerezo</p>
+    <p class="cherry-tree-hint" id="cherryTreeHint">🌸 Que siempre florezca nuestro amor, como un cerezo</p>
   </div>
 </div>
 
@@ -3420,7 +3420,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-08-01-83";
+const APP_VERSION = "2026-08-01-81";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -3860,23 +3860,10 @@ document.getElementById('liquidPanelBackdrop').addEventListener('click', functio
     if (!canvas || !canvas.getContext) return;
     var myToken = ++cherryTreeRunToken;
     var ctx = canvas.getContext('2d');
-
-    // espacio "lógico" en el que están escritas las coordenadas del árbol
-    // (no cambia, es el mismo diseño de siempre)
     var width = 1100, height = 680;
-
-    // resolución real del lienzo: vertical, formato 9:16, para que el
-    // árbol llene toda la pantalla del celular y el tronco nazca desde
-    // hasta abajo
-    var canvasW = 720, canvasH = 1280;
-    canvas.width = canvasW;
-    canvas.height = canvasH;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvasW, canvasH);
-    // estiramos el espacio lógico (1100x680) para que llene exactamente
-    // el lienzo vertical (720x1280) — todo lo demás se dibuja igual
-    ctx.setTransform(canvasW / width, 0, 0, canvasH / height, 0, 0);
+    canvas.width = width;
+    canvas.height = height;
+    ctx.clearRect(0, 0, width, height);
 
     var hint = document.getElementById('cherryTreeHint');
     if (hint) hint.classList.remove('show');
