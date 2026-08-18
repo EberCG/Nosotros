@@ -1956,6 +1956,47 @@
     background:none;border:none;color:var(--txt-3);font-size:.72rem;
     font-family:'Quicksand',sans-serif;cursor:pointer;text-decoration:underline;
   }
+    /* ---------- BUSCADOR DE CANCIÓN (para el estado) ---------- */
+  .song-search-row input{
+    width:100%;padding:10px 14px;border-radius:14px;border:1px solid var(--glass-3);
+    background:var(--glass-1);color:var(--txt-1);font-family:'Quicksand',sans-serif;
+    font-size:.85rem;outline:none;margin-top:6px;box-sizing:border-box;
+  }
+  .song-search-row input:focus{border-color:var(--accent-violet);}
+  .song-search-results{max-height:180px;overflow-y:auto;margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+  .song-result-item{display:flex;align-items:center;gap:10px;padding:6px;border-radius:10px;cursor:pointer;transition:background .15s ease;}
+  .song-result-item:hover{background:var(--glass-1);}
+  .song-result-item img{width:38px;height:38px;border-radius:6px;flex-shrink:0;}
+  .song-result-info{display:flex;flex-direction:column;min-width:0;}
+  .song-result-title{font-size:.8rem;color:var(--txt-1);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .song-result-artist{font-size:.7rem;color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .song-search-empty{color:var(--txt-3);font-size:.78rem;text-align:center;padding:10px;}
+  .song-selected-chip{display:none;align-items:center;gap:8px;margin-top:8px;padding:8px;border-radius:12px;background:var(--glass-1);border:1px solid var(--glass-3);}
+  .song-selected-chip img{width:34px;height:34px;border-radius:6px;flex-shrink:0;}
+  .song-selected-chip span{flex:1;font-size:.76rem;color:var(--txt-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .song-selected-chip button{background:none;border:none;color:var(--txt-3);cursor:pointer;font-size:.9rem;flex-shrink:0;}
+
+  .perfil-status-bubble.has-song, .echo-status-bubble.has-song{cursor:pointer;}
+
+  /* ---------- REPRODUCTOR DE CANCIÓN (30s + letra) ---------- */
+  .song-player-overlay{
+    display:none;position:fixed;inset:0;z-index:85;
+    background:rgba(5,4,22,0.75);align-items:center;justify-content:center;padding:24px;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  }
+  .song-player-overlay.show{display:flex;}
+  .song-player-card{
+    width:min(320px,88vw);max-height:80vh;overflow-y:auto;
+    background:linear-gradient(150deg, var(--glass-2), var(--glass-1));
+    border:1px solid var(--glass-3);border-radius:24px;padding:26px 22px;text-align:center;
+    backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+  }
+  .song-player-art{width:140px;height:140px;border-radius:16px;object-fit:cover;box-shadow:0 12px 30px rgba(0,0,0,0.4);margin-bottom:14px;}
+  .song-player-track{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;color:var(--txt-1);font-size:1.15rem;margin:0 0 2px;}
+  .song-player-artist{color:var(--txt-2);font-size:.82rem;margin:0 0 14px;}
+  .song-player-progress{width:100%;height:3px;background:var(--glass-3);border-radius:3px;overflow:hidden;margin-bottom:16px;}
+  .song-player-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--pink-glow),var(--accent-violet));transition:width .2s linear;}
+  .song-player-lyrics{color:var(--txt-2);font-size:.8rem;line-height:1.6;white-space:pre-wrap;text-align:left;max-height:220px;overflow-y:auto;font-family:'Quicksand',sans-serif;}
 
   /* ---------- puntito rojo de mensajes nuevos en el botón Echo ---------- */
   .echo-btn{position:relative;}
@@ -3111,6 +3152,26 @@
       <button class="status-duration-chip" data-hours="12">12 hrs</button>
       <button class="status-duration-chip selected" data-hours="24">24 hrs</button>
       <button class="status-duration-chip" data-hours="48">48 hrs</button>
+    </div>
+    <!-- ---------- REPRODUCTOR: canción del estado (30s + letra) ---------- -->
+<div class="song-player-overlay" id="songPlayerOverlay">
+  <div class="song-player-card">
+    <img id="songPlayerArt" class="song-player-art" alt="Portada">
+    <p id="songPlayerTrack" class="song-player-track">–</p>
+    <p id="songPlayerArtist" class="song-player-artist">–</p>
+    <div class="song-player-progress"><div class="song-player-progress-fill" id="songPlayerProgressFill"></div></div>
+    <div class="song-player-lyrics" id="songPlayerLyrics"></div>
+  </div>
+</div>
+        <p class="status-modal-label">Canción (opcional) 🎵</p>
+    <div class="song-search-row">
+      <input type="text" id="songSearchInput" placeholder="Busca una canción...">
+    </div>
+    <div class="song-search-results" id="songSearchResults"></div>
+    <div class="song-selected-chip" id="songSelectedChip">
+      <img id="songSelectedArt" alt="">
+      <span id="songSelectedName"></span>
+      <button id="songSelectedRemove" title="Quitar canción">✕</button>
     </div>
     <div class="status-modal-actions">
       <button class="action-btn secondary" id="statusCancelBtn">Cancelar</button>
@@ -5016,19 +5077,128 @@ document.getElementById('profileCoverInput').addEventListener('change', function
    guardar, así cualquier dispositivo sabe cuándo debe dejar de mostrarla
    sin depender de una función en la nube. */
 let statusSelectedHours = 24;
+let selectedStatusSong = null;
+let songSearchTimer = null;
+
+function searchITunesSongs(query){
+  const resultsEl = document.getElementById('songSearchResults');
+  resultsEl.innerHTML = '<p class="song-search-empty">Buscando…</p>';
+  fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=8`)
+    .then(r => r.json())
+    .then(data => {
+      const results = data.results || [];
+      if(!results.length){
+        resultsEl.innerHTML = '<p class="song-search-empty">No encontré nada</p>';
+        return;
+      }
+      resultsEl.innerHTML = results.map((t, i) => `
+        <div class="song-result-item" data-idx="${i}">
+          <img src="${t.artworkUrl60}" alt="">
+          <div class="song-result-info">
+            <span class="song-result-title">${t.trackName}</span>
+            <span class="song-result-artist">${t.artistName}</span>
+          </div>
+        </div>`).join('');
+      resultsEl.querySelectorAll('.song-result-item').forEach(el => {
+        el.addEventListener('click', function(){
+          const t = results[this.dataset.idx];
+          if(!t.previewUrl){
+            alert('Esa canción no tiene preview disponible, elige otra 🎵');
+            return;
+          }
+          selectedStatusSong = {
+            trackName: t.trackName,
+            artistName: t.artistName,
+            artworkUrl: (t.artworkUrl100 || t.artworkUrl60).replace('100x100', '300x300'),
+            previewUrl: t.previewUrl
+          };
+          renderSelectedSongChip();
+          resultsEl.innerHTML = '';
+          document.getElementById('songSearchInput').value = '';
+        });
+      });
+    })
+    .catch(() => { resultsEl.innerHTML = '<p class="song-search-empty">No se pudo buscar</p>'; });
+}
+
+document.getElementById('songSearchInput').addEventListener('input', function(){
+  clearTimeout(songSearchTimer);
+  const q = this.value.trim();
+  const resultsEl = document.getElementById('songSearchResults');
+  if(!q){ resultsEl.innerHTML = ''; return; }
+  songSearchTimer = setTimeout(() => searchITunesSongs(q), 400);
+});
+
+function renderSelectedSongChip(){
+  const chip = document.getElementById('songSelectedChip');
+  if(!selectedStatusSong){ chip.style.display = 'none'; return; }
+  document.getElementById('songSelectedArt').src = selectedStatusSong.artworkUrl;
+  document.getElementById('songSelectedName').textContent = `${selectedStatusSong.trackName} — ${selectedStatusSong.artistName}`;
+  chip.style.display = 'flex';
+}
+document.getElementById('songSelectedRemove').addEventListener('click', function(){
+  selectedStatusSong = null;
+  renderSelectedSongChip();
+});
+
+/* ---- reproductor: 30s + letra ---- */
+const songPlayerAudio = new Audio();
+let songPlayerTimer = null;
+
+function openSongPlayer(song){
+  if(!song || !song.previewUrl) return;
+  document.getElementById('songPlayerArt').src = song.artworkUrl;
+  document.getElementById('songPlayerTrack').textContent = song.trackName;
+  document.getElementById('songPlayerArtist').textContent = song.artistName;
+  document.getElementById('songPlayerLyrics').textContent = 'Buscando letra…';
+  document.getElementById('songPlayerOverlay').classList.add('show');
+
+  songPlayerAudio.pause();
+  songPlayerAudio.src = song.previewUrl;
+  songPlayerAudio.currentTime = 0;
+  songPlayerAudio.play().catch(() => {});
+
+  clearInterval(songPlayerTimer);
+  const fill = document.getElementById('songPlayerProgressFill');
+  fill.style.width = '0%';
+  songPlayerTimer = setInterval(() => {
+    const pct = (songPlayerAudio.currentTime / (songPlayerAudio.duration || 30)) * 100;
+    fill.style.width = pct + '%';
+  }, 200);
+
+  fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(song.artistName)}/${encodeURIComponent(song.trackName)}`)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('songPlayerLyrics').textContent = data.lyrics ? data.lyrics.trim() : 'Letra no disponible 🎵';
+    })
+    .catch(() => {
+      document.getElementById('songPlayerLyrics').textContent = 'Letra no disponible 🎵';
+    });
+}
+function closeSongPlayer(){
+  document.getElementById('songPlayerOverlay').classList.remove('show');
+  songPlayerAudio.pause();
+  clearInterval(songPlayerTimer);
+}
+document.getElementById('songPlayerOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeSongPlayer();
+});
+songPlayerAudio.addEventListener('ended', closeSongPlayer);
 
 function renderStatusBubble(context, ownerKey, status){
   const prefix = context === 'echo' ? 'echoStatus' : 'profileStatus';
   const bubble = document.getElementById(prefix + 'Bubble');
   const textEl = document.getElementById(prefix + 'Text');
   if(!bubble || !textEl) return;
-  bubble.classList.remove('profile-status-blue', 'profile-status-violet', 'echo-status-blue', 'echo-status-violet');
+  bubble.classList.remove('profile-status-blue', 'profile-status-violet', 'echo-status-blue', 'echo-status-violet', 'has-song');
   const isValid = !!(status && status.text && status.expiresAt && status.expiresAt > Date.now());
   if(!isValid){
     bubble.style.display = 'none';
     return;
   }
-  textEl.textContent = status.text;
+  const hasSong = !!(status.song && status.song.previewUrl);
+  textEl.textContent = status.text + (hasSong ? ' 🎵' : '');
+  bubble.classList.toggle('has-song', hasSong);
   const colorWord = ownerKey === 'admin' ? 'blue' : 'violet';
   bubble.classList.add((context === 'echo' ? 'echo-status-' : 'profile-status-') + colorWord);
   bubble.style.display = 'flex';
@@ -5043,9 +5213,18 @@ setInterval(function(){
     renderStatusBubble('echo', echoOtherKeyGlobal, echoOtherLastStatus);
   }
 }, 60000);
-
+document.getElementById('profileStatusBubble').addEventListener('click', function(){
+  if(myLastStatus && myLastStatus.song) openSongPlayer(myLastStatus.song);
+});
+document.getElementById('echoStatusBubble').addEventListener('click', function(){
+  if(echoOtherLastStatus && echoOtherLastStatus.song) openSongPlayer(echoOtherLastStatus.song);
+});
 document.getElementById('profileStatusTriggerBtn').addEventListener('click', function(){
-  document.getElementById('statusTextInput').value = (myLastStatus && myLastStatus.expiresAt > Date.now()) ? myLastStatus.text : '';
+  const activeNow = myLastStatus && myLastStatus.expiresAt > Date.now();
+  document.getElementById('statusTextInput').value = activeNow ? myLastStatus.text : '';
+  selectedStatusSong = (activeNow && myLastStatus.song) ? myLastStatus.song : null;
+  renderSelectedSongChip();
+  document.getElementById('songSearchResults').innerHTML = '';
   statusSelectedHours = 24;
   document.querySelectorAll('.status-duration-chip').forEach(chip => {
     chip.classList.toggle('selected', Number(chip.dataset.hours) === 24);
@@ -5071,7 +5250,12 @@ document.getElementById('statusSaveBtn').addEventListener('click', function(){
   if(!text || !myKey) return;
   const expiresAt = Date.now() + statusSelectedHours * 3600000;
   db.collection('users').doc(myKey).set({
-    status: { text: text, expiresAt: expiresAt, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }
+    status: {
+      text: text,
+      expiresAt: expiresAt,
+      song: selectedStatusSong || null,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }
   }, {merge:true}).then(() => {
     document.getElementById('statusModalOverlay').classList.remove('show');
   }).catch(() => {
