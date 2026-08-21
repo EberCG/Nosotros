@@ -1191,6 +1191,77 @@
   body.theme-light .water-btn{color:#000;}
   .plant-msg{color:var(--txt-2);font-size:.76rem;margin-top:10px;min-height:1.2em;}
 
+  /* ---------- LETRERO DE CONSTANCIA + RETO DE 21 DÍAS (reemplazo temporal del Tamagotchi) ---------- */
+  .discipline-wrap{display:flex;flex-direction:column;gap:14px;}
+
+  .discipline-quote-card{
+    position:relative;
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px;padding:26px 22px 20px;text-align:center;
+    backdrop-filter:blur(8px) saturate(150%);
+    -webkit-backdrop-filter:blur(8px) saturate(150%);
+  }
+  .discipline-quote-mark{
+    position:absolute;top:2px;left:16px;
+    font-family:'Cormorant Garamond',serif;font-size:3rem;line-height:1;
+    color:var(--accent-violet);opacity:.5;
+  }
+  .discipline-quote-text{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    color:var(--txt-1);font-size:1.08rem;line-height:1.5;margin:6px 0 10px;
+  }
+  .discipline-quote-author{
+    font-family:'Quicksand',sans-serif;font-size:.75rem;letter-spacing:.5px;
+    color:var(--txt-3);margin:0;text-transform:uppercase;
+  }
+
+  .discipline-module{
+    background:linear-gradient(135deg, var(--glass-2), var(--glass-1));
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px;padding:20px 18px;text-align:center;
+    backdrop-filter:blur(8px) saturate(150%);
+    -webkit-backdrop-filter:blur(8px) saturate(150%);
+  }
+  .discipline-title{
+    font-family:'Quicksand',sans-serif;font-weight:600;font-size:.95rem;
+    color:var(--txt-1);margin:0 0 4px;
+  }
+  .discipline-day-counter{
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:1.05rem;
+    color:var(--pink-glow);margin:0 0 12px;
+  }
+  .discipline-progress-track{
+    width:100%;height:8px;border-radius:999px;overflow:hidden;
+    background:rgba(255,255,255,0.12);margin:0 0 16px;
+  }
+  body.theme-light .discipline-progress-track{background:rgba(51,42,77,0.12);}
+  .discipline-progress-fill{
+    height:100%;border-radius:999px;
+    background:linear-gradient(90deg, var(--accent-violet), var(--pink-glow));
+    transition:width .5s ease;
+  }
+  .discipline-check-btn{
+    padding:10px 24px;border:1px solid rgba(255,255,255,0.5);
+    border-radius:999px;
+    background:linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08) 55%, rgba(255,255,255,0.22));
+    backdrop-filter:blur(16px) saturate(180%);
+    -webkit-backdrop-filter:blur(16px) saturate(180%);
+    color:#fff;font-family:'Quicksand',sans-serif;font-weight:600;
+    font-size:.85rem;cursor:pointer;
+    box-shadow:
+      inset 0 1px 1px rgba(255,255,255,0.7),
+      inset 0 -6px 10px rgba(255,255,255,0.1),
+      inset 0 8px 18px rgba(255,122,176,0.18),
+      0 8px 20px rgba(0,0,0,0.3);
+    transition:transform .2s ease, opacity .2s ease;
+  }
+  .discipline-check-btn:hover{transform:translateY(-2px);}
+  .discipline-check-btn:active{transform:translateY(0) scale(0.97);}
+  .discipline-check-btn:disabled{opacity:.5;cursor:default;transform:none;}
+  body.theme-light .discipline-check-btn{color:#000;}
+  .discipline-msg{color:var(--txt-2);font-size:.76rem;margin:10px 0 0;min-height:1.2em;}
+
   /* ---------- botón: recuperar racha (ventana de 8 horas) ---------- */
   .plant-recover-btn{
     display:none;margin:10px auto 0;padding:9px 20px;
@@ -2563,7 +2634,7 @@
 <div class="update-overlay" id="updateOverlay">
   <div class="update-box">
     <div class="update-spinner"></div>
-    <p>✨ audio en el chat - gifts - ya puedes crear capsulas de tiempo - y ya puedes subir fotos    </p>
+    <p>    ✨    </p>
   </div>
 </div>
 
@@ -2673,7 +2744,7 @@
   <!-- ESCENA 3: TE AMO -->
   <section id="scene-final" class="scene">
     <div class="starfield" id="starfieldFinal"></div>
-    <p class="final-text"> Me encantas </p>
+    <p class="final-text"> M </p>
   </section>
 
   <!-- ESCENA 4: DASHBOARD -->
@@ -2711,8 +2782,29 @@
         </div>
         </div>
 
-        <p class="dash-section-title">Tamagotchi</p>
-        <div class="plant-card" id="plantCard">
+        <p class="dash-section-title" id="tamaSectionTitle">Tamagotchi</p>
+
+        <!-- ---------- Módulo de Constancia (reemplaza temporalmente al Tamagotchi) ---------- -->
+        <div class="discipline-wrap" id="disciplineWrap" style="display:none;">
+          <div class="discipline-quote-card">
+            <span class="discipline-quote-mark">“</span>
+            <p class="discipline-quote-text">Somos lo que hacemos repetidamente. La excelencia, entonces, no es un acto, sino un hábito.</p>
+            <p class="discipline-quote-author">— Aristóteles</p>
+          </div>
+
+          <div class="discipline-module" id="disciplineModule">
+            <p class="discipline-title" id="disciplineTitle"> </p>
+            <p class="discipline-day-counter"><span id="disciplineDayNum">0</span> </p>
+            <div class="discipline-progress-track">
+              <div class="discipline-progress-fill" id="disciplineProgressFill" style="width:0%;"></div>
+            </div>
+            <button class="discipline-check-btn" id="disciplineCheckBtn">Registrar mi día de hoy ✨</button>
+            <p class="discipline-msg" id="disciplineMsg"></p>
+          </div>
+        </div>
+
+        <!-- ---------- Tamagotchi (oculto hasta completar el reto de constancia) ---------- -->
+        <div class="plant-card" id="plantCard" style="display:none;">
           <div class="plant-streak" id="plantStreak">🔥 0 días de racha</div>
           <div class="plant-pot" id="plantPot">
             <div class="plant-stage" id="plantStage">
@@ -3502,7 +3594,7 @@ const WHATSAPP_NUMBER = "522721498675";
 /* ============================================================
     UPDATES MESSAGES
    ============================================================ */
-const APP_VERSION = "2026-08-17-100";
+const APP_VERSION = "2026-08-21-101";
 
 (function checkForUpdate(){
   const overlay = document.getElementById('updateOverlay');
@@ -4396,6 +4488,151 @@ function addDaysStr(dateStr, n){
   d.setDate(d.getDate() + n);
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
+
+/* ============================================================
+   RETO DE CONSTANCIA (21 DÍAS) — reemplazo temporal del Tamagotchi
+   Cada cuenta (admin / mor) tiene su propio contador. Hay que
+   registrar el día una vez cada 24h; si se salta un día completo,
+   el módulo entero desaparece hasta que se reactive manualmente
+   (ver consola F12 más abajo). Ambas cuentas VEN la barra de
+   progreso, pero solo Love puede presionar el botón — el
+   Tamagotchi vuelve automáticamente solo cuando ella completa
+   sus 21 días.
+   ============================================================ */
+const DISCIPLINE_TARGET_DAYS = 21;
+
+function disciplineDefaultUserState(){
+  return { day: 0, lastCheckIn: null, active: true, completed: false };
+}
+function disciplineDefaultState(){
+  return {
+    tamagotchiUnlocked: false,
+    mor: disciplineDefaultUserState()
+  };
+}
+
+function renderDiscipline(state){
+  const key = myKeyNow();
+  const wrap = document.getElementById('disciplineWrap');
+  const moduleEl = document.getElementById('disciplineModule');
+  const btn = document.getElementById('disciplineCheckBtn');
+  const msg = document.getElementById('disciplineMsg');
+  if(!wrap) return;
+
+  const her = state.mor || disciplineDefaultUserState();
+
+  if(!her.active){
+    // se saltó un día: el módulo entero desaparece hasta reactivarse a mano
+    moduleEl.style.display = 'none';
+    msg.textContent = '';
+    return;
+  }
+  moduleEl.style.display = '';
+
+  const day = Math.min(her.day || 0, DISCIPLINE_TARGET_DAYS);
+  document.getElementById('disciplineDayNum').textContent = day;
+  document.getElementById('disciplineProgressFill').style.width = ((day / DISCIPLINE_TARGET_DAYS) * 100) + '%';
+
+  const today = todayStr();
+  const isMor = key === 'mor';
+
+  if(!isMor){
+    // Oliver solo mira el progreso de Love, no puede registrar por ella
+    btn.style.display = 'none';
+    msg.textContent = her.completed
+      ? '¡Love completó su reto! 🌱'
+      : `Va en el día ${day} de ${DISCIPLINE_TARGET_DAYS}.`;
+    return;
+  }
+
+  btn.style.display = '';
+  if(her.completed){
+    btn.disabled = true;
+    btn.textContent = '¡Reto completado! 🌱';
+    msg.textContent = '';
+  } else if(her.lastCheckIn === today){
+    btn.disabled = true;
+    btn.textContent = 'Ya registraste tu día de hoy ✨';
+    msg.textContent = 'Vuelve mañana para seguir sumando.';
+  } else {
+    btn.disabled = false;
+    btn.textContent = 'Registrar mi día de hoy ✨';
+    msg.textContent = '';
+  }
+}
+
+function checkInDiscipline(){
+  const key = myKeyNow();
+  if(key !== 'mor') return; // solo Love registra su propio día
+  const today = todayStr();
+
+  db.collection('disciplineChallenge').doc('state').get().then(doc => {
+    let state = doc.exists ? doc.data() : disciplineDefaultState();
+    let her = state.mor || disciplineDefaultUserState();
+
+    if(!her.active || her.completed || her.lastCheckIn === today){ renderDiscipline(state); return; }
+
+    her.day = (her.day || 0) + 1;
+    her.lastCheckIn = today;
+    if(her.day >= DISCIPLINE_TARGET_DAYS){
+      her.day = DISCIPLINE_TARGET_DAYS;
+      her.completed = true;
+    }
+    state.mor = her;
+
+    if(her.completed){
+      state.tamagotchiUnlocked = true;
+    }
+
+    db.collection('disciplineChallenge').doc('state').set(state, {merge:true}).then(() => {
+      renderDiscipline(state);
+      if(state.tamagotchiUnlocked){
+        applyDisciplineState(state);
+      }
+    });
+  });
+}
+
+// Aplica el estado a la UI: decide si se muestra el Tamagotchi o el módulo de constancia
+function applyDisciplineState(state){
+  const plantCard = document.getElementById('plantCard');
+  const disciplineWrap = document.getElementById('disciplineWrap');
+  if(state.tamagotchiUnlocked){
+    if(disciplineWrap) disciplineWrap.style.display = 'none';
+    if(plantCard) plantCard.style.display = '';
+    loadPlant();
+  } else {
+    if(plantCard) plantCard.style.display = 'none';
+    if(disciplineWrap) disciplineWrap.style.display = '';
+    renderDiscipline(state);
+  }
+}
+
+function loadTamagotchiSection(){
+  db.collection('disciplineChallenge').doc('state').get().then(doc => {
+    let state = doc.exists ? doc.data() : disciplineDefaultState();
+    state.mor = state.mor || disciplineDefaultUserState();
+
+    // revisa si Love dejó pasar un día completo sin registrar
+    let changed = !doc.exists;
+    if(state.mor.active && state.mor.lastCheckIn){
+      const gap = daysBetweenStr(state.mor.lastCheckIn, todayStr());
+      if(gap > 1){
+        state.mor.active = false;
+        state.mor.day = 0;
+        changed = true;
+      }
+    }
+
+    if(changed){
+      db.collection('disciplineChallenge').doc('state').set(state, {merge:true}).catch(() => {});
+    }
+    applyDisciplineState(state);
+  }).catch(() => {});
+}
+
+const disciplineCheckBtnEl = document.getElementById('disciplineCheckBtn');
+if(disciplineCheckBtnEl) disciplineCheckBtnEl.addEventListener('click', checkInDiscipline);
 
 let currentPlantState = null;
 const STREAK_RECOVERY_WINDOW_MS = 1 * 60 * 60 * 1000; // 8 horas para recuperar la racha
@@ -6192,7 +6429,7 @@ document.getElementById('continueBtn').addEventListener('click', function(){
     buildStaticStars(document.getElementById('starfieldDashboard'), 90);
     buildAccentParticles();
     goTo('dashboard');
-    loadPlant();
+    loadTamagotchiSection();
     initMoodTracker();
     loadCoupons();
     loadCapsule();
@@ -6261,7 +6498,7 @@ function resetBottomNavToHome(){
   document.querySelectorAll('.bottom-nav-btn[data-dashtab="home"]').forEach(b => b.classList.add('active'));
 }
 
-document.getElementById('backFromAlbum').addEventListener('click', () => { goTo('dashboard'); loadPlant(); resetBottomNavToHome(); });
+document.getElementById('backFromAlbum').addEventListener('click', () => { goTo('dashboard'); loadTamagotchiSection(); resetBottomNavToHome(); });
 
 /* ---------- NUESTRO BUZÓN ---------- */
 const SIGNATURE_DEFAULTS = { Mor: 'Love', Admin: 'Rame' };
